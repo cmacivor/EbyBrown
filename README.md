@@ -1,5 +1,7 @@
 # EbyBrown
 
+# Sockets Debugging Information
+
 The relevant sockets scripts in this folder, app-server.py, libserver.py, app-client.py, and libclient.py, are from this tutorial:
 https://realpython.com/python-sockets/#background
 
@@ -23,11 +25,12 @@ Then modify the created launch.json file to look like this. Note the "args" line
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["127.0.0.1","65432"]
+            "args": ["127.0.0.1","65432"] //for the server portion
+            //"args": ["127.0.0.1","65432", "STX12KEEPALIVETX"] //for the client 
         }
     ]
 }
 
 Set the app-server.py file on your active tab, and hit F5 to run it. 
 
-Then, open a separate terminal, cd into the directory and run the following: sudo python3 app-client.py 127.0.0.1 65432 search morpheus
+Then, open a separate terminal, cd into the directory and run the following: sudo python3 app-client.py 127.0.0.1 65432 "STX12KEEPALIVETX"
