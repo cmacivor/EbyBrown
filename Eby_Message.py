@@ -23,7 +23,7 @@ class MessageBase:
         msgSeqNumber = self.libserver.request[3:8] #starting at position 3 because the hex "2" reads as "0x2".
         return msgSeqNumber
     
-    def getFullAcknowledgeMessage(self):
+    def getFullAcknowledgeKeepAliveMessage(self):
         msgSeqNumber = self.getMessageSequenceNumber()
         #TODO determine if what's coming over will be ASCII or binary. See this: https://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3
         # fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter

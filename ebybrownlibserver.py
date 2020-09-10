@@ -108,16 +108,18 @@ class Message:
 
     def _create_response_binary_content(self):
         #TODO need class or function here to determine the inbound message type- first whether it's  Keep Alive message, or a Data Message.
-        messageBase = Eby_Message.MessageBase(self)  #KeepAliveMessageBase.MessageBase(self)
+        messageBase = Eby_Message.MessageBase(self)
+        response = None  
         isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
-        #if isKeepAliveMessage:
+        if isKeepAliveMessage:
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+        #TODO: if not, then it's a data message
+       
 
-
-        keepAliveResponse = messageBase.getFullAcknowledgeMessage() #getFullKeepAliveMessageResponse()
+        #keepAliveResponse = messageBase.getFullAcknowledgeKeepAliveMessage() 
         
-
         response = {
-            "content_bytes": keepAliveResponse, #self.request[:6] + b"ACKNOWLEETX",
+            "content_bytes": response, #self.request[:6] + b"ACKNOWLEETX",
             "content_type": "binary/custom-server-binary-type",
             "content_encoding": "binary",
         }
