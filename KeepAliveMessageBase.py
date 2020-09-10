@@ -10,7 +10,7 @@ class KeepAlive:
         self.libserver = libserver
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber = self.libserver.request[3:9]
+        msgSeqNumber = self.libserver.request[3:8] #starting at position 3 because the hex "2" reads as "0x2".
         return msgSeqNumber
     
     def getFullAcknowledgeMessage(self):
