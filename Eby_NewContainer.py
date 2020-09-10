@@ -18,7 +18,7 @@ class NewContainer:
         self.PickArea = self.fields[6]
         self.PickType = self.fields[7]
         self.Jurisdiction = self.fields[8]
-        self.NumberCartons = self.fields[9][:3]
+        self.NumberCartons = self.fields[9][:2]
 
     def populateFields(self):
         fields = self.AsciiRequestMessage.split('|')
