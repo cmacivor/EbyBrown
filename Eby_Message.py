@@ -26,12 +26,15 @@ class MessageBase:
     
     def getFullAcknowledgeKeepAliveMessage(self):
         fields = self.parsePipeDelimitedValues()
+        msgSeqNumber =  fields[0][3:] #remove the start transmission character
+        #testMsgSeqNumber = 
 
-        msgSeqNumber = self.getMessageSequenceNumber()
+        #msgSeqNumber = self.getMessageSequenceNumber()
+
         #TODO determine if what's coming over will be ASCII or binary. See this: https://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3
         # fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
-        decodedMsgSeqNumber = msgSeqNumber.decode('ascii')
-        fullMessage = GlobalConstants.StartTransmissionCharacter + decodedMsgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
+        #decodedMsgSeqNumber = msgSeqNumber.decode('ascii')
+        fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
         return fullMessage.encode('ascii')
 
     def parsePipeDelimitedValues(self):
