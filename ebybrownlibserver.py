@@ -3,7 +3,8 @@ import selectors
 import json
 import io
 import struct
-import KeepAliveMessageBase 
+import KeepAliveMessageBase
+
 
 request_search = {
     "morpheus": "Follow the white rabbit. \U0001f430",
@@ -106,8 +107,11 @@ class Message:
         return response
 
     def _create_response_binary_content(self):
+        #TODO need class or function here to determine the inbound message type
+
         keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
-        msgSequenceNumber = keepAliveMessageBase.getMessageSequenceNumber()
+        keepAliveResponse = keepAliveMessageBase.getFullKeepAliveMessageResponse()
+        #msgSequenceNumber = keepAliveMessageBase.getMessageSequenceNumber()
         #msgSequenceNumber = keepAliveMessageBase.msgSeqNumber
 
         response = {

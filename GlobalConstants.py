@@ -1,0 +1,3 @@
+StartTransmissionCharacter = "STX"
+EndTransmissionCharacter = "ETX"
+
