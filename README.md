@@ -36,3 +36,6 @@ Set the app-server.py file on your active tab, and hit F5 to run it.
 For the KEEPALIV message, open a separate terminal, cd into the directory and run the following: sudo python3 app-client.py 127.0.0.1 65432 "0x200012|KEEPALIV0x3"
 Note the quotes- this is because of the | character, which the bash shell interprets as a pipe command.
 You should get a response back in the terminal.
+
+For the Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ADDCONTA|307604|1123|SC307604112-006|307604112|006003|SPLITCASE|113205|200x3"

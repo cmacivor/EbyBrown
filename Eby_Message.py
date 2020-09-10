@@ -1,5 +1,6 @@
 import ebybrownlibserver as libserver
 import GlobalConstants
+import Eby_NewContainer
 
 class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
@@ -44,14 +45,16 @@ class MessageBase:
     #     messageID = self.libserver.request[6:14]
     #     return messageID
 
-    # def getMessageType(self):
-    #     #request = self.libserver.request[:].decode('ascii')
-    #     if GlobalConstants.NewContainer in self.AsciiRequestMessage:
-    #         #TODO: instantiate NewContainer class
-    #     if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
-    #         #TODO: instantiate ContainerComplete class
-    #     if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
-    #         #TODO Assignment Complete
+    def getMessageType(self):
+
+        if GlobalConstants.NewContainer in self.AsciiRequestMessage:
+            #TODO: instantiate NewContainer class
+            newContainer = Eby_NewContainer.NewContainer(self.libserver)
+            return newContainer
+        # if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
+        #     #TODO: instantiate ContainerComplete class
+        # if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
+        #     #TODO Assignment Complete
             
 
 
