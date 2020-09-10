@@ -19,6 +19,6 @@ class KeepAlive:
         # fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
         decodedMsgSeqNumber = msgSeqNumber.decode('ascii')
         fullMessage = GlobalConstants.StartTransmissionCharacter + decodedMsgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
-        return fullMessage
+        return fullMessage.encode('ascii')
 
     

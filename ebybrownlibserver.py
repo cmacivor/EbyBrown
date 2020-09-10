@@ -115,7 +115,7 @@ class Message:
         #msgSequenceNumber = keepAliveMessageBase.msgSeqNumber
 
         response = {
-            "content_bytes": self.request[:6] + b"ACKNOWLEETX",
+            "content_bytes": keepAliveResponse, #self.request[:6] + b"ACKNOWLEETX",
             "content_type": "binary/custom-server-binary-type",
             "content_encoding": "binary",
         }
