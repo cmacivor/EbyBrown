@@ -3,7 +3,7 @@ import selectors
 import json
 import io
 import struct
-import KeepAliveMessageBase
+import Eby_Message
 
 
 request_search = {
@@ -108,12 +108,12 @@ class Message:
 
     def _create_response_binary_content(self):
         #TODO need class or function here to determine the inbound message type- first whether it's  Keep Alive message, or a Data Message.
-        keepAliveMessageBase = KeepAliveMessageBase.MessageBase(self)
-        isKeepAliveMessage = keepAliveMessageBase.CheckIfMessageIsKeepAlive()
+        messageBase = Eby_Message.MessageBase(self)  #KeepAliveMessageBase.MessageBase(self)
+        isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
         #if isKeepAliveMessage:
 
 
-        keepAliveResponse = keepAliveMessageBase.getFullAcknowledgeMessage() #getFullKeepAliveMessageResponse()
+        keepAliveResponse = messageBase.getFullAcknowledgeMessage() #getFullKeepAliveMessageResponse()
         
 
         response = {
