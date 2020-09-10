@@ -13,7 +13,7 @@ class KeepAlive:
         msgSeqNumber = self.libserver.request[3:9]
         return msgSeqNumber
     
-    def getFullKeepAliveMessageResponse(self):
+    def getFullAcknowledgeMessage(self):
         msgSeqNumber = self.getMessageSequenceNumber()
         #TODO determine if what's coming over will be ASCII or binary. See this: https://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3
         # fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter

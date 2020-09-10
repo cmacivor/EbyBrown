@@ -110,7 +110,7 @@ class Message:
         #TODO need class or function here to determine the inbound message type
 
         keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
-        keepAliveResponse = keepAliveMessageBase.getFullKeepAliveMessageResponse()
+        keepAliveResponse = keepAliveMessageBase.getFullAcknowledgeMessage() #getFullKeepAliveMessageResponse()
         #msgSequenceNumber = keepAliveMessageBase.getMessageSequenceNumber()
         #msgSequenceNumber = keepAliveMessageBase.msgSeqNumber
 
