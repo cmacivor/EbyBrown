@@ -20,9 +20,9 @@ class MessageBase:
         else:
             return False
 
-    def getMessageSequenceNumber(self):
-        msgSeqNumber = self.libserver.request[3:8] #starting at position 3 because the hex "2" reads as "0x2".
-        return msgSeqNumber
+    # def getMessageSequenceNumber(self):
+    #     msgSeqNumber = self.libserver.request[3:8] #starting at position 3 because the hex "2" reads as "0x2".
+    #     return msgSeqNumber
     
     def getFullAcknowledgeKeepAliveMessage(self):
         fields = self.parsePipeDelimitedValues()
