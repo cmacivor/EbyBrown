@@ -107,12 +107,12 @@ class Message:
         return response
 
     def _create_response_binary_content(self):
-        #TODO need class or function here to determine the inbound message type
-
+        #TODO need class or function here to determine the inbound message type- first whether it's  Keep Alive message, or a Data Message.
         keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
+        isKeepAliveMessage = keepAliveMessageBase.CheckIfMessageIsKeepAlive()
+
         keepAliveResponse = keepAliveMessageBase.getFullAcknowledgeMessage() #getFullKeepAliveMessageResponse()
-        #msgSequenceNumber = keepAliveMessageBase.getMessageSequenceNumber()
-        #msgSequenceNumber = keepAliveMessageBase.msgSeqNumber
+        
 
         response = {
             "content_bytes": keepAliveResponse, #self.request[:6] + b"ACKNOWLEETX",
