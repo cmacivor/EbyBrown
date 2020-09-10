@@ -110,6 +110,8 @@ class Message:
         #TODO need class or function here to determine the inbound message type- first whether it's  Keep Alive message, or a Data Message.
         keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
         isKeepAliveMessage = keepAliveMessageBase.CheckIfMessageIsKeepAlive()
+        #if isKeepAliveMessage:
+
 
         keepAliveResponse = keepAliveMessageBase.getFullAcknowledgeMessage() #getFullKeepAliveMessageResponse()
         

@@ -13,7 +13,8 @@ class KeepAlive:
 
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.libserver.request[:])
-        if messageLength == 20: #Account for the extra characters created by hexadecimal values
+        doesContainKeepAlive = self.KeepAliveRequestConstant in self.libserver.request[:].decode('ascii')
+        if messageLength == 20 and doesContainKeepAlive: #Account for the extra characters created by hexadecimal values
             return True
         else:
             return False
