@@ -118,7 +118,8 @@ class Message:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
         #if not, then it's a data message
         else:
-            response = messageBase.getMessageType()
+            messageBase.getMessageType() #save the message data to the database, log it, etc.
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
  
         
         response = {
