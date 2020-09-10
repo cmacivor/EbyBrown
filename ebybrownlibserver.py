@@ -216,6 +216,7 @@ class Message:
             response = self._create_response_json_content()
         else:
             # Binary or unknown content-type
+            #TODO: add code here to determine the message type, and call function to reply
             response = self._create_response_binary_content()
         message = self._create_message(**response)
         self.response_created = True
