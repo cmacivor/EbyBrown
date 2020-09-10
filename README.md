@@ -33,4 +33,5 @@ Then modify the created launch.json file to look like this. Note the "args" line
 
 Set the app-server.py file on your active tab, and hit F5 to run it. 
 
-For the KEEPALIV message, open a separate terminal, cd into the directory and run the following: sudo python3 app-client.py 127.0.0.1 65432 0x200012KEEPALIV0x3. You should get a response back in the terminal
+For the KEEPALIV message, open a separate terminal, cd into the directory and run the following: sudo python3 app-client.py 127.0.0.1 65432 "0x200012|KEEPALIV0x3"
+ You should get a response back in the terminal.
