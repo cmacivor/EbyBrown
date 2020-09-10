@@ -108,7 +108,7 @@ class Message:
 
     def _create_response_binary_content(self):
         #TODO need class or function here to determine the inbound message type- first whether it's  Keep Alive message, or a Data Message.
-        keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
+        keepAliveMessageBase = KeepAliveMessageBase.MessageBase(self)
         isKeepAliveMessage = keepAliveMessageBase.CheckIfMessageIsKeepAlive()
         #if isKeepAliveMessage:
 

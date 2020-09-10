@@ -1,7 +1,7 @@
 import ebybrownlibserver as libserver
 import GlobalConstants
 
-class KeepAlive:
+class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
     KeepAliveResponseConstant = "ACKNOWLE"
 
