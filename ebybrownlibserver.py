@@ -3,6 +3,7 @@ import selectors
 import json
 import io
 import struct
+import KeepAliveMessageBase 
 
 request_search = {
     "morpheus": "Follow the white rabbit. \U0001f430",
@@ -105,6 +106,9 @@ class Message:
         return response
 
     def _create_response_binary_content(self):
+        keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
+        #msgSequenceNumber = keepAliveMessageBase.msgSeqNumber
+
         response = {
             "content_bytes": self.request[:6] + b"ACKNOWLEETX",
             "content_type": "binary/custom-server-binary-type",
