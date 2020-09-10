@@ -115,8 +115,7 @@ class Message:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
         #TODO: if not, then it's a data message
        
-
-        #keepAliveResponse = messageBase.getFullAcknowledgeKeepAliveMessage() 
+ 
         
         response = {
             "content_bytes": response, #self.request[:6] + b"ACKNOWLEETX",

@@ -6,10 +6,11 @@ class MessageBase:
     KeepAliveResponseConstant = "ACKNOWLE"
 
     IsKeepAliveMessage = False
-   
+       
     #constructor
     def __init__(self, libserver):
         self.libserver = libserver
+        self.AsciiRequestMessage = libserver.request[:].decode('ascii')
 
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.libserver.request[:])
@@ -24,11 +25,42 @@ class MessageBase:
         return msgSeqNumber
     
     def getFullAcknowledgeKeepAliveMessage(self):
+        fields = self.parsePipeDelimitedValues()
+
         msgSeqNumber = self.getMessageSequenceNumber()
         #TODO determine if what's coming over will be ASCII or binary. See this: https://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3
         # fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
         decodedMsgSeqNumber = msgSeqNumber.decode('ascii')
         fullMessage = GlobalConstants.StartTransmissionCharacter + decodedMsgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
         return fullMessage.encode('ascii')
+
+    def parsePipeDelimitedValues(self):
+        fields = self.AsciiRequestMessage.split('|')
+        return fields
+
+
+     #this is for a Data Message
+     #TODO doing things this way may not work if the length can vary 
+    # def getMessageIdentifier(self):
+    #     messageID = self.libserver.request[6:14]
+    #     return messageID
+
+    # def getMessageType(self):
+    #     #request = self.libserver.request[:].decode('ascii')
+    #     if GlobalConstants.NewContainer in self.AsciiRequestMessage:
+    #         #TODO: instantiate NewContainer class
+    #     if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
+    #         #TODO: instantiate ContainerComplete class
+    #     if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
+    #         #TODO Assignment Complete
+            
+
+
+
+        # messageID = self.getMessageIdentifier()
+        # if messageID == GlobalConstants.NewContainer:  
+        #     #TODO: instantiate NewContainer class
+        # if messageID == GlobalConstants.ContainerComplete:
+        #     #TODO: instantiate ContainerComplete class
 
     
