@@ -107,6 +107,7 @@ class Message:
 
     def _create_response_binary_content(self):
         keepAliveMessageBase = KeepAliveMessageBase.KeepAlive(self)
+        msgSequenceNumber = keepAliveMessageBase.getMessageSequenceNumber()
         #msgSequenceNumber = keepAliveMessageBase.msgSeqNumber
 
         response = {
