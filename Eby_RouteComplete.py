@@ -10,7 +10,7 @@ class RouteComplete:
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
-        self.Route = self.fields[2]
+        self.Route = self.getRoute()
 
 
     def populateFields(self):
@@ -20,3 +20,7 @@ class RouteComplete:
     def getMessageSequenceNumber(self):
         msgSeqNumber =  self.fields[0][3:]
         return msgSeqNumber
+
+    def getRoute(self):
+        route = self.fields[2].replace('0x3', '')
+        return route
