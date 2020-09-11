@@ -4,6 +4,7 @@ import Eby_NewContainer
 import Eby_ContainerComplete
 import Eby_AssignmentComplete
 import Eby_OrderComplete
+import Eby_RouteComplete
 
 class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
@@ -62,6 +63,9 @@ class MessageBase:
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             return orderComplete
+        if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
+            routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
+            return routeComplete
             
       
             
