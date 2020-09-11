@@ -123,18 +123,12 @@ class Message:
  
         
         response = {
-            "content_bytes": response, #self.request[:6] + b"ACKNOWLEETX",
+            "content_bytes": response, 
             "content_type": "binary/custom-server-binary-type",
             "content_encoding": "binary",
         }
         return response
-        # response = {
-        #     "content_bytes": b"First 10 bytes of request: "
-        #     + self.request[:10],
-        #     "content_type": "binary/custom-server-binary-type",
-        #     "content_encoding": "binary",
-        # }
-        # return response
+       
 
     def process_events(self, mask):
         if mask & selectors.EVENT_READ:
