@@ -37,5 +37,8 @@ For the KEEPALIV message, open a separate terminal, cd into the directory and ru
 Note the quotes- this is because of the | character, which the bash shell interprets as a pipe command.
 You should get a response back in the terminal.
 
-For the Data Message:
+For the New Container Data Message:
 sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ADDCONTA|307604|1123|SC307604112-006|307604112|006003|SPLITCASE|113205|200x3"
+
+For the Container Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|CONTCOMP|SC307604112-006|307604112|10x3"
