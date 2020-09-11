@@ -28,6 +28,8 @@ class NewContainer:
         msgSeqNumber =  self.fields[0][3:]
         return msgSeqNumber
     
+    
+    
 
         
 

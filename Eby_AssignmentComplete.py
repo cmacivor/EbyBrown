@@ -1,6 +1,7 @@
 import ebybrownlibserver as libserver
 import GlobalConstants
 import Eby_Message
+import re # regular expressions
 
 class AssignmentComplete:
     def __init__(self, libserver):
@@ -9,7 +10,7 @@ class AssignmentComplete:
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
-        self.AssignmentID = self.fields[2]
+        self.AssignmentID = self.getAssignmentID()
 
 
     def populateFields(self):
@@ -19,3 +20,8 @@ class AssignmentComplete:
     def getMessageSequenceNumber(self):
         msgSeqNumber =  self.fields[0][3:]
         return msgSeqNumber
+    
+    def getAssignmentID(self):
+        assignmentID = self.fields[2].replace('0x3', '')
+        return assignmentID
+

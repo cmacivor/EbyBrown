@@ -63,11 +63,4 @@ class MessageBase:
             
 
 
-
-        # messageID = self.getMessageIdentifier()
-        # if messageID == GlobalConstants.NewContainer:  
-        #     #TODO: instantiate NewContainer class
-        # if messageID == GlobalConstants.ContainerComplete:
-        #     #TODO: instantiate ContainerComplete class
-
     
