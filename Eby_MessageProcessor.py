@@ -96,7 +96,7 @@ class Message:
         }
         return response
 
-    def _create_response_binary_content(self):
+    def createResponseMessage(self):
 
         messageBase = Eby_Message.MessageBase(self)
         
@@ -110,7 +110,13 @@ class Message:
         else:
             messageBase.getMessageType() #save the message data to the database, log it, etc.
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
- 
+        
+        return response
+
+    def _create_response_binary_content(self):
+
+        #response = self.create_response()
+        response = self.createResponseMessage()
         
         response = {
             "content_bytes": response, 
