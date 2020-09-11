@@ -45,3 +45,6 @@ sudo python3 app-client.py 127.0.0.1 65432 "0x200013|CONTCOMP|SC307604112-006|30
 
 For the Assignment Complete Data Message:
 sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ASGNCOMP|3076041120x3"
+
+For the Order Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ORDRCOMP|30760|41120x3"

@@ -3,6 +3,7 @@ import GlobalConstants
 import Eby_NewContainer
 import Eby_ContainerComplete
 import Eby_AssignmentComplete
+import Eby_OrderComplete
 
 class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
@@ -50,7 +51,6 @@ class MessageBase:
     def getMessageType(self):
 
         if GlobalConstants.NewContainer in self.AsciiRequestMessage:
-            #TODO: instantiate NewContainer class
             newContainer = Eby_NewContainer.NewContainer(self.libserver)
             return newContainer
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
@@ -59,6 +59,10 @@ class MessageBase:
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             return assignmentComplete
+        if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
+            orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
+            return orderComplete
+            
       
             
 
