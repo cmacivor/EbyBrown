@@ -6,13 +6,6 @@ import struct
 import Eby_Message
 
 
-request_search = {
-    "morpheus": "Follow the white rabbit. \U0001f430",
-    "ring": "In the caves beneath the Misty Mountains. \U0001f48d",
-    "\U0001f436": "\U0001f43e Playing ball! \U0001f3d0",
-}
-
-
 class Message:
     def __init__(self, selector, sock, addr):
         self.selector = selector
@@ -91,13 +84,10 @@ class Message:
         return message
 
     def _create_response_json_content(self):
-        action = self.request.get("action")
-        if action == "search":
-            query = self.request.get("value")
-            answer = request_search.get(query) or f'No match for "{query}".'
-            content = {"result": answer}
-        else:
-            content = {"result": f'Error: invalid action "{action}".'}
+
+        #sample JSON
+        content = {"result": "test"}
+        
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
