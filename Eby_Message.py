@@ -1,5 +1,5 @@
 import Eby_MessageProcessor as libserver
-import GlobalConstants
+import Eby_GlobalConstants as GlobalConstants
 import Eby_NewContainer
 import Eby_ContainerComplete
 import Eby_AssignmentComplete

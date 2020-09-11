@@ -1,5 +1,4 @@
 import Eby_MessageProcessor as libserver
-import GlobalConstants
 import Eby_Message
 import re # regular expressions
 
