@@ -10,6 +10,8 @@ class ContainerComplete:
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
         self.ContainerID = self.fields[2]
+        self.AssignmentID = self.fields[3]
+        self.QCFlag = self.fields[4][:1]
 
 
     def populateFields(self):
