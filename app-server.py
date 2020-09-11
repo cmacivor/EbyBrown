@@ -3,8 +3,7 @@ import socket
 import selectors
 import traceback
 
-#import libserver
-import ebybrownlibserver
+import Eby_MessageProcessor
 
 #to run this, in the console enter: sudo python3 app-server.py 127.0.0.1 65432
 
@@ -16,7 +15,7 @@ def accept_wrapper(sock):
     print("accepted connection from", addr)
     conn.setblocking(False)
     #message = libserver.Message(sel, conn, addr)
-    message = ebybrownlibserver.Message(sel, conn, addr)
+    message = Eby_MessageProcessor.Message(sel, conn, addr)
     sel.register(conn, selectors.EVENT_READ, data=message)
 
 

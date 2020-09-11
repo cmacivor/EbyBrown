@@ -1,5 +1,4 @@
-import ebybrownlibserver as libserver
-import GlobalConstants
+import Eby_MessageProcessor as libserver
 import Eby_Message
 
 class ContainerComplete:
