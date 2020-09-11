@@ -2,6 +2,7 @@ import ebybrownlibserver as libserver
 import GlobalConstants
 import Eby_NewContainer
 import Eby_ContainerComplete
+import Eby_AssignmentComplete
 
 class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
@@ -55,10 +56,10 @@ class MessageBase:
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             return containerComplete
-        # if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
-        #     #TODO: instantiate ContainerComplete class
-        # if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
-        #     #TODO Assignment Complete
+        if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
+            assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
+            return assignmentComplete
+      
             
 
 

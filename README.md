@@ -42,3 +42,6 @@ sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ADDCONTA|307604|1123|SC3076
 
 For the Container Complete Data Message:
 sudo python3 app-client.py 127.0.0.1 65432 "0x200013|CONTCOMP|SC307604112-006|307604112|10x3"
+
+For the Assignment Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ASGNCOMP|3076041120x3"
