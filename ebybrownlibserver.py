@@ -3,6 +3,8 @@ import selectors
 import json
 import io
 import struct
+import Eby_Message
+
 
 request_search = {
     "morpheus": "Follow the white rabbit. \U0001f430",
@@ -105,8 +107,23 @@ class Message:
         return response
 
     def _create_response_binary_content(self):
+
+        messageBase = Eby_Message.MessageBase(self)
+        
+        response = None  
+        
+        isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
+        
+        if isKeepAliveMessage:
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+        #if not, then it's a data message
+        else:
+            messageBase.getMessageType() #save the message data to the database, log it, etc.
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+ 
+        
         response = {
-            "content_bytes": self.request[:6] + b"ACKNOWLEETX",
+            "content_bytes": response, #self.request[:6] + b"ACKNOWLEETX",
             "content_type": "binary/custom-server-binary-type",
             "content_encoding": "binary",
         }

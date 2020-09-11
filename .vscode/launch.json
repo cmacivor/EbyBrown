@@ -11,7 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": ["127.0.0.1","65432"] //for the server portion
-            //"args": ["127.0.0.1","65432", "STX12KEEPALIVETX"] //for the client
+            //"args": ["127.0.0.1","65432", "0x200012KEEPALIV0x3"] //for the client
         }
     ]
 }

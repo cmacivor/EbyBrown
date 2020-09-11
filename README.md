@@ -33,4 +33,23 @@ Then modify the created launch.json file to look like this. Note the "args" line
 
 Set the app-server.py file on your active tab, and hit F5 to run it. 
 
-Then, open a separate terminal, cd into the directory and run the following: sudo python3 app-client.py 127.0.0.1 65432 "STX12KEEPALIVETX"
+For the KEEPALIV message, open a separate terminal, cd into the directory and run the following: 
+sudo python3 app-client.py 127.0.0.1 65432 "0x200012|KEEPALIV0x3"
+
+Note the quotes- this is because of the | character, which the bash shell interprets as a pipe command.
+You should get a response back in the terminal.
+
+For the New Container Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ADDCONTA|307604|1123|SC307604112-006|307604112|006003|SPLITCASE|113205|200x3"
+
+For the Container Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|CONTCOMP|SC307604112-006|307604112|10x3"
+
+For the Assignment Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ASGNCOMP|3076041120x3"
+
+For the Order Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ORDRCOMP|30760|41120x3"
+
+For the Route Complete Data Message:
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ROUTCOMP|3076010x3"
