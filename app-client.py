@@ -5,7 +5,8 @@ import traceback
 
 import libclient
 
-#to run this, enter: sudo python3 app-client.py 127.0.0.1 65432 search morpheus
+#This file is for testing purposes, to simulate messages coming from Lucas
+#see the README file for instructions on how to run it
 
 sel = selectors.DefaultSelector()
 
