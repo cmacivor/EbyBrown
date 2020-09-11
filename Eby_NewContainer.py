@@ -18,7 +18,7 @@ class NewContainer:
         self.PickArea = self.fields[6]
         self.PickType = self.fields[7]
         self.Jurisdiction = self.fields[8]
-        self.NumberCartons = self.fields[9][:2]
+        self.NumberCartons = self.getNumberCartons()  #self.fields[9][:2]
 
     def populateFields(self):
         fields = self.AsciiRequestMessage.split('|')
@@ -27,6 +27,10 @@ class NewContainer:
     def getMessageSequenceNumber(self):
         msgSeqNumber =  self.fields[0][3:]
         return msgSeqNumber
+
+    def getNumberCartons(self):
+        numberCartons = self.fields[9].replace('0x3', '')
+        return numberCartons
     
     
     
