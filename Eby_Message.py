@@ -24,10 +24,6 @@ class MessageBase:
             return True
         else:
             return False
-
-    # def getMessageSequenceNumber(self):
-    #     msgSeqNumber = self.libserver.request[3:8] #starting at position 3 because the hex "2" reads as "0x2".
-    #     return msgSeqNumber
     
     def getFullAcknowledgeKeepAliveMessage(self):
         fields = self.parsePipeDelimitedValues()
@@ -42,12 +38,6 @@ class MessageBase:
         fields = self.AsciiRequestMessage.split('|')
         return fields
 
-
-     #this is for a Data Message
-     #TODO doing things this way may not work if the length can vary 
-    # def getMessageIdentifier(self):
-    #     messageID = self.libserver.request[6:14]
-    #     return messageID
 
     def getMessageType(self):
 
