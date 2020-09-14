@@ -1,7 +1,7 @@
 import Eby_MessageProcessor as libserver
 import Eby_Message
 import sys
-import mysql.connector
+import mysql.connector 
 from datetime import datetime
 import time
 import python_config 
@@ -39,14 +39,19 @@ class NewContainer:
         return numberCartons
     
     def saveNewContainer(self):
-        connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            database="assignment",
-            password="Livvie2810$"
-        )
+        config = python_config.read_db_config()
 
-        #config = python_config.read_db_config()
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
 
         cursor = connection.cursor()
 
@@ -70,13 +75,14 @@ class NewContainer:
             return True
         except:
             connection.rollback()
+             #TODO: log error?
             return False
         
         finally:
             cursor.close()
             connection.close()
 
-            #TODO: log error?
+           
             
 
        
