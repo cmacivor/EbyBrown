@@ -53,3 +53,10 @@ sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ORDRCOMP|30760|41120x3"
 
 For the Route Complete Data Message:
 sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ROUTCOMP|3076010x3"
+
+
+
+Note for Windows environment and Visual Studio Code- Beware of modules being installed in different Python environments. For VS Code to recognize the module, you'll need to select the proper Python interpreter. See this article: https://code.visualstudio.com/docs/python/python-tutorial#_select-a-python-interpreter
+This is set to use the Python I installed at C:\Python.
+
+Because of this, the settings.json file would need to be commented out/removed for it to work again on Linux.
