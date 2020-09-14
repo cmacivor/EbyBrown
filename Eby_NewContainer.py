@@ -76,6 +76,7 @@ class NewContainer:
         except:
             connection.rollback()
              #TODO: log error?
+             #TODO: log the file that caused the error
             return False
         
         finally:
