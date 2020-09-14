@@ -3,7 +3,8 @@ import Eby_Message
 import sys
 import mysql.connector
 from datetime import datetime
-import time 
+import time
+import python_config 
 
 
 
@@ -45,6 +46,8 @@ class NewContainer:
             password="Livvie2810$"
         )
 
+        #config = python_config.read_db_config()
+
         cursor = connection.cursor()
 
         addNewContainerSQL = ("INSERT INTO dat_master "
@@ -67,12 +70,14 @@ class NewContainer:
             return True
         except:
             connection.rollback()
-            
+            return False
+        
+        finally:
             cursor.close()
             connection.close()
 
             #TODO: log error?
-            return False
+            
 
        
 
