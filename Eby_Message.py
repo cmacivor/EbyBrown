@@ -43,7 +43,8 @@ class MessageBase:
 
         if GlobalConstants.NewContainer in self.AsciiRequestMessage:
             newContainer = Eby_NewContainer.NewContainer(self.libserver)
-            return newContainer
+            result = newContainer.saveNewContainer()
+            return result
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             return containerComplete
