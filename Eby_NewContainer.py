@@ -58,12 +58,23 @@ class NewContainer:
             self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 'TEST', currentTimeStamp, currentTimeStamp
         )
 
-        cursor.execute(addNewContainerSQL, newContainer)
+        try:
+            cursor.execute(addNewContainerSQL, newContainer)
+            connection.commit()
+            
+            cursor.close()
+            connection.close()
+            return True
+        except:
+            connection.rollback()
+            
+            cursor.close()
+            connection.close()
 
-        connection.commit()
+            #TODO: log error?
+            return False
 
-        cursor.close()
-        connection.close()
+       
 
 
     
