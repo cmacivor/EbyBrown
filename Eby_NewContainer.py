@@ -35,6 +35,15 @@ class NewContainer:
         numberCartons = self.fields[9].replace('0x3', '')
         return numberCartons
     
+    def saveNewContainer(self):
+        mydb = mysql.connector.connect(
+            host="127.0.0.1",
+            user="root",
+            password="Livvie2810$"
+        )
+
+        print(mydb) 
+    
     
     
 
