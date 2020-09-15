@@ -51,7 +51,8 @@ class MessageBase:
             return result
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
-            return assignmentComplete
+            result = assignmentComplete.updateAssignmentComplete()
+            return result
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             return orderComplete
