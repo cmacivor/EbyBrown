@@ -73,7 +73,8 @@ class NewContainer:
             cursor.close()
             connection.close()
             return True
-        except:
+        except Exception as e:
+            print(e)
             connection.rollback()
              #TODO: log error?
              #TODO: log the file that caused the error
