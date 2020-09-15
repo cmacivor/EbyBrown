@@ -55,7 +55,8 @@ class MessageBase:
             return result
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
-            return orderComplete
+            result = orderComplete.updateOrderComplete()
+            return result
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             return routeComplete
