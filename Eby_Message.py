@@ -59,7 +59,8 @@ class MessageBase:
             return result
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
-            return routeComplete
+            result = routeComplete.updateRouteComplete()
+            return result
             
       
             

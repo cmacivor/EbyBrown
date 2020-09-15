@@ -52,7 +52,7 @@ For the Order Complete Data Message:
 sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ORDRCOMP|307604|11230x3"
 
 For the Route Complete Data Message:
-sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ROUTCOMP|3076010x3"
+sudo python3 app-client.py 127.0.0.1 65432 "0x200013|ROUTCOMP|3076040x3"
 
 
 
