@@ -52,15 +52,9 @@ class ContainerComplete:
 
         )
 
-        # updateContainerSQL = ("UPDATE dat_master  SET status = %s WHERE container_id = %s"
-                            
-        # )
-
         currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         updateContainerValues = (self.MessageID, currentTimeStamp, self.ContainerID)
-
-        #updateContainerValues = (self.MessageID,  self.ContainerID)
 
         try:
             cursor.execute(updateContainerSQL , updateContainerValues)
