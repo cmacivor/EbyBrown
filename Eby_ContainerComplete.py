@@ -1,5 +1,9 @@
 import Eby_MessageProcessor as libserver
 import Eby_Message
+import mysql.connector 
+from datetime import datetime
+import time
+import python_config 
 
 class ContainerComplete:
     def __init__(self, libserver):
@@ -24,3 +28,20 @@ class ContainerComplete:
     def getQCFlag(self):
         qcflag = self.fields[4].replace('0x3', '')
         return qcflag
+
+    def updateContainerAsComplete(self):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
