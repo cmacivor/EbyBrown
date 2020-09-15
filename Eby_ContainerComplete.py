@@ -46,24 +46,20 @@ class ContainerComplete:
 
         cursor = connection.cursor()
 
-        # updateContainerSQL = ("UPDATE dat_master "
-        #                       "SET status = %s, "
-        #                       "updated_at = %s, "
-        #                       "WHERE ContainerID = %s"
-
-        # )
-
-        updateContainerSQL = ("UPDATE dat_master  SET status = %s WHERE container_id = %s"
-                              
-                              
+        updateContainerSQL = ("UPDATE dat_master SET status = %s, updated_at = %s WHERE container_id = %s"
+                            
 
         )
 
+        # updateContainerSQL = ("UPDATE dat_master  SET status = %s WHERE container_id = %s"
+                            
+        # )
+
         currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        #updateContainerValues = (self.MessageID, currentTimeStamp, self.ContainerID)
+        updateContainerValues = (self.MessageID, currentTimeStamp, self.ContainerID)
 
-        updateContainerValues = (self.MessageID,  self.ContainerID)
+        #updateContainerValues = (self.MessageID,  self.ContainerID)
 
         try:
             cursor.execute(updateContainerSQL , updateContainerValues)
