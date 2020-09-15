@@ -47,7 +47,8 @@ class MessageBase:
             return result
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
-            return containerComplete
+            result = containerComplete.updateContainerAsComplete()
+            return result
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             return assignmentComplete

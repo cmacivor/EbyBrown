@@ -45,3 +45,40 @@ class ContainerComplete:
         )
 
         cursor = connection.cursor()
+
+        # updateContainerSQL = ("UPDATE dat_master "
+        #                       "SET status = %s, "
+        #                       "updated_at = %s, "
+        #                       "WHERE ContainerID = %s"
+
+        # )
+
+        updateContainerSQL = ("UPDATE dat_master  SET status = %s WHERE container_id = %s"
+                              
+                              
+
+        )
+
+        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        #updateContainerValues = (self.MessageID, currentTimeStamp, self.ContainerID)
+
+        updateContainerValues = (self.MessageID,  self.ContainerID)
+
+        try:
+            cursor.execute(updateContainerSQL , updateContainerValues)
+            connection.commit()
+            
+            cursor.close()
+            connection.close()
+            return True
+        except Exception as e:
+            print(e)
+            connection.rollback()
+             #TODO: log error?
+             #TODO: log the file that caused the error
+            return False
+        
+        finally:
+            cursor.close()
+            connection.close()
