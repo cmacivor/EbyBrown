@@ -81,6 +81,10 @@ class NewContainer:
     def saveNewContainer(self):
         existingRecord = self.doesNewContainerAlreadyExist()
 
+        if existingRecord is not None:
+            #TODO: log this here
+            return
+
         config = python_config.read_db_config()
 
         host = config.get('host')
