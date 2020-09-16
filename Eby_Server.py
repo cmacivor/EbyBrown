@@ -12,21 +12,39 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
     client.
     """
     def handle(self):
-            # self.rfile is a file-like object created by the handler;
-            # we can now use e.g. readline() instead of raw recv() calls
-            self.data = self.rfile.readline().strip()
-            print("{} wrote:".format(self.client_address[0]))
-            print(self.data)
-            # Likewise, self.wfile is a file-like object used to write back
-            # to the client
-            self.wfile.write(self.data.upper())
-    # def handle(self):
-    #     # self.request is the TCP socket connected to the client
-    #     self.data = self.request.recv(1024).strip()
-    #     print("{} wrote:".format(self.client_address[0]))
-    #     print(self.data)
-    #     # just send back the same data, but upper-cased
-    #     self.request.sendall(self.data.upper())
+          
+
+        # self.rfile is a file-like object created by the handler;
+        # we can now use e.g. readline() instead of raw recv() calls
+        self.data = self.rfile.readline().strip()
+
+        self.createResponseMessage(self.data)
+
+        print("{} wrote:".format(self.client_address[0]))
+        print(self.data)
+
+        # Likewise, self.wfile is a file-like object used to write back
+        # to the client
+        self.wfile.write(self.data.upper())
+    
+
+    def createResponseMessage(self, message):
+
+        messageBase = Eby_Message.MessageBase(message)
+        
+        response = None  
+            
+        isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
+            
+            # if isKeepAliveMessage:
+            #     response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            #     return response
+            # #if not, then it's a data message
+            # else:
+            #     messageBase.getMessageType() #save the message data to the database, log it, etc.
+            #     response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            #     return response
+ 
 
 if __name__ == "__main__":
     
