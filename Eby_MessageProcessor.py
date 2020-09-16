@@ -106,13 +106,14 @@ class Message:
         
         if isKeepAliveMessage:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            return response
         #if not, then it's a data message
         else:
-            successfullyProcessed = messageBase.getMessageType() #save the message data to the database, log it, etc.
-            
-            if successfullyProcessed:
-                response = messageBase.getFullAcknowledgeKeepAliveMessage()
-                return response
+            messageBase.getMessageType() #save the message data to the database, log it, etc.
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            return response
+           
+
 
     def _create_response_binary_content(self):
 

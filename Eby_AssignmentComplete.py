@@ -1,6 +1,10 @@
 import Eby_MessageProcessor as libserver
 import Eby_Message
 import re # regular expressions
+import mysql.connector 
+from datetime import datetime
+import time
+import python_config 
 
 class AssignmentComplete:
     def __init__(self, libserver):
@@ -23,4 +27,50 @@ class AssignmentComplete:
     def getAssignmentID(self):
         assignmentID = self.fields[2].replace('0x3', '')
         return assignmentID
+
+    def updateAssignmentComplete(self):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        updateAssignmentSQL = ("UPDATE dat_master SET "
+                              "a_comp = %s, "
+                              "updated_at = %s "
+                              "WHERE assignment_id = %s "   
+
+        )
+
+        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        updateAssignmentValues = (1, currentTimeStamp, self.AssignmentID)
+
+        try:
+            cursor.execute(updateAssignmentSQL, updateAssignmentValues)
+            connection.commit()
+            
+            cursor.close()
+            connection.close()
+            return True
+        except Exception as e:
+            print(e)
+            connection.rollback()
+             #TODO: log error?
+             #TODO: log the file that caused the error
+            return False
+        
+        finally:
+            cursor.close()
+            connection.close()
 

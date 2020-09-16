@@ -37,8 +37,54 @@ class NewContainer:
     def getNumberCartons(self):
         numberCartons = self.fields[9].replace('0x3', '')
         return numberCartons
+
+    def doesNewContainerAlreadyExist(self):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
+
+        selectData = (self.ContainerID,)
+
+        try:
+            cursor.execute(getByContainerIdSQL, selectData)
+            
+            result = cursor.fetchone()
+            
+            cursor.close()
+            connection.close()
+            return result
+        except Exception as e:
+            print(e)
+            connection.rollback()
+             #TODO: log error?
+             #TODO: log the file that caused the error
+        finally:
+            cursor.close()
+            connection.close()
+    
+
     
     def saveNewContainer(self):
+        existingRecord = self.doesNewContainerAlreadyExist()
+
+        if existingRecord is not None:
+            #TODO: log this here
+            return
+
         config = python_config.read_db_config()
 
         host = config.get('host')
@@ -73,7 +119,8 @@ class NewContainer:
             cursor.close()
             connection.close()
             return True
-        except:
+        except Exception as e:
+            print(e)
             connection.rollback()
              #TODO: log error?
              #TODO: log the file that caused the error
