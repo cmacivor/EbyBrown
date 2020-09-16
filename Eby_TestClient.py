@@ -14,10 +14,12 @@ try:
     sock.connect((HOST, PORT))
 
     # send data
-    sock.sendall(bytes(data + "\n"))
+    #sock.sendall(bytes(data + "\n"))
+    sock.sendall(bytes(data + "\n", "utf-8"))
 
     # receive data back from the server
-    received = str(sock.recv(1024))
+    #received = str(sock.recv(1024))
+    received = str(sock.recv(1024), "utf-8")
 finally:
     # shut down
     sock.close()
