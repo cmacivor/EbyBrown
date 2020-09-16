@@ -41,7 +41,7 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
             return response
         #if not, then it's a data message
         else:
-            #messageBase.getMessageType() #save the message data to the database, log it, etc.
+            messageBase.getMessageType() #save the message data to the database, log it, etc.
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
             return response
  
