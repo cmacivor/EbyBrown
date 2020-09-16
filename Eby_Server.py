@@ -18,14 +18,14 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
         # we can now use e.g. readline() instead of raw recv() calls
         self.data = self.rfile.readline().strip()
 
-        self.createResponseMessage(self.data)
+        response = self.createResponseMessage(self.data)
 
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
 
         # Likewise, self.wfile is a file-like object used to write back
         # to the client
-        self.wfile.write(self.data.upper())
+        self.wfile.write(response)
     
 
     def createResponseMessage(self, message):
@@ -36,14 +36,14 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
             
         isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
             
-            # if isKeepAliveMessage:
-            #     response = messageBase.getFullAcknowledgeKeepAliveMessage()
-            #     return response
-            # #if not, then it's a data message
-            # else:
-            #     messageBase.getMessageType() #save the message data to the database, log it, etc.
-            #     response = messageBase.getFullAcknowledgeKeepAliveMessage()
-            #     return response
+        if isKeepAliveMessage:
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            return response
+        #if not, then it's a data message
+        else:
+            #messageBase.getMessageType() #save the message data to the database, log it, etc.
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            return response
  
 
 if __name__ == "__main__":

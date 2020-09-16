@@ -15,11 +15,11 @@ class MessageBase:
     #constructor
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.decode('ascii')  #libserver.request[:].decode('ascii')
 
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.AsciiRequestMessage) #len(self.libserver.request[:])
-        doesContainKeepAlive = self.KeepAliveRequestConstant in self.AsciiRequestMessage.decode('ascii') #self.libserver.request[:].decode('ascii')
+        doesContainKeepAlive = self.KeepAliveRequestConstant in self.AsciiRequestMessage #.decode('ascii') #self.libserver.request[:].decode('ascii')
         if messageLength == 20 and doesContainKeepAlive: #Account for the extra characters created by hexadecimal values
             return True
         else:
