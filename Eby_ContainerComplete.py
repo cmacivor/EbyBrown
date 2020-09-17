@@ -8,7 +8,7 @@ import python_config
 class ContainerComplete:
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
