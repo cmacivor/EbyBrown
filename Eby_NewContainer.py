@@ -4,7 +4,10 @@ import sys
 import mysql.connector 
 from datetime import datetime
 import time
-import python_config 
+import python_config
+import API_02_HostLog as hostLog
+import traceback
+import GlobalFunctions 
 
 
 
@@ -24,7 +27,8 @@ class NewContainer:
         self.PickArea = self.fields[6]
         self.PickType = self.fields[7]
         self.Jurisdiction = self.fields[8]
-        self.NumberCartons = self.getNumberCartons()  
+        self.NumberCartons = self.getNumberCartons()
+        self.loggingConfig = python_config.read_logging_config()  
 
     def populateFields(self):
         fields = self.AsciiRequestMessage.split('|')
@@ -46,20 +50,21 @@ class NewContainer:
         database = config.get('database')
         password = config.get('password')
 
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= database, 
-            password= password 
-        )
-
-        cursor = connection.cursor()
-
-        getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
-
-        selectData = (self.ContainerID,)
-
         try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
+
+            selectData = (self.ContainerID,)
+
+        
             cursor.execute(getByContainerIdSQL, selectData)
             
             result = cursor.fetchone()
@@ -69,12 +74,18 @@ class NewContainer:
             return result
         except Exception as e:
             print(e)
-            connection.rollback()
-             #TODO: log error?
-             #TODO: log the file that caused the error
+            #connection.rollback()
+            #  #TODO: log error?
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+            # print(''.join('!! ' + line for line in lines))
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
         finally:
             cursor.close()
             connection.close()
+
     
 
     
@@ -124,8 +135,11 @@ class NewContainer:
         except Exception as e:
             print(e)
             connection.rollback()
+            #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response)
              #TODO: log error?
-             #TODO: log the file that caused the error
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            print(''.join('!! ' + line for line in lines))
             return False
         
         finally:
