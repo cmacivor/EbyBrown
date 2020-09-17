@@ -102,27 +102,27 @@ class NewContainer:
         database = config.get('database')
         password = config.get('password')
 
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= database, 
-            password= password 
-        )
-
-        cursor = connection.cursor()
-
-        addNewContainerSQL = ("INSERT INTO dat_master "
-                            "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, status, created_at, updated_at) "
-                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-        
-        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-        
-        newContainer = (
-            self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 'TEST', currentTimeStamp, currentTimeStamp
-        )
-
         try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            addNewContainerSQL = ("INSERT INTO dat_master "
+                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, status, created_at, updated_at) "
+                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            
+            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            
+            newContainer = (
+                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 'TEST', currentTimeStamp, currentTimeStamp
+            )
+
             cursor.execute(addNewContainerSQL, newContainer)
             connection.commit()
             rowcount = cursor.rowcount

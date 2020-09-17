@@ -5,6 +5,11 @@ import mysql.connector
 from datetime import datetime
 import time
 import python_config
+import python_config
+import sys
+import API_02_HostLog as hostLog
+import traceback
+import GlobalFunctions 
 
 class RouteComplete:
     def __init__(self, libserver):
@@ -36,27 +41,27 @@ class RouteComplete:
         database = config.get('database')
         password = config.get('password')
 
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= database, 
-            password= password 
-        )
-
-        cursor = connection.cursor()
-
-        updateRouteCompleteSQL = ("UPDATE dat_master SET "
-                              "r_comp = %s, "
-                              "updated_at = %s "
-                              "WHERE route_no = %s "  
-
-        )
-
-        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-        updateRouteValues = (1, currentTimeStamp, self.Route)
-
         try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            updateRouteCompleteSQL = ("UPDATE dat_master SET "
+                                "r_comp = %s, "
+                                "updated_at = %s "
+                                "WHERE route_no = %s "  
+
+            )
+
+            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            updateRouteValues = (1, currentTimeStamp, self.Route)
+
             cursor.execute(updateRouteCompleteSQL, updateRouteValues)
             connection.commit()
             rowcount = cursor.rowcount
@@ -67,9 +72,15 @@ class RouteComplete:
             return True
         except Exception as e:
             print(e)
-            connection.rollback()
-             #TODO: log error?
-             #TODO: log the file that caused the error
+            #connection.rollback()
+
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+          
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+          
             return False
         
         finally:
