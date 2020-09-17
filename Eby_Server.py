@@ -62,6 +62,10 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
         else:
             messageBase.getMessageType() #save the message data to the database, log it, etc.
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
+            if enabled == "1":
+                hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response)
+            else:
+                print(loggingNotEnabledMsg)
             return response
  
 
