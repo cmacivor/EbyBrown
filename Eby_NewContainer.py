@@ -79,7 +79,7 @@ class NewContainer:
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             exceptionMsg = exc_value.msg
             exceptionDetails = ''.join('!! ' + line for line in lines)
-            # print(''.join('!! ' + line for line in lines))
+          
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
         finally:
             cursor.close()
