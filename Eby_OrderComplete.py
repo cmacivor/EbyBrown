@@ -62,6 +62,8 @@ class OrderComplete:
         try:
             cursor.execute(updateOrderCompleteSQL, updateOrderValues)
             connection.commit()
+            rowcount = cursor.rowcount
+            print("Rows updated: " + str(rowcount))
             
             cursor.close()
             connection.close()

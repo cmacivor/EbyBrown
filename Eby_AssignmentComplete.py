@@ -59,6 +59,8 @@ class AssignmentComplete:
         try:
             cursor.execute(updateAssignmentSQL, updateAssignmentValues)
             connection.commit()
+            rowcount = cursor.rowcount
+            print("Rows updated: " + str(rowcount))
             
             cursor.close()
             connection.close()

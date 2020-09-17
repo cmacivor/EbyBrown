@@ -115,7 +115,9 @@ class NewContainer:
         try:
             cursor.execute(addNewContainerSQL, newContainer)
             connection.commit()
-            
+            rowcount = cursor.rowcount
+            print("Rows inserted: " + str(rowcount))
+
             cursor.close()
             connection.close()
             return True

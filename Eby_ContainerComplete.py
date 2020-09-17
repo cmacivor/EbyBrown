@@ -60,6 +60,8 @@ class ContainerComplete:
         try:
             cursor.execute(updateContainerSQL , updateContainerValues)
             connection.commit()
+            rowcount = cursor.rowcount
+            print("Rows updated: " + str(rowcount))
             
             cursor.close()
             connection.close()

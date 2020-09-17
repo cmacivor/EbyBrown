@@ -59,6 +59,8 @@ class RouteComplete:
         try:
             cursor.execute(updateRouteCompleteSQL, updateRouteValues)
             connection.commit()
+            rowcount = cursor.rowcount
+            print("Rows updated: " + str(rowcount))
             
             cursor.close()
             connection.close()
