@@ -89,10 +89,17 @@ class NewContainer:
 
     
     def saveNewContainer(self):
+        loggingConfig = python_config.read_logging_config()
+        enabled = loggingConfig.get('enabled')
+        auth = loggingConfig.get('auth')
+        domain = loggingConfig.get('domain')
+
         existingRecord = self.doesNewContainerAlreadyExist()
 
         if existingRecord is not None:
             #TODO: log this here
+            if enabled == "1":                                                              #the ContainerID
+                hostLog.log(auth, domain, "Lucas to WXS", "LUCAS sent a duplicate record: ", existingRecord[2])
             return
 
         config = python_config.read_db_config()

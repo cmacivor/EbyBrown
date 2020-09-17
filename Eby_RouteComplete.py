@@ -5,7 +5,6 @@ import mysql.connector
 from datetime import datetime
 import time
 import python_config
-import python_config
 import sys
 import API_02_HostLog as hostLog
 import traceback
