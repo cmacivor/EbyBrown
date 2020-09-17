@@ -75,7 +75,6 @@ class NewContainer:
         except Exception as e:
             print(e)
             #connection.rollback()
-            #  #TODO: log error?
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             exceptionMsg = exc_value.msg
@@ -134,12 +133,14 @@ class NewContainer:
             return True
         except Exception as e:
             print(e)
-            connection.rollback()
-            #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response)
-             #TODO: log error?
+            #connection.rollback()         
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            print(''.join('!! ' + line for line in lines))
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+            # print(''.join('!! ' + line for line in lines))
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)  
+
             return False
         
         finally:
