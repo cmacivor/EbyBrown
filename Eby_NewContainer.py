@@ -4,7 +4,10 @@ import sys
 import mysql.connector 
 from datetime import datetime
 import time
-import python_config 
+import python_config
+import API_02_HostLog as hostLog
+import traceback
+import GlobalFunctions 
 
 
 
@@ -13,7 +16,7 @@ class NewContainer:
     #constructor
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
@@ -24,7 +27,8 @@ class NewContainer:
         self.PickArea = self.fields[6]
         self.PickType = self.fields[7]
         self.Jurisdiction = self.fields[8]
-        self.NumberCartons = self.getNumberCartons()  
+        self.NumberCartons = self.getNumberCartons()
+        self.loggingConfig = python_config.read_logging_config()  
 
     def populateFields(self):
         fields = self.AsciiRequestMessage.split('|')
@@ -46,20 +50,21 @@ class NewContainer:
         database = config.get('database')
         password = config.get('password')
 
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= database, 
-            password= password 
-        )
-
-        cursor = connection.cursor()
-
-        getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
-
-        selectData = (self.ContainerID,)
-
         try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
+
+            selectData = (self.ContainerID,)
+
+        
             cursor.execute(getByContainerIdSQL, selectData)
             
             result = cursor.fetchone()
@@ -69,20 +74,32 @@ class NewContainer:
             return result
         except Exception as e:
             print(e)
-            connection.rollback()
-             #TODO: log error?
-             #TODO: log the file that caused the error
+            #connection.rollback()
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+          
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
         finally:
             cursor.close()
             connection.close()
+
     
 
     
     def saveNewContainer(self):
+        loggingConfig = python_config.read_logging_config()
+        enabled = loggingConfig.get('enabled')
+        auth = loggingConfig.get('auth')
+        domain = loggingConfig.get('domain')
+
         existingRecord = self.doesNewContainerAlreadyExist()
 
         if existingRecord is not None:
             #TODO: log this here
+            if enabled == "1":                                                              #the ContainerID
+                hostLog.log(auth, domain, "Lucas to WXS", "LUCAS sent a duplicate record: ", existingRecord[2])
             return
 
         config = python_config.read_db_config()
@@ -92,38 +109,45 @@ class NewContainer:
         database = config.get('database')
         password = config.get('password')
 
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= database, 
-            password= password 
-        )
-
-        cursor = connection.cursor()
-
-        addNewContainerSQL = ("INSERT INTO dat_master "
-                            "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, status, created_at, updated_at) "
-                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-        
-        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-        
-        newContainer = (
-            self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 'TEST', currentTimeStamp, currentTimeStamp
-        )
-
         try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            addNewContainerSQL = ("INSERT INTO dat_master "
+                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, status, created_at, updated_at) "
+                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+            
+            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+            
+            newContainer = (
+                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 'TEST', currentTimeStamp, currentTimeStamp
+            )
+
             cursor.execute(addNewContainerSQL, newContainer)
             connection.commit()
-            
+            rowcount = cursor.rowcount
+            print("Rows inserted: " + str(rowcount))
+
             cursor.close()
             connection.close()
             return True
         except Exception as e:
             print(e)
-            connection.rollback()
-             #TODO: log error?
-             #TODO: log the file that caused the error
+            #connection.rollback()         
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+            # print(''.join('!! ' + line for line in lines))
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)  
+
             return False
         
         finally:
