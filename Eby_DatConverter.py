@@ -15,12 +15,12 @@ Changes:fixed line at the end
 
 '''
 Secondary Variables (for quick access)
-deploy_db_user = 'Pendant';
-deploy_db_pass = 'Pendant0505';
-deploy_db_host = 'localhost';
-deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
-deploy_db_pass = 'PC$My$SQL88';
-deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
+db_user = 'Pendant'
+db_pass = 'Pendant0505'
+db_host = 'localhost'
+db_user = 'wcs'
+db_pass = '38qa_r4UUaW2d'
+db_host = '10.22.56.11'
 '''
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
 import os, sys;
@@ -35,27 +35,27 @@ import atexit;
 # write code that happens if the script is terminated
  
 # deployment variables
-deploy_input_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/input_file";                        
+input_path = "D:\Downloads\Host";                        
 # assign path of folder where the dat files are supposed to be   
-deploy_output_path = "/home/jeremy/Documents/Pendant_automation/Lucas_Docs/dat_converter/output_files/";
-# assign path to save output with dat files folder
-deploy_check_interval = 15;
+output_path = "D:\Downloads\UnitedSilicone";
+# assign path to output United Silicone sub-files
+check_interval = 5;
 # amount of time to wait in between next check IN SECONDS
 
 # database file located dat_converter/database file
-deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
-deploy_db_pass = 'PC$My$SQL88';
-deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
+db_host = '10.22.56.11'
+db_user = 'wcs'
+db_pass = '38qa_r4UUaW2d'
 # insert database infromation
 
-cnct = connection.MySQLConnection(user=deploy_db_user, password=deploy_db_pass, host=deploy_db_host);                                                        
+cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);                                                        
 # establish connection names are temporary until mysql is figured out
 print("Connected to database succesfully");
 mycursor = cnct.cursor();
 # get cursor
-mycursor.execute("CREATE DATABASE IF NOT EXISTS Assignment");
+mycursor.execute("CREATE DATABASE IF NOT EXISTS assignment");
 # create if it isnt there
-mycursor.execute("USE Assignment;");
+mycursor.execute("USE assignment;");
 # switch to right database
 
 
@@ -165,11 +165,11 @@ def stamp_data(obj_dat):
 
 def do_everything():
     # put it all in a functiony
-    working_path = deploy_input_path;  # replace with dir that 
+    working_path = input_path;  # replace with dir that 
     # path of python documents fold
     os.chdir(working_path);
     # go to the directory
-    save_path_location = deploy_output_path
+    save_path_location = output_path
     # path to save new files to
     exists = False;
     # init3
@@ -266,14 +266,14 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(deploy_check_interval).seconds.do(do_everything);
+schedule.every(check_interval).seconds.do(do_everything);
 # do it every x amount of  seconds
 while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
     
-atexit.register(os.chdir(deploy_input_path));
+atexit.register(os.chdir(input_path));
 # return home at termination of script just in case
 atexit.register(mycursor.close);
 atexit.register(cnct.close);
