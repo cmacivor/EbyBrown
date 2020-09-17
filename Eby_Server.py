@@ -2,6 +2,7 @@
 
 import socketserver
 import Eby_Message
+import python_config 
 
 class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
     """
@@ -47,6 +48,8 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
  
 
 if __name__ == "__main__":
+
+    logging = python_config.read_logging_config()
     
     HOST, PORT = "localhost", 9999
 
