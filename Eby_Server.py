@@ -71,9 +71,11 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
 
 if __name__ == "__main__":
 
-  
+    serverParams = python_config.read_server_config()
+    host = serverParams.get('host')
+    port = int(serverParams.get('port'))
     
-    HOST, PORT = "localhost", 9999
+    HOST, PORT = host, port #"localhost", 9999
 
     # instantiate the server, and bind to localhost on port 9999
     server = socketserver.TCPServer((HOST, PORT), EbyTCPSocketHandler)
