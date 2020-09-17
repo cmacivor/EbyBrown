@@ -2,7 +2,10 @@
 
 import socketserver
 import Eby_Message
-import python_config 
+import python_config
+import requests
+import API_02_HostLog as hostLog
+ 
 
 class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
     """
@@ -13,7 +16,8 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
     client.
     """
     def handle(self):
-          
+        
+     
 
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
@@ -21,6 +25,7 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
 
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
+
 
         response = self.createResponseMessage(self.data)
 
@@ -30,7 +35,14 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
     
 
     def createResponseMessage(self, message):
+        loggingConfig = python_config.read_logging_config()
+        enabled = loggingConfig.get('enabled')
+        #api = loggingConfig.get('api')
+        auth = loggingConfig.get('auth')
+        domain = loggingConfig.get('domain')
 
+        loggingNotEnabledMsg = "logging is not enabled in the config.ini."
+        
         messageBase = Eby_Message.MessageBase(message)
         
         response = None  
@@ -39,6 +51,12 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
             
         if isKeepAliveMessage:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
+                #log inbound message
+            if enabled == "1":
+                hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", message)
+                hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response)
+            else:
+                print(loggingNotEnabledMsg)
             return response
         #if not, then it's a data message
         else:
@@ -49,7 +67,7 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
 
 if __name__ == "__main__":
 
-    logging = python_config.read_logging_config()
+  
     
     HOST, PORT = "localhost", 9999
 
