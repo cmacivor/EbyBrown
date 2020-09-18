@@ -1,26 +1,24 @@
+
 '''
 Pendant Automation
 Contact:(410) 939-7707
-
 @author: Jeremy Scheuerman
-
-@version: 1.7
-
-Created:6/--/20
-
-Last Updated:7/29/20
-
-Changes:fixed line at the end
+@version: 2.5
+Created:8/11/20
+Last Updated:8/14/20
+Changes:Resolved all issues, removed temp variables from header
+Issues:All issues resolved
 '''
 
 '''
 Secondary Variables (for quick access)
-db_user = 'Pendant'
-db_pass = 'Pendant0505'
-db_host = 'localhost'
-db_user = 'wcs'
-db_pass = '38qa_r4UUaW2d'
-db_host = '10.22.56.11'
+deploy_db_user = 'Pendant';
+deploy_db_pass = 'Pendant0505';
+deploy_db_host = 'localhost';
+deploy_db_user = 'PaulCastro@eby-brown-assignment-mysql';
+deploy_db_pass = 'PC$My$SQL88';
+deploy_db_host = 'eby-brown-assignment-mysql.mysql.database.azure.com';
+
 '''
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
 import os, sys;
@@ -35,33 +33,36 @@ import atexit;
 # write code that happens if the script is terminated
  
 # deployment variables
-input_path = "D:\Downloads\Host";                        
-# assign path of folder where the dat files are supposed to be   
-output_path = "D:\Downloads\UnitedSilicone";
-# assign path to output United Silicone sub-files
-check_interval = 5;
+deploy_input_path = "D:\Documents\Pendant_automation\Lucas_Docs\Input_file";                        
+# assign path of folder where the dat files are supposed to be
+deploy_output_path = "D:\Documents\Pendant_automation\Lucas_Docs\Output_file";
+# assign path to save output with dat files folder
+deploy_check_interval = 15;  # seconds
 # amount of time to wait in between next check IN SECONDS
+deploy_delete_interval = 24;  # hours
+# amount of time it waits to check for old records IN HOURS
+deploy_db = "db_test";
 
 # database file located dat_converter/database file
-db_host = '10.22.56.11'
-db_user = 'wcs'
-db_pass = '38qa_r4UUaW2d'
+deploy_db_user = 'Pendant';
+deploy_db_pass = 'Pendant0505';
+deploy_db_host = 'localhost';
 # insert database infromation
 
-cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host);                                                        
+cnct = connection.MySQLConnection(user=deploy_db_user, password=deploy_db_pass, host=deploy_db_host);                                                        
 # establish connection names are temporary until mysql is figured out
 print("Connected to database succesfully");
 mycursor = cnct.cursor();
 # get cursor
-mycursor.execute("CREATE DATABASE IF NOT EXISTS assignment");
+mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db);
 # create if it isnt there
-mycursor.execute("USE assignment;");
+mycursor.execute("USE " + deploy_db + ";");
 # switch to right database
 
 
 class obj_dat:
     # create object for easier organization and database management
-    # here are the fields for the mysql table
+    # here are the fieldstable_name for the mysql table
     line_dump = "";
     # place holder for line dump dat
     rec_id = "        ";
@@ -161,15 +162,65 @@ def stamp_data(obj_dat):
     data = juris + "," + "000000" + "," + "000000" + "," + cart;
     return data;
     # give it back
+
     
+def dat_truncate(database_name):
+    # deletes data older than 30 days and updates the id columns
+    tables = [];
+    i = 0;
+    j = 0;
+    # initilize empty table array
+    # query_fix_rows = ("ALTER " + tables[j] + " document MODIFY COLUMN document_id INT NOT NULL AUTO_INCREMENT;");
+    # set query values for cursor
+    mycursor.execute("USE " + database_name);
+    mycursor.execute("SHOW TABLES");
+    # get table names
+    for (table_name,) in mycursor:
+        # assign table names to table array
+        tables.append(table_name);
+        # inc
+        i += 1;
+       
+    for j in range(len(tables)):
+        # does queries
+        if tables[j] == "dat_master":
+            # make sure not to delete the master table
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL 30 DAY AND updated_at IS null LIMIT 1000;");
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL 30 DAY LIMIT 1000;");
+        else:
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL 30 DAY AND updated_at IS null LIMIT 1000;");
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL 30 DAY LIMIT 1000;");
+            mycursor.execute("select * from " + tables[j]);
+            mycursor.fetchall();
+            # fetch all so we can get rows
+            rows = str(mycursor.rowcount);
+            rows = int(rows);
+            # cast to string and then back to int so we can read the data
+            if rows == 0:
+                # if the table is empty
+                mycursor.execute("DROP TABLE " + tables[j] + ";");
+                print(tables[j] + " was deleted");
+                # drop the table
+        # executing queries
+        print(tables[j] + " is being cleaned of data older than 30 days");
+        # make sure loop runs
+        j += 1;
+        # inc
+    cnct.commit();
+    # commit changes
+
+
+dat_table_create("dat_master");
+# create master table if not exists
+
 
 def do_everything():
     # put it all in a functiony
-    working_path = input_path;  # replace with dir that 
+    working_path = deploy_input_path;  # replace with dir that 
     # path of python documents fold
     os.chdir(working_path);
     # go to the directory
-    save_path_location = output_path
+    save_path_location = deploy_output_path
     # path to save new files to
     exists = False;
     # init3
@@ -191,9 +242,9 @@ def do_everything():
         orig_file_name = fname;  # insert fancy functions to get name of file
         temp_name = orig_file_name[:-3];
         # get variable for file name and var for path
-        orig_file_path = working_path + "/" + orig_file_name;
+        orig_file_path = working_path + "\\" + orig_file_name;
         # path to delete file after job is done
-        save_path = save_path_location + "/" + temp_name;
+        save_path = save_path_location + "\\" + temp_name;
         # create save path name
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and deleting")
@@ -232,6 +283,8 @@ def do_everything():
                 else:
                     dat_insert(temp_dat, table_name);
                     # insert data into mysql database
+                    dat_insert(temp_dat, "dat_master");
+                    # insert data into master table as well
                 
                 # dat_test(temp_dat);
                 # test those values
@@ -266,16 +319,17 @@ def do_everything():
         # acknowlege no file is there
 
 
-schedule.every(check_interval).seconds.do(do_everything);
+schedule.every(deploy_check_interval).seconds.do(do_everything);
 # do it every x amount of  seconds
+schedule.every(deploy_delete_interval).hours.do(dat_truncate, deploy_db);
+# schedule checking and deleting of tables
 while 1:
     schedule.run_pending();
     time.sleep(1);
     # don't run it 50 times over
     
-atexit.register(os.chdir(input_path));
+atexit.register(os.chdir(deploy_input_path));
 # return home at termination of script just in case
 atexit.register(mycursor.close);
 atexit.register(cnct.close);
 # makes sure the connection is always terminated if the script is terminated
-
