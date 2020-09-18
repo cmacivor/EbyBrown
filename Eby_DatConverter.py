@@ -33,16 +33,23 @@ user = config.get('user')
 database = config.get('database')
 password = config.get('password')
 
+#get file paths
+datFileConverterConfig = python_config.read_fileconverter_config()
+inputPath = datFileConverterConfig.get('input_path')
+outputPath = datFileConverterConfig.get('output_path')
+inputProcessedPath = datFileConverterConfig.get('input_processed_path')
+outputProcessedPath = datFileConverterConfig.get('output_processed_path')
+
 #TODO put these file paths into the config.ini
 # deployment variables
-input_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\Host").__str__()
+input_path = PureWindowsPath(inputPath).__str__()
                      
 # assign path of folder where the dat files are supposed to be
-output_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\UnitedSilicone").__str__()
+output_path = PureWindowsPath(outputPath).__str__()
 # assign path to save output with dat files folder
-input_processed_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\Host\Processed").__str__()
+input_processed_path = PureWindowsPath(inputProcessedPath).__str__()
 # assign path for Processed .DAT files
-output_processed_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\UnitedSilicone\\Processed").__str__()
+output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
 check_interval = 5  # seconds
 # amount of time to wait in between next check IN SECONDS
 delete_interval = 24  # hours
