@@ -274,67 +274,69 @@ def do_everything():
         else:
             os.mkdir(save_path)
             # create new folder for dat files
-            orig_dat_file = open(orig_file_name, "r")
+            #orig_dat_file = open(orig_file_name, "r")
+            with open(orig_file_name, "r") as orig_dat_file:
             # openfile
-            all_lines = orig_dat_file.readlines()
-            # get read all lines variable
-            num_lines = sum(1 for line in open(orig_file_name))
-            # get number of lines in the file
-            print("Number of lines to be checked " + str(num_lines))
-            # print number of lines
-            table_name = temp_name[:-1].replace("-", "_")
-            dat_table_create(table_name)
-            # create new table
-            s = 0
-            # variable for skipping lines
-            ins = 0
-            # variable for lines inserted
-            for j in range(num_lines):
-                temp_dat = obj_dat()
-                # create dat object for sql insertion
-                line_dump_data = all_lines[j]
-                # get data from specific line 
-                temp_dat.line_dump = line_dump_data
-                # assign line to file
-                dat_assign(temp_dat)
-                # assing values for sql insertion
-                if temp_dat.rec_id == "        ":
-                    pass
-                # get rid of blank line at the end of dat file
-                else:
-                    ### dat_insert(temp_dat, table_name)
-                    # insert data into mysql database
-                    dat_insert(temp_dat, "dat_master")
-                    # insert data into master table as well
-                
-                # dat_test(temp_dat)
-                # test those values
-                if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
-                    s += 1
-                    # increment for number of file skipped
-                else:
-                    if temp_dat.container_id == "":
-                        pass;
-                        # dont do anything
+                all_lines = orig_dat_file.readlines()
+                # get read all lines variable
+                num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
+                # get number of lines in the file
+                print("Number of lines to be checked " + str(num_lines))
+                # print number of lines
+                table_name = temp_name[:-1].replace("-", "_")
+                dat_table_create(table_name)
+                # create new table
+                s = 0
+                # variable for skipping lines
+                ins = 0
+                # variable for lines inserted
+                for j in range(num_lines):
+                    temp_dat = obj_dat()
+                    # create dat object for sql insertion
+                    line_dump_data = all_lines[j]
+                    # get data from specific line 
+                    temp_dat.line_dump = line_dump_data
+                    # assign line to file
+                    dat_assign(temp_dat)
+                    # assing values for sql insertion
+                    if temp_dat.rec_id == "        ":
+                        pass
+                    # get rid of blank line at the end of dat file
                     else:
-                        ins += 1
-                        # increment incrementer
-                        new_file_name = temp_dat.container_id + ".DAT"
-                        # get name for new dat file from line data 
-                        new_name_complete = os.path.join(save_path, new_file_name)
-                        # and name combined with save path
-                        new_file_data = stamp_data(temp_dat)
-                        # get data to be added to the new dat file
-                        new_file = open(new_name_complete, "w")
-                        # Creates a new file from the temp vars
-                        new_file.write(new_file_data)
-                        new_file.close()
-                        # print that data was inserted for files true
-            print(str(table_name) + " had " + str(ins) + " files created and data inserted")
-            print(str(s) + " files were skipped due to having blank carton and juris fields")
-            # print that data was inserted for file
-            os.remove(orig_file_path)
-            # delete original file
+                        ### dat_insert(temp_dat, table_name)
+                        # insert data into mysql database
+                        dat_insert(temp_dat, "dat_master")
+                        # insert data into master table as well
+                    
+                    # dat_test(temp_dat)
+                    # test those values
+                    if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
+                        s += 1
+                        # increment for number of file skipped
+                    else:
+                        if temp_dat.container_id == "":
+                            pass;
+                            # dont do anything
+                        else:
+                            ins += 1
+                            # increment incrementer
+                            new_file_name = temp_dat.container_id + ".DAT"
+                            # get name for new dat file from line data 
+                            new_name_complete = os.path.join(save_path, new_file_name)
+                            # and name combined with save path
+                            new_file_data = stamp_data(temp_dat)
+                            # get data to be added to the new dat file
+                            #new_file = open(new_name_complete, "w")
+                            with open(new_name_complete, "w") as new_file:
+                            # Creates a new file from the temp vars
+                                new_file.write(new_file_data)
+                                #new_file.close()
+                            # print that data was inserted for files true
+                print(str(table_name) + " had " + str(ins) + " files created and data inserted")
+                print(str(s) + " files were skipped due to having blank carton and juris fields")
+                # print that data was inserted for file
+                #os.remove(orig_file_path)
+                # delete original file
     else:
         print("No file present")
         # acknowledge no file is there
