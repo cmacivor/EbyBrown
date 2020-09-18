@@ -33,17 +33,16 @@ user = config.get('user')
 database = config.get('database')
 password = config.get('password')
 
- 
+#TODO put these file paths into the config.ini
 # deployment variables
-input_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\Host")
-#test = PureWindowsPath(input_path)
-#test2 = Path(input_path)                     
+input_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\Host").__str__()
+                     
 # assign path of folder where the dat files are supposed to be
-output_path = r"D:\Downloads\UnitedSilicone"
+output_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\UnitedSilicone").__str__()
 # assign path to save output with dat files folder
-input_processed_path = r"D:\Downloads\Host\Processed"
+input_processed_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\Host\Processed").__str__()
 # assign path for Processed .DAT files
-output_processed_path = r"D:\Downloads\UnitedSilicone\Processed"
+output_processed_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\UnitedSilicone\\Processed").__str__()
 check_interval = 5  # seconds
 # amount of time to wait in between next check IN SECONDS
 delete_interval = 24  # hours
