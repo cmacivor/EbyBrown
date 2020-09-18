@@ -60,7 +60,7 @@ class ContainerComplete:
 
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            updateContainerValues = (1, currentTimeStamp, self.ContainerID)
+            updateContainerValues = (self.QCFlag, currentTimeStamp, self.ContainerID)
 
         
             cursor.execute(updateContainerSQL , updateContainerValues)
