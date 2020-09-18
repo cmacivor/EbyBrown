@@ -23,15 +23,24 @@ import schedule
 import atexit
 # write code that happens if the script is terminated
 import shutil
+import python_config
+
+#get db credentials
+config = python_config.read_db_config()
+host = config.get('host')
+user = config.get('user')
+database = config.get('database')
+password = config.get('password')
+
  
 # deployment variables
-input_path = "D:\Downloads\Host"                       
+input_path = r"D:\Downloads\Host"                       
 # assign path of folder where the dat files are supposed to be
-output_path = "D:\Downloads\UnitedSilicone"
+output_path = r"D:\Downloads\UnitedSilicone"
 # assign path to save output with dat files folder
-input_processed_path = "D:\Downloads\Host\Processed"
+input_processed_path = r"D:\Downloads\Host\Processed"
 # assign path for Processed .DAT files
-output_processed_path = "D:\Downloads\UnitedSilicone\Processed"
+output_processed_path = r"D:\Downloads\UnitedSilicone\Processed"
 check_interval = 5  # seconds
 # amount of time to wait in between next check IN SECONDS
 delete_interval = 24  # hours
@@ -39,9 +48,9 @@ delete_interval = 24  # hours
 deploy_db = "assignment"
 
 # database file located dat_converter/database file
-db_host = '10.22.56.11'
-db_user = 'wcs'
-db_pass = '38qa_r4UUaW2d'
+db_host = host #'10.22.56.11'
+db_user = user #'wcs'
+db_pass = password #'38qa_r4UUaW2d'
 # insert database infromation
 
 cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host)                                                        
