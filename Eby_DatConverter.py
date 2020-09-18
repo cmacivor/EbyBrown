@@ -278,7 +278,7 @@ def do_everything():
             # variable for skipping lines
             ins = 0
             # variable for lines inserted
-            for j in range(num_lines)
+            for j in range(num_lines):
                 temp_dat = obj_dat()
                 # create dat object for sql insertion
                 line_dump_data = all_lines[j]
