@@ -261,7 +261,7 @@ def do_everything():
             os.remove(orig_file_path)
             # move original file
         else:
-            os.mkdir(save_path);
+            os.mkdir(save_path)
             # create new folder for dat files
             orig_dat_file = open(orig_file_name, "r")
             # openfile
@@ -329,17 +329,17 @@ def do_everything():
         # acknowledge no file is there
 
 
-schedule.every(check_interval).seconds.do(do_everything);
+schedule.every(check_interval).seconds.do(do_everything)
 # do it every x amount of  seconds
-schedule.every(delete_interval).hours.do(dat_truncate, deploy_db);
+schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 # schedule checking and deleting of tables
 while 1:
-    schedule.run_pending();
-    time.sleep(1);
+    schedule.run_pending()
+    time.sleep(1)
     # don't run it 50 times over
     
-atexit.register(os.chdir(input_path));
+atexit.register(os.chdir(input_path))
 # return home at termination of script just in case
-atexit.register(mycursor.close);
-atexit.register(cnct.close);
+atexit.register(mycursor.close)
+atexit.register(cnct.close)
 # makes sure the connection is always terminated if the script is terminated
