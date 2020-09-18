@@ -120,7 +120,7 @@ class NewContainer:
 
             addNewContainerSQL = ("INSERT INTO dat_master "
                                 "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, created_at, updated_at) "
-                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
             
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
