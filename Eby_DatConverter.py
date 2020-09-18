@@ -24,6 +24,7 @@ import atexit
 # write code that happens if the script is terminated
 import shutil
 import python_config
+from pathlib import Path, PureWindowsPath
 
 #get db credentials
 config = python_config.read_db_config()
@@ -34,7 +35,9 @@ password = config.get('password')
 
  
 # deployment variables
-input_path = r"D:\Downloads\Host"                       
+input_path = PureWindowsPath("C:\\Users\\Craig Maclvor\\Downloads\\Host")
+#test = PureWindowsPath(input_path)
+#test2 = Path(input_path)                     
 # assign path of folder where the dat files are supposed to be
 output_path = r"D:\Downloads\UnitedSilicone"
 # assign path to save output with dat files folder
