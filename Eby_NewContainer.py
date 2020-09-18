@@ -97,7 +97,6 @@ class NewContainer:
         existingRecord = self.doesNewContainerAlreadyExist()
 
         if existingRecord is not None:
-            #TODO: log this here
             if enabled == "1":                                                              #the ContainerID
                 hostLog.log(auth, domain, "Lucas to WXS", "LUCAS sent a duplicate record: ", existingRecord[2])
             return
@@ -120,14 +119,14 @@ class NewContainer:
             cursor = connection.cursor()
 
             addNewContainerSQL = ("INSERT INTO dat_master "
-                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, status, created_at, updated_at) "
+                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, created_at, updated_at) "
                                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
             
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             
             newContainer = (
-                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 'TEST', currentTimeStamp, currentTimeStamp
+                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 0, 0, 0, 0, 'SOCKET', '', currentTimeStamp, currentTimeStamp
             )
 
             cursor.execute(addNewContainerSQL, newContainer)
