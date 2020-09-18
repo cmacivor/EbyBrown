@@ -257,7 +257,7 @@ def do_everything():
         # create save path name
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and moving")
-            shutil.copyfile(orig_file_path, input_processed_path + "\" + orig_file_name)
+            shutil.copyfile(orig_file_path, input_processed_path + "\\" + orig_file_name)
             os.remove(orig_file_path)
             # move original file
         else:
