@@ -278,55 +278,55 @@ def do_everything():
             # variable for skipping lines
             ins = 0
             # variable for lines inserted
-            for j in range(num_lines):
-                temp_dat = obj_dat();
+            for j in range(num_lines)
+                temp_dat = obj_dat()
                 # create dat object for sql insertion
-                line_dump_data = all_lines[j];
+                line_dump_data = all_lines[j]
                 # get data from specific line 
-                temp_dat.line_dump = line_dump_data;
+                temp_dat.line_dump = line_dump_data
                 # assign line to file
-                dat_assign(temp_dat);
+                dat_assign(temp_dat)
                 # assing values for sql insertion
                 if temp_dat.rec_id == "        ":
-                    pass;
+                    pass
                 # get rid of blank line at the end of dat file
                 else:
-                    dat_insert(temp_dat, table_name);
+                    ### dat_insert(temp_dat, table_name)
                     # insert data into mysql database
-                    dat_insert(temp_dat, "dat_master");
+                    dat_insert(temp_dat, "dat_master")
                     # insert data into master table as well
                 
-                # dat_test(temp_dat);
+                # dat_test(temp_dat)
                 # test those values
                 if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
-                    s += 1;
+                    s += 1
                     # increment for number of file skipped
                 else:
                     if temp_dat.container_id == "":
                         pass;
                         # dont do anything
                     else:
-                        ins += 1;
+                        ins += 1
                         # increment incrementer
-                        new_file_name = temp_dat.container_id + ".DAT";
+                        new_file_name = temp_dat.container_id + ".DAT"
                         # get name for new dat file from line data 
-                        new_name_complete = os.path.join(save_path, new_file_name);
+                        new_name_complete = os.path.join(save_path, new_file_name)
                         # and name combined with save path
-                        new_file_data = stamp_data(temp_dat);
+                        new_file_data = stamp_data(temp_dat)
                         # get data to be added to the new dat file
-                        new_file = open(new_name_complete, "w");
+                        new_file = open(new_name_complete, "w")
                         # Creates a new file from the temp vars
-                        new_file.write(new_file_data);
-                        new_file.close();
+                        new_file.write(new_file_data)
+                        new_file.close()
                         # print that data was inserted for files true
-            print(str(table_name) + " had " + str(ins) + " files created and data inserted");
-            print(str(s) + " files were skipped due to having blank carton and juris fields");
+            print(str(table_name) + " had " + str(ins) + " files created and data inserted")
+            print(str(s) + " files were skipped due to having blank carton and juris fields")
             # print that data was inserted for file
-            os.remove(orig_file_path);
+            os.remove(orig_file_path)
             # delete original file
     else:
-        print("No file present");
-        # acknowlege no file is there
+        print("No file present")
+        # acknowledge no file is there
 
 
 schedule.every(check_interval).seconds.do(do_everything);
