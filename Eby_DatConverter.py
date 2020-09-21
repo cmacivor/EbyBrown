@@ -26,6 +26,7 @@ import shutil
 import python_config
 from pathlib import Path, PureWindowsPath
 from datetime import datetime
+import API_02_HostLog as hostLog
 
 #get db credentials
 config = python_config.read_db_config()
@@ -33,6 +34,13 @@ host = config.get('host')
 user = config.get('user')
 database = config.get('database')
 password = config.get('password')
+
+#get logging parameters
+loggingConfig = python_config.read_logging_config()
+enabled = loggingConfig.get('enabled')
+auth = loggingConfig.get('auth')
+domain = loggingConfig.get('domain')
+
 
 #get file paths
 datFileConverterConfig = python_config.read_fileconverter_config()
@@ -278,6 +286,8 @@ def do_everything():
         # create save path name
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and moving")
+            if enabled == "1":
+                hostLog.log(auth, domain, "DAT Converter to WXS", "Skipping File", "This file has already run through the program, skipping and moving")
             shutil.copyfile(orig_file_path, input_processed_path + "\\" + orig_file_name)
             os.remove(orig_file_path)
             # move original file
