@@ -302,6 +302,8 @@ def do_everything():
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
+                if enabled == "1":
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Numer Lines Checked", "Number of lines to be checked " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
                 #dat_table_create(table_name)
@@ -354,6 +356,9 @@ def do_everything():
                             # print that data was inserted for files true
                 print(str(table_name) + " had " + str(ins) + " files created and data inserted")
                 print(str(s) + " files were skipped due to having blank carton and juris fields")
+                if enabled == "1":
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
                 # print that data was inserted for file
                 #os.remove(orig_file_path)
                 # delete original file
