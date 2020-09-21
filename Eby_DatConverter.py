@@ -25,6 +25,7 @@ import atexit
 import shutil
 import python_config
 from pathlib import Path, PureWindowsPath
+from datetime import datetime
 
 #get db credentials
 config = python_config.read_db_config()
@@ -39,6 +40,7 @@ inputPath = datFileConverterConfig.get('input_path')
 outputPath = datFileConverterConfig.get('output_path')
 inputProcessedPath = datFileConverterConfig.get('input_processed_path')
 outputProcessedPath = datFileConverterConfig.get('output_processed_path')
+fileDeleteInterval = datFileConverterConfig.get('file_delete_interval')
 
 #TODO put these file paths into the config.ini
 # deployment variables
@@ -168,12 +170,13 @@ def dat_test(obj_dat):
 
 
 def dat_insert(obj_dat, table_name):
+    currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
     stop_no,container_id,assignment_id,pick_area,pick_type,
-    jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""")
+    jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s)""")
     # setup table insertion
     val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
-    obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name)
+    obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, currentTimeStamp, currentTimeStamp)
     # setup values for insertion
     mycursor.execute(sql, val)
     # insert the data into the table
@@ -211,11 +214,11 @@ def dat_truncate(database_name):
         # does queries
         if tables[j] == "dat_master":
             # make sure not to delete the master table
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL 14 DAY AND updated_at IS null LIMIT 1000;")
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL 14 DAY LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
         else:
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL 14 DAY AND updated_at IS null LIMIT 1000;")
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL 14 DAY LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL + " + fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
             mycursor.execute("select * from " + tables[j])
             mycursor.fetchall()
             # fetch all so we can get rows
@@ -228,7 +231,7 @@ def dat_truncate(database_name):
                 print(tables[j] + " was deleted")
                 # drop the table
         # executing queries
-        print(tables[j] + " is being cleaned of data older than 14 days")
+        print(tables[j] + " is being cleaned of data older than + " + fileDeleteInterval + " days")
         # make sure loop runs
         j += 1
         # inc
@@ -291,7 +294,7 @@ def do_everything():
                 print("Number of lines to be checked " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
-                dat_table_create(table_name)
+                #dat_table_create(table_name)
                 # create new table
                 s = 0
                 # variable for skipping lines
