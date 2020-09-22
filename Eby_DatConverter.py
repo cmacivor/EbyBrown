@@ -315,7 +315,7 @@ def do_everything():
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
-                    line_dump_data = all_lines[j]
+                    line_dump_data = all_lines[j] #TODO: this is where to call a new function to save to the route_statuses table
                     # get data from specific line 
                     temp_dat.line_dump = line_dump_data
                     # assign line to file
