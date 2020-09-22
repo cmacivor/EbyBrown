@@ -128,6 +128,7 @@ class obj_dat:
     # Assignment Name from .dat file less the word "Assignment"
     status = ""
     # Not sure what this is here for
+    priority = 0
 
 
 def dat_table_create(table_name):
@@ -191,6 +192,12 @@ def dat_insert(obj_dat, table_name):
     cnct.commit()
     # commit to database
 
+     #TODO: this is where to call a new function to save to the route_statuses table
+    #save_route_status(obj_dat)
+
+    
+    
+
 
 def stamp_data(obj_dat):
     juris = obj_dat.juris.replace(" ", "0")
@@ -250,6 +257,50 @@ def dat_truncate(database_name):
 ### dat_table_create("dat_master");
 # create master table if not exists
 
+def get_route_statuses():
+    # config = python_config.read_db_config()
+    # host = config.get('host')
+    # user = config.get('user')
+    # database = config.get('database')
+    # password = config.get('password')
+
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        getRouteStatusesSQL = "select distinct route from route_statuses" 
+
+    
+        cursor.execute(getRouteStatusesSQL)
+        
+        result = cursor.fetchall()
+        
+        cursor.close()
+        connection.close()
+        return result
+    except Exception as e:
+        print(e)
+        #connection.rollback()
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        # exceptionMsg = exc_value.msg
+        # exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+    finally:
+        cursor.close()
+        connection.close()
+
+def save_route_status(datFileRow):
+    createdAt = datetime.date()
+    row = datFileRow
+
 
 def do_everything():
     # put it all in a function
@@ -260,6 +311,7 @@ def do_everything():
     save_path_location = output_path
     # path to save new files to
     exists = False
+
     # init
     for fname in os.listdir('.'):
         print(fname)        
@@ -300,6 +352,9 @@ def do_everything():
                 all_lines = orig_dat_file.readlines()
                 # get read all lines variable
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
+
+                existingRouteStatuses = get_route_statuses()
+
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
                 if enabled == "1":
@@ -312,10 +367,12 @@ def do_everything():
                 # variable for skipping lines
                 ins = 0
                 # variable for lines inserted
+                #priority number 
+                priority = 0
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
-                    line_dump_data = all_lines[j] #TODO: this is where to call a new function to save to the route_statuses table
+                    line_dump_data = all_lines[j] 
                     # get data from specific line 
                     temp_dat.line_dump = line_dump_data
                     # assign line to file
@@ -329,7 +386,10 @@ def do_everything():
                         # insert data into mysql database
                         dat_insert(temp_dat, "dat_master")
                         # insert data into master table as well
-                    
+                        
+                        #save to the route status table
+                        #save_route_status(temp_dat)
+
                     # dat_test(temp_dat)
                     # test those values
                     if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
