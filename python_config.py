@@ -48,3 +48,17 @@ def read_server_config(filename='config.ini', section='ServerParams'):
         raise Exception('{0} not found in the {1} file'.format(section, filename))
 
     return serverParams
+
+def read_fileconverter_config(filename='config.ini', section='FileConverterParams'):
+    parser = ConfigParser()
+    parser.read(filename)
+
+    fileConverterParams = {}
+    if parser.has_section(section):
+        items = parser.items(section)
+        for item in items:
+            fileConverterParams[item[0]] = item[1]
+    else:
+        raise Exception('{0} not found in the {1} file'.format(section, filename))
+
+    return fileConverterParams

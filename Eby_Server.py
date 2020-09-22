@@ -71,6 +71,7 @@ if __name__ == "__main__":
     serverParams = python_config.read_server_config()
     host = serverParams.get('host')
     port = int(serverParams.get('port'))
+    print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
     
     HOST, PORT = host, port #"localhost", 9999
 

@@ -23,15 +23,43 @@ import schedule
 import atexit
 # write code that happens if the script is terminated
 import shutil
- 
+import python_config
+from pathlib import Path, PureWindowsPath
+from datetime import datetime
+import API_02_HostLog as hostLog
+
+#get db credentials
+config = python_config.read_db_config()
+host = config.get('host')
+user = config.get('user')
+database = config.get('database')
+password = config.get('password')
+
+#get logging parameters
+loggingConfig = python_config.read_logging_config()
+enabled = loggingConfig.get('enabled')
+auth = loggingConfig.get('auth')
+domain = loggingConfig.get('domain')
+
+
+#get file paths
+datFileConverterConfig = python_config.read_fileconverter_config()
+inputPath = datFileConverterConfig.get('input_path')
+outputPath = datFileConverterConfig.get('output_path')
+inputProcessedPath = datFileConverterConfig.get('input_processed_path')
+outputProcessedPath = datFileConverterConfig.get('output_processed_path')
+fileDeleteInterval = datFileConverterConfig.get('file_delete_interval')
+
+#TODO put these file paths into the config.ini
 # deployment variables
-input_path = "D:\Downloads\Host"                       
+input_path = PureWindowsPath(inputPath).__str__()
+                     
 # assign path of folder where the dat files are supposed to be
-output_path = "D:\Downloads\UnitedSilicone"
+output_path = PureWindowsPath(outputPath).__str__()
 # assign path to save output with dat files folder
-input_processed_path = "D:\Downloads\Host\Processed"
+input_processed_path = PureWindowsPath(inputProcessedPath).__str__()
 # assign path for Processed .DAT files
-output_processed_path = "D:\Downloads\UnitedSilicone\Processed"
+output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
 check_interval = 5  # seconds
 # amount of time to wait in between next check IN SECONDS
 delete_interval = 24  # hours
@@ -39,9 +67,9 @@ delete_interval = 24  # hours
 deploy_db = "assignment"
 
 # database file located dat_converter/database file
-db_host = '10.22.56.11'
-db_user = 'wcs'
-db_pass = '38qa_r4UUaW2d'
+db_host = host #'10.22.56.11'
+db_user = user #'wcs'
+db_pass = password #'38qa_r4UUaW2d'
 # insert database infromation
 
 cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host)                                                        
@@ -150,12 +178,13 @@ def dat_test(obj_dat):
 
 
 def dat_insert(obj_dat, table_name):
+    currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
     stop_no,container_id,assignment_id,pick_area,pick_type,
-    jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""")
+    jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s)""")
     # setup table insertion
     val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
-    obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name)
+    obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, currentTimeStamp, currentTimeStamp)
     # setup values for insertion
     mycursor.execute(sql, val)
     # insert the data into the table
@@ -193,11 +222,11 @@ def dat_truncate(database_name):
         # does queries
         if tables[j] == "dat_master":
             # make sure not to delete the master table
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL 14 DAY AND updated_at IS null LIMIT 1000;")
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL 14 DAY LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
         else:
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL 14 DAY AND updated_at IS null LIMIT 1000;")
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL 14 DAY LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL + " + fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
             mycursor.execute("select * from " + tables[j])
             mycursor.fetchall()
             # fetch all so we can get rows
@@ -210,7 +239,7 @@ def dat_truncate(database_name):
                 print(tables[j] + " was deleted")
                 # drop the table
         # executing queries
-        print(tables[j] + " is being cleaned of data older than 14 days")
+        print(tables[j] + " is being cleaned of data older than + " + fileDeleteInterval + " days")
         # make sure loop runs
         j += 1
         # inc
@@ -257,73 +286,82 @@ def do_everything():
         # create save path name
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and moving")
+            if enabled == "1":
+                hostLog.log(auth, domain, "DAT Converter to WXS", "Skipping File", "This file has already run through the program, skipping and moving")
             shutil.copyfile(orig_file_path, input_processed_path + "\\" + orig_file_name)
             os.remove(orig_file_path)
             # move original file
         else:
             os.mkdir(save_path)
             # create new folder for dat files
-            orig_dat_file = open(orig_file_name, "r")
+            #orig_dat_file = open(orig_file_name, "r")
+            with open(orig_file_name, "r") as orig_dat_file:
             # openfile
-            all_lines = orig_dat_file.readlines()
-            # get read all lines variable
-            num_lines = sum(1 for line in open(orig_file_name))
-            # get number of lines in the file
-            print("Number of lines to be checked " + str(num_lines))
-            # print number of lines
-            table_name = temp_name[:-1].replace("-", "_")
-            dat_table_create(table_name)
-            # create new table
-            s = 0
-            # variable for skipping lines
-            ins = 0
-            # variable for lines inserted
-            for j in range(num_lines):
-                temp_dat = obj_dat()
-                # create dat object for sql insertion
-                line_dump_data = all_lines[j]
-                # get data from specific line 
-                temp_dat.line_dump = line_dump_data
-                # assign line to file
-                dat_assign(temp_dat)
-                # assing values for sql insertion
-                if temp_dat.rec_id == "        ":
-                    pass
-                # get rid of blank line at the end of dat file
-                else:
-                    ### dat_insert(temp_dat, table_name)
-                    # insert data into mysql database
-                    dat_insert(temp_dat, "dat_master")
-                    # insert data into master table as well
-                
-                # dat_test(temp_dat)
-                # test those values
-                if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
-                    s += 1
-                    # increment for number of file skipped
-                else:
-                    if temp_dat.container_id == "":
-                        pass;
-                        # dont do anything
+                all_lines = orig_dat_file.readlines()
+                # get read all lines variable
+                num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
+                # get number of lines in the file
+                print("Number of lines to be checked " + str(num_lines))
+                if enabled == "1":
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Numer Lines Checked", "Number of lines to be checked " + str(num_lines))
+                # print number of lines
+                table_name = temp_name[:-1].replace("-", "_")
+                #dat_table_create(table_name)
+                # create new table
+                s = 0
+                # variable for skipping lines
+                ins = 0
+                # variable for lines inserted
+                for j in range(num_lines):
+                    temp_dat = obj_dat()
+                    # create dat object for sql insertion
+                    line_dump_data = all_lines[j]
+                    # get data from specific line 
+                    temp_dat.line_dump = line_dump_data
+                    # assign line to file
+                    dat_assign(temp_dat)
+                    # assing values for sql insertion
+                    if temp_dat.rec_id == "        ":
+                        pass
+                    # get rid of blank line at the end of dat file
                     else:
-                        ins += 1
-                        # increment incrementer
-                        new_file_name = temp_dat.container_id + ".DAT"
-                        # get name for new dat file from line data 
-                        new_name_complete = os.path.join(save_path, new_file_name)
-                        # and name combined with save path
-                        new_file_data = stamp_data(temp_dat)
-                        # get data to be added to the new dat file
-                        new_file = open(new_name_complete, "w")
-                        # Creates a new file from the temp vars
-                        new_file.write(new_file_data)
-                        new_file.close()
-                        # print that data was inserted for files true
-            print(str(table_name) + " had " + str(ins) + " files created and data inserted")
-            print(str(s) + " files were skipped due to having blank carton and juris fields")
-            # print that data was inserted for file
-            os.remove(orig_file_path)
-            # delete original file
+                        ### dat_insert(temp_dat, table_name)
+                        # insert data into mysql database
+                        dat_insert(temp_dat, "dat_master")
+                        # insert data into master table as well
+                    
+                    # dat_test(temp_dat)
+                    # test those values
+                    if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
+                        s += 1
+                        # increment for number of file skipped
+                    else:
+                        if temp_dat.container_id == "":
+                            pass;
+                            # dont do anything
+                        else:
+                            ins += 1
+                            # increment incrementer
+                            new_file_name = temp_dat.container_id + ".DAT"
+                            # get name for new dat file from line data 
+                            new_name_complete = os.path.join(save_path, new_file_name)
+                            # and name combined with save path
+                            new_file_data = stamp_data(temp_dat)
+                            # get data to be added to the new dat file
+                            #new_file = open(new_name_complete, "w")
+                            with open(new_name_complete, "w") as new_file:
+                            # Creates a new file from the temp vars
+                                new_file.write(new_file_data)
+                                #new_file.close()
+                            # print that data was inserted for files true
+                print(str(table_name) + " had " + str(ins) + " files created and data inserted")
+                print(str(s) + " files were skipped due to having blank carton and juris fields")
+                if enabled == "1":
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
+                # print that data was inserted for file
+                #os.remove(orig_file_path)
+                # delete original file
     else:
         print("No file present")
         # acknowledge no file is there
