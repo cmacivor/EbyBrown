@@ -2,8 +2,8 @@
 
 import socket, sys
 
-#HOST, PORT = "localhost", 9999
-HOST, PORT = "10.22.56.11", 6543
+HOST, PORT = "localhost", 9999
+#HOST, PORT = "10.22.56.11", 6543
 data = " ".join(sys.argv[1:])
 print('data = %s' %data)
 
