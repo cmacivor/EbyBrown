@@ -50,8 +50,9 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
                 #log inbound message
             if enabled == "1":
-                hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", message)
-                hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response)
+                decodedMessage = str(message.decode('utf-8'))
+                hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", decodedMessage)
+                #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
             else:
                 print(loggingNotEnabledMsg)
             return response

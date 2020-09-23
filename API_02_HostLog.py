@@ -26,8 +26,8 @@ def log(auth, domain, source, m_type, message):
     url = domain + api
 
     #decodedMessage = message.decode('ascii')
-    #data = {"source": source, "type": m_type, "message": decodedMessage}
-    data = {"source": "Craig Test", "type": "a test", "message": "a test msgggg"}
+    data = {"source": source, "type": m_type, "message": message}
+    #data = {"source": "Craig Test", "type": "a test", "message": "a test msgggg"}
 
     headers = {'Content-type': 'application/json', "Authorization": auth}
 
