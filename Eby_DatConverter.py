@@ -83,12 +83,12 @@ mycursor.execute("USE " + deploy_db + ";")
 # switch to right database
 
 class route_status:
-    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at, numberLines):
+    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at, numberLines, existingRecordCount):
         self.ID = id
         self.Route = route
         self.DockDoor = dockDoor
         self.TrailerNumber = trailerNumber
-        self.Priority = priority + numberLines
+        self.Priority = priority + numberLines - existingRecordCount + 1
         self.Enable = enable
         self.Status = status
         self.DateAt = date_at
@@ -354,9 +354,10 @@ def get_route_statuses(numberLines):
         cursor.execute(getRouteStatusesSQL)
         
         result = cursor.fetchall()
+        existingRecordCount = len(result)
         routeStatuses = []
         for row in result:
-            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines)
+            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines, existingRecordCount)
             routeStatuses.append(routeStatus)
         
         cursor.close()
