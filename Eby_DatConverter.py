@@ -82,6 +82,21 @@ mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db)
 mycursor.execute("USE " + deploy_db + ";")
 # switch to right database
 
+class route_status:
+    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at):
+        self.ID = id
+        self.Route = route
+        self.DockDoor = dockDoor
+        self.TrailerNumber = trailerNumber
+        self.Priority = priority
+        self.Enable = enable
+        self.Status = status
+        self.DateAt = date_at
+        self.CreatedAt = created_at
+        self.UpdatedAt = updated_at
+    
+
+
 
 class obj_dat:
     # create object for easier organization and database management
@@ -258,12 +273,6 @@ def dat_truncate(database_name):
 # create master table if not exists
 
 def get_route_statuses():
-    # config = python_config.read_db_config()
-    # host = config.get('host')
-    # user = config.get('user')
-    # database = config.get('database')
-    # password = config.get('password')
-
     try:
         connection = mysql.connector.connect(
             host= host, 
@@ -274,16 +283,21 @@ def get_route_statuses():
 
         cursor = connection.cursor()
 
-        getRouteStatusesSQL = "select distinct route from route_statuses" 
+        #getRouteStatusesSQL = "select distinct route from route_statuses" 
+        getRouteStatusesSQL = "select * from route_statuses"
 
     
         cursor.execute(getRouteStatusesSQL)
         
         result = cursor.fetchall()
+        routeStatuses = []
+        for row in result:
+            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+            routeStatuses.append(routeStatus)
         
         cursor.close()
         connection.close()
-        return result
+        return routeStatuses #result
     except Exception as e:
         print(e)
         #connection.rollback()
