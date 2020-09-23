@@ -33,6 +33,7 @@ config = python_config.read_db_config()
 host = config.get('host')
 user = config.get('user')
 database = config.get('database')
+wcsDatabase = config.get('database')
 password = config.get('password')
 
 #get logging parameters
@@ -274,7 +275,7 @@ def insert_route_status(routeNumber, priorityNumber):
         connection = mysql.connector.connect(
             host= host, 
             user= user, 
-            database= database, 
+            database= wcsDatabase, 
             password= password 
         )
 
@@ -305,7 +306,7 @@ def get_distinct_route_numbers():
         connection = mysql.connector.connect(
             host= host, 
             user= user, 
-            database= database, 
+            database= wcsDatabase, 
             password= password 
         )
 
@@ -342,7 +343,7 @@ def get_route_statuses(numberLines):
         connection = mysql.connector.connect(
             host= host, 
             user= user, 
-            database= database, 
+            database= wcsDatabase, 
             password= password 
         )
 
@@ -381,7 +382,7 @@ def update_route_status(routeStatus):
         connection = mysql.connector.connect(
             host= host, 
             user= user, 
-            database= database, 
+            database= wcsDatabase, 
             password= password 
         )
 
