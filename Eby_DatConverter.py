@@ -83,12 +83,12 @@ mycursor.execute("USE " + deploy_db + ";")
 # switch to right database
 
 class route_status:
-    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at):
+    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at, numberLines):
         self.ID = id
         self.Route = route
         self.DockDoor = dockDoor
         self.TrailerNumber = trailerNumber
-        self.Priority = priority
+        self.Priority = priority + numberLines
         self.Enable = enable
         self.Status = status
         self.DateAt = date_at
@@ -272,7 +272,44 @@ def dat_truncate(database_name):
 ### dat_table_create("dat_master");
 # create master table if not exists
 
-def get_route_statuses():
+def get_distinct_route_numbers():
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        getRouteStatusesSQL = "select distinct route from route_statuses" 
+        #getRouteStatusesSQL = "select * from route_statuses"
+
+        cursor.execute(getRouteStatusesSQL)
+        
+        processedResult = []
+        result = cursor.fetchall()
+        for row in result:
+            processedResult.append(int(row[0]))
+
+        cursor.close()
+        connection.close()
+        return processedResult
+    except Exception as e:
+        print(e)
+        #connection.rollback()
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        # exceptionMsg = exc_value.msg
+        # exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_route_statuses(numberLines):
     try:
         connection = mysql.connector.connect(
             host= host, 
@@ -292,7 +329,7 @@ def get_route_statuses():
         result = cursor.fetchall()
         routeStatuses = []
         for row in result:
-            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9])
+            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines)
             routeStatuses.append(routeStatus)
         
         cursor.close()
@@ -367,7 +404,11 @@ def do_everything():
                 # get read all lines variable
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
 
-                existingRouteStatuses = get_route_statuses()
+                existingRouteStatuses = get_route_statuses(num_lines)
+                distinctRouteNumbers = get_distinct_route_numbers()
+
+                #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
+
 
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
@@ -381,8 +422,6 @@ def do_everything():
                 # variable for skipping lines
                 ins = 0
                 # variable for lines inserted
-                #priority number 
-                priority = 0
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
@@ -401,8 +440,10 @@ def do_everything():
                         dat_insert(temp_dat, "dat_master")
                         # insert data into master table as well
                         
-                        #save to the route status table
+                        #save to the route status table. route_num in temp_dat has the route number
                         #save_route_status(temp_dat)
+                        if temp_dat.route_num != '':
+                            routeNumber = int(temp_dat.route_num.strip())
 
                     # dat_test(temp_dat)
                     # test those values
