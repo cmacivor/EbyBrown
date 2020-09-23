@@ -269,8 +269,36 @@ def dat_truncate(database_name):
     # commit changes
 
 
-### dat_table_create("dat_master");
-# create master table if not exists
+def insert_route_status(routeNumber, priorityNumber):
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        insertSQL = ("INSERT INTO route_statuses "
+                    "(route, dock_door, trailer_number, priority, enable, status, date_at, created_at, updated_at) " 
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+
+        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        today = datetime.now().date().strftime('%Y-%m-%d')
+
+        newRouteStatus = (routeNumber, "", "", priorityNumber, "Inactive", "Not Started", today, currentTimeStamp, currentTimeStamp)
+
+        cursor.execute(insertSQL, newRouteStatus)
+        connection.commit()
+        
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+
 
 def get_distinct_route_numbers():
     try:
@@ -422,6 +450,7 @@ def do_everything():
                 # variable for skipping lines
                 ins = 0
                 # variable for lines inserted
+                priorityNumber = 0
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
@@ -442,12 +471,14 @@ def do_everything():
                         
                         #save to the route status table. route_num in temp_dat has the route number
                         #save_route_status(temp_dat)
-                        routeNumbersNotExisting = []
                         if temp_dat.route_num != '':
                             routeNumber = int(temp_dat.route_num.strip())
                             if routeNumber not in distinctRouteNumbers:
                                 #insert into the route status table
-                                routeNumbersNotExisting.append(routeNumber)
+                                #routeNumbersNotExisting.append(routeNumber)
+                                priorityNumber += 1
+                                insert_route_status(routeNumber, priorityNumber)
+
 
                     # dat_test(temp_dat)
                     # test those values
@@ -482,7 +513,6 @@ def do_everything():
                 #os.remove(orig_file_path)
                 # delete original file
 
-                test = routeNumbersNotExisting
     else:
         print("No file present")
         # acknowledge no file is there
