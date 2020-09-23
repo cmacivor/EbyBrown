@@ -89,7 +89,7 @@ class route_status:
         self.Route = route
         self.DockDoor = dockDoor
         self.TrailerNumber = trailerNumber
-        self.Priority = priority + numberLines - existingRecordCount + 1
+        self.Priority = priority  #+ numberLines - existingRecordCount + 1
         self.Enable = enable
         self.Status = status
         self.DateAt = date_at
@@ -377,7 +377,7 @@ def get_route_statuses(numberLines):
         cursor.close()
         connection.close()
 
-def update_route_status(routeStatus):
+def update_route_status(routeStatus, prioritynumber):
     try:
         connection = mysql.connector.connect(
             host= host, 
@@ -391,7 +391,7 @@ def update_route_status(routeStatus):
         #getRouteStatusesSQL = "select distinct route from route_statuses" 
         getRouteStatusesSQL = "UPDATE route_statuses SET priority = %s where id = %s"
     
-        updateValues = (routeStatus.Priority, routeStatus.ID)
+        updateValues = (prioritynumber, routeStatus.ID)
 
         cursor.execute(getRouteStatusesSQL, updateValues)
 
@@ -474,10 +474,6 @@ def do_everything():
                 existingRoutesStatuses = get_route_statuses(num_lines)
                 distinctRouteNumbers = get_distinct_route_numbers()
 
-                #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
-                for route in existingRoutesStatuses:
-                    update_route_status(route)
-
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
                 if enabled == "1":
@@ -546,6 +542,13 @@ def do_everything():
                             # print that data was inserted for files true
                 print(str(table_name) + " had " + str(ins) + " files created and data inserted")
                 print(str(s) + " files were skipped due to having blank carton and juris fields")
+
+                #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
+                for route in existingRoutesStatuses:
+                    priorityNumber +=1
+                    update_route_status(route, priorityNumber)
+
+
                 if enabled == "1":
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
