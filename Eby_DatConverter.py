@@ -33,7 +33,7 @@ config = python_config.read_db_config()
 host = config.get('host')
 user = config.get('user')
 database = config.get('database')
-wcsDatabase = config.get('database')
+wcsDatabase = config.get('wcsDatabase')
 password = config.get('password')
 
 #get logging parameters
