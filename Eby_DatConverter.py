@@ -351,7 +351,6 @@ def get_route_statuses(numberLines):
         #getRouteStatusesSQL = "select distinct route from route_statuses" 
         getRouteStatusesSQL = "select * from route_statuses"
 
-    
         cursor.execute(getRouteStatusesSQL)
         
         result = cursor.fetchall()
@@ -376,9 +375,47 @@ def get_route_statuses(numberLines):
         cursor.close()
         connection.close()
 
-def save_route_status(datFileRow):
-    createdAt = datetime.date()
-    row = datFileRow
+def update_route_status(routeStatus):
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= database, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        #getRouteStatusesSQL = "select distinct route from route_statuses" 
+        getRouteStatusesSQL = "UPDATE route_statuses SET priority = %s where id = %s"
+    
+        updateValues = (routeStatus.Priority, routeStatus.ID)
+
+        cursor.execute(getRouteStatusesSQL, updateValues)
+
+        connection.commit()
+        
+        # result = cursor.fetchall()
+        # routeStatuses = []
+        # for row in result:
+        #     routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines)
+        #     routeStatuses.append(routeStatus)
+        
+        cursor.close()
+        connection.close()
+        #return routeStatuses #result
+    except Exception as e:
+        print(e)
+        #connection.rollback()
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        # exceptionMsg = exc_value.msg
+        # exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def do_everything():
@@ -432,11 +469,12 @@ def do_everything():
                 # get read all lines variable
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
 
-                existingRouteStatuses = get_route_statuses(num_lines)
+                existingRoutesStatuses = get_route_statuses(num_lines)
                 distinctRouteNumbers = get_distinct_route_numbers()
 
                 #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
-
+                for route in existingRoutesStatuses:
+                    update_route_status(route)
 
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
