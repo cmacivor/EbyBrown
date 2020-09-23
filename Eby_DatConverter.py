@@ -442,8 +442,12 @@ def do_everything():
                         
                         #save to the route status table. route_num in temp_dat has the route number
                         #save_route_status(temp_dat)
+                        routeNumbersNotExisting = []
                         if temp_dat.route_num != '':
                             routeNumber = int(temp_dat.route_num.strip())
+                            if routeNumber not in distinctRouteNumbers:
+                                #insert into the route status table
+                                routeNumbersNotExisting.append(routeNumber)
 
                     # dat_test(temp_dat)
                     # test those values
@@ -477,6 +481,8 @@ def do_everything():
                 # print that data was inserted for file
                 #os.remove(orig_file_path)
                 # delete original file
+
+                test = routeNumbersNotExisting
     else:
         print("No file present")
         # acknowledge no file is there
