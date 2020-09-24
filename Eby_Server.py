@@ -5,9 +5,11 @@ import Eby_Message
 import python_config
 import requests
 import API_02_HostLog as hostLog
- 
+
+
 
 class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
+
     """
     The RequestHandler class for our server.
 
@@ -16,6 +18,11 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
     client.
     """
     def handle(self):
+        loggingConfig = python_config.read_logging_config()
+        #enabled = loggingConfig.get('enabled')
+        #api = loggingConfig.get('api')
+        auth = loggingConfig.get('auth')
+        domain = loggingConfig.get('domain')
         
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
@@ -23,6 +30,8 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
 
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
+        test = str(self.data, 'utf-8') #this works!!!
+        hostLog.log(auth, domain, "inbound", "ACK", test)
 
         response = self.createResponseMessage(self.data)
 
