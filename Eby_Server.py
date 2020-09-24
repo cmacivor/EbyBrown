@@ -5,6 +5,7 @@ import Eby_Message
 import python_config
 import requests
 import API_02_HostLog as hostLog
+import Eby_Server2
 
 
 
@@ -31,7 +32,7 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
         test = str(self.data, 'utf-8') #this works!!!
-        hostLog.log(auth, domain, "inbound", "ACK", test)
+        #hostLog.log(auth, domain, "inbound", "ACK", test)
 
         response = self.createResponseMessage(self.data)
 
@@ -86,7 +87,8 @@ if __name__ == "__main__":
     HOST, PORT = host, port #"localhost", 9999
 
     # instantiate the server, and bind to localhost on port 9999
-    server = socketserver.TCPServer((HOST, PORT), EbyTCPSocketHandler)
+    #server = socketserver.TCPServer((HOST, PORT), EbyTCPSocketHandler)
+    server = Eby_Server2.EchoServer((HOST, PORT), EbyTCPSocketHandler)
 
     # activate the server
     # this will keep running until Ctrl-C
