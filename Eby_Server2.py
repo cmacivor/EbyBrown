@@ -74,10 +74,12 @@ class EchoServer(socketserver.TCPServer):
 
     def finish_request(self, request, client_address):
         self.logger.debug('finish_request(%s, %s)', request, client_address)
+        print('finish_request')
         return socketserver.TCPServer.finish_request(self, request, client_address)
 
     def close_request(self, request_address):
         self.logger.debug('close_request(%s)', request_address)
+        print('close_request')
         return socketserver.TCPServer.close_request(self, request_address)
 
     
