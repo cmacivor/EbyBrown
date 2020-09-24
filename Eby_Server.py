@@ -27,7 +27,9 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
         
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
-        self.data = self.rfile.readline().strip()
+        #self.data = self.rfile.readline().strip()
+        self.data = self.request.recv(1024)
+
 
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
