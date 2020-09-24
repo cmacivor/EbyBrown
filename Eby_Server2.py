@@ -33,35 +33,43 @@ class EchoServer(socketserver.TCPServer):
     def __init__(self, server_address, handler_class=EchoRequestHandler):
         self.logger = logging.getLogger('EchoServer')
         self.logger.debug('__init__')
+        print('__init__')
         socketserver.TCPServer.__init__(self, server_address, handler_class)
         return
 
     def server_activate(self):
         self.logger.debug('server_activate')
+        print('server_activate')
         socketserver.TCPServer.server_activate(self)
         return
 
     def serve_forever(self):
         self.logger.debug('waiting for request')
+        print('waiting for request')
         self.logger.info('Handling requests, press <Ctrl-C> to quit')
+        print('Handling requests, press <Ctrl-C> to quit')
         while True:
             self.handle_request()
         return
 
     def handle_request(self):
         self.logger.debug('handle_request')
+        print('handle_request')
         return socketserver.TCPServer.handle_request(self)
 
     def verify_request(self, request, client_address):
         self.logger.debug('verify_request(%s, %s)', request, client_address)
+        print('verify_request')
         return socketserver.TCPServer.verify_request(self, request, client_address)
 
     def process_request(self, request, client_address):
         self.logger.debug('process_request(%s, %s)', request, client_address)
+        print('process_request')
         return socketserver.TCPServer.process_request(self, request, client_address)
 
     def server_close(self):
         self.logger.debug('server_close')
+        print('server_close')
         return socketserver.TCPServer.server_close(self)
 
     def finish_request(self, request, client_address):
