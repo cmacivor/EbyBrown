@@ -33,6 +33,7 @@ config = python_config.read_db_config()
 host = config.get('host')
 user = config.get('user')
 database = config.get('database')
+wcsDatabase = config.get('wcsdatabase')
 password = config.get('password')
 
 #get logging parameters
@@ -82,6 +83,21 @@ mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db)
 mycursor.execute("USE " + deploy_db + ";")
 # switch to right database
 
+class route_status:
+    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at, numberLines, existingRecordCount):
+        self.ID = id
+        self.Route = route
+        self.DockDoor = dockDoor
+        self.TrailerNumber = trailerNumber
+        self.Priority = priority  #+ numberLines - existingRecordCount + 1
+        self.Enable = enable
+        self.Status = status
+        self.DateAt = date_at
+        self.CreatedAt = created_at
+        self.UpdatedAt = updated_at
+    
+
+
 
 class obj_dat:
     # create object for easier organization and database management
@@ -128,6 +144,7 @@ class obj_dat:
     # Assignment Name from .dat file less the word "Assignment"
     status = ""
     # Not sure what this is here for
+    priority = 0
 
 
 def dat_table_create(table_name):
@@ -191,6 +208,12 @@ def dat_insert(obj_dat, table_name):
     cnct.commit()
     # commit to database
 
+     #TODO: this is where to call a new function to save to the route_statuses table
+    #save_route_status(obj_dat)
+
+    
+    
+
 
 def stamp_data(obj_dat):
     juris = obj_dat.juris.replace(" ", "0")
@@ -247,8 +270,154 @@ def dat_truncate(database_name):
     # commit changes
 
 
-### dat_table_create("dat_master");
-# create master table if not exists
+def insert_route_status(routeNumber, priorityNumber):
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        insertSQL = ("INSERT INTO route_statuses "
+                    "(route, dock_door, trailer_number, priority, enable, status, date_at, created_at, updated_at) " 
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+
+        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        today = datetime.now().date().strftime('%Y-%m-%d')
+
+        newRouteStatus = (routeNumber, "", "", priorityNumber, "Inactive", "Not Started", today, currentTimeStamp, currentTimeStamp)
+
+        cursor.execute(insertSQL, newRouteStatus)
+        connection.commit()
+        
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def get_distinct_route_numbers():
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        getRouteStatusesSQL = "select distinct route from route_statuses" 
+        #getRouteStatusesSQL = "select * from route_statuses"
+
+        cursor.execute(getRouteStatusesSQL)
+        
+        processedResult = []
+        result = cursor.fetchall()
+        for row in result:
+            processedResult.append(int(row[0]))
+
+        cursor.close()
+        connection.close()
+        return processedResult
+    except Exception as e:
+        print(e)
+        #connection.rollback()
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        # exceptionMsg = exc_value.msg
+        # exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+    finally:
+        cursor.close()
+        connection.close()
+
+def get_route_statuses(numberLines):
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        #getRouteStatusesSQL = "select distinct route from route_statuses" 
+        getRouteStatusesSQL = "select * from route_statuses"
+
+        cursor.execute(getRouteStatusesSQL)
+        
+        result = cursor.fetchall()
+        existingRecordCount = len(result)
+        routeStatuses = []
+        for row in result:
+            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines, existingRecordCount)
+            routeStatuses.append(routeStatus)
+        
+        cursor.close()
+        connection.close()
+        return routeStatuses #result
+    except Exception as e:
+        print(e)
+        #connection.rollback()
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        # exceptionMsg = exc_value.msg
+        # exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+    finally:
+        cursor.close()
+        connection.close()
+
+def update_route_status(routeStatus, prioritynumber):
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        #getRouteStatusesSQL = "select distinct route from route_statuses" 
+        getRouteStatusesSQL = "UPDATE route_statuses SET priority = %s where id = %s"
+    
+        updateValues = (prioritynumber, routeStatus.ID)
+
+        cursor.execute(getRouteStatusesSQL, updateValues)
+
+        connection.commit()
+        
+        # result = cursor.fetchall()
+        # routeStatuses = []
+        # for row in result:
+        #     routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines)
+        #     routeStatuses.append(routeStatus)
+        
+        cursor.close()
+        connection.close()
+        #return routeStatuses #result
+    except Exception as e:
+        print(e)
+        #connection.rollback()
+        # exc_type, exc_value, exc_traceback = sys.exc_info()
+        # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        # exceptionMsg = exc_value.msg
+        # exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def do_everything():
@@ -260,6 +429,7 @@ def do_everything():
     save_path_location = output_path
     # path to save new files to
     exists = False
+
     # init
     for fname in os.listdir('.'):
         print(fname)        
@@ -300,6 +470,10 @@ def do_everything():
                 all_lines = orig_dat_file.readlines()
                 # get read all lines variable
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
+
+                existingRoutesStatuses = get_route_statuses(num_lines)
+                distinctRouteNumbers = get_distinct_route_numbers()
+
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
                 if enabled == "1":
@@ -312,10 +486,11 @@ def do_everything():
                 # variable for skipping lines
                 ins = 0
                 # variable for lines inserted
+                priorityNumber = 0
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
-                    line_dump_data = all_lines[j]
+                    line_dump_data = all_lines[j] 
                     # get data from specific line 
                     temp_dat.line_dump = line_dump_data
                     # assign line to file
@@ -329,7 +504,18 @@ def do_everything():
                         # insert data into mysql database
                         dat_insert(temp_dat, "dat_master")
                         # insert data into master table as well
-                    
+                        
+                        #save to the route status table. route_num in temp_dat has the route number
+                        #save_route_status(temp_dat)
+                        if temp_dat.route_num != '':
+                            routeNumber = int(temp_dat.route_num.strip())
+                            if routeNumber not in distinctRouteNumbers:
+                                #insert into the route status table
+                                #routeNumbersNotExisting.append(routeNumber)
+                                priorityNumber += 1
+                                insert_route_status(routeNumber, priorityNumber)
+
+
                     # dat_test(temp_dat)
                     # test those values
                     if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
@@ -356,12 +542,20 @@ def do_everything():
                             # print that data was inserted for files true
                 print(str(table_name) + " had " + str(ins) + " files created and data inserted")
                 print(str(s) + " files were skipped due to having blank carton and juris fields")
+
+                #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
+                for route in existingRoutesStatuses:
+                    priorityNumber +=1
+                    update_route_status(route, priorityNumber)
+
+
                 if enabled == "1":
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
                 # print that data was inserted for file
                 #os.remove(orig_file_path)
                 # delete original file
+
     else:
         print("No file present")
         # acknowledge no file is there
