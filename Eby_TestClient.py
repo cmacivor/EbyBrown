@@ -19,8 +19,8 @@ try:
     sock.sendall(bytes(data + "\n", "ascii"))
 
     # receive data back from the server
-    #received = str(sock.recv(1024))
-    received = str(sock.recv(1024), "ascii")
+    received = str(sock.recv(1024))
+    #received = str(sock.recv(1024), "ascii")
 finally:
     # shut down
     sock.close()

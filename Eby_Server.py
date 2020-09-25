@@ -38,9 +38,15 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
 
         response = self.createResponseMessage(self.data)
 
+        #bytesToReturn = bytearray(response, 'ascii')
+
+        #print('bytes to return:')
+        #print(bytesToReturn)
+
         # Likewise, self.wfile is a file-like object used to write back
         # to the client
         self.wfile.write(response)
+        #self.wfile.write(bytesToReturn)
     
 
     def createResponseMessage(self, message):
