@@ -8,6 +8,9 @@ import Eby_RouteComplete
 import python_config
 import requests
 import API_02_HostLog as hostLog
+import unicodedata
+import string
+import re
 
 class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
@@ -23,18 +26,27 @@ class MessageBase:
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.AsciiRequestMessage) #len(self.libserver.request[:])
         doesContainKeepAlive = self.KeepAliveRequestConstant in self.AsciiRequestMessage #.decode('ascii') #self.libserver.request[:].decode('ascii')
-        if messageLength == 20 and doesContainKeepAlive: #Account for the extra characters created by hexadecimal values
+        if messageLength == 14 and doesContainKeepAlive: #Account for the extra characters created by hexadecimal values
             return True
         else:
             return False
     
     def getFullAcknowledgeKeepAliveMessage(self):
         fields = self.parsePipeDelimitedValues()
-        msgSeqNumber =  fields[0][3:] #remove the start transmission character
-    
+        #msgSeqNumber =  fields[0][1:] #remove the start transmission character
+        #msgSeqNumber =  fields[0][1:]
+        msgSeqNumber = str(fields[0])
+       
+        stringList = list(msgSeqNumber)
+        msgLength = len(stringList)
+        numberWithoutSTX = ""
+        for index in range(1, msgLength):
+            i = stringList[index]
+            numberWithoutSTX += i
+
         #TODO determine if what's coming over will be ASCII or binary. See this: https://stackoverflow.com/questions/17615414/how-to-convert-binary-string-to-normal-string-in-python3
         # fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
-        fullMessage = GlobalConstants.StartTransmissionCharacter + msgSeqNumber + "|" + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
+        fullMessage = GlobalConstants.StartTransmissionCharacter + numberWithoutSTX + "|" + self.KeepAliveResponseConstant + GlobalConstants.EndTransmissionCharacter
         return fullMessage.encode('ascii')
 
     def parsePipeDelimitedValues(self):

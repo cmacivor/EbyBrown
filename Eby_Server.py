@@ -37,6 +37,8 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
         #hostLog.log(auth, domain, "inbound", "ACK", test)
 
         response = self.createResponseMessage(self.data)
+        print('Sending back:')
+        print(response)
 
         #bytesToReturn = bytearray(response, 'ascii')
 
