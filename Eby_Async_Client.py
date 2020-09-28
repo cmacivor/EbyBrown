@@ -13,4 +13,5 @@ async def tcp_echo_client(message):
     print('Close the connection')
     writer.close()
 
-asyncio.run(tcp_echo_client('Hello World!'))
+# asyncio.run(tcp_echo_client('Hello World!'))
+asyncio.run(tcp_echo_client(b'\x02125|KEEPALIV\x03'))

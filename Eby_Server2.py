@@ -1,6 +1,7 @@
 import logging
 import sys
 import socketserver
+import datetime
 
 class EchoRequestHandler(socketserver.BaseRequestHandler):
     
@@ -53,33 +54,39 @@ class EchoServer(socketserver.TCPServer):
         return
 
     def handle_request(self):
-        self.logger.debug('handle_request')
-        print('handle_request')
+        now = datetime.datetime.now()
+        #self.logger.debug('handle_request')
+        #print('handle_request time: ' + now.strftime("%Y-%m-%d %H:%M:%S"))
         return socketserver.TCPServer.handle_request(self)
 
     def verify_request(self, request, client_address):
+        now = datetime.datetime.now()
         self.logger.debug('verify_request(%s, %s)', request, client_address)
-        print('verify_request')
+        print('verify_request time: ' + now.strftime("%Y-%m-%d %H:%M:%S"))
         return socketserver.TCPServer.verify_request(self, request, client_address)
 
     def process_request(self, request, client_address):
+        now = datetime.datetime.now()
         self.logger.debug('process_request(%s, %s)', request, client_address)
-        print('process_request')
+        print('process_request time: ' + now.strftime("%Y-%m-%d %H:%M:%S"))
         return socketserver.TCPServer.process_request(self, request, client_address)
 
     def server_close(self):
-        self.logger.debug('server_close')
-        print('server_close')
+        now = datetime.datetime.now()
+        self.logger.debug('server_close time: ' + now.strftime("%Y-%m-%d %H:%M:%S"))
+        print('server_close time ' + now.strftime("%Y-%m-%d %H:%M:%S"))
         return socketserver.TCPServer.server_close(self)
 
     def finish_request(self, request, client_address):
+        now = datetime.datetime.now()
         self.logger.debug('finish_request(%s, %s)', request, client_address)
-        print('finish_request')
+        print('finish_request time ' + now.strftime("%Y-%m-%d %H:%M:%S"))
         return socketserver.TCPServer.finish_request(self, request, client_address)
 
     def close_request(self, request_address):
+        now = datetime.datetime.now()
         self.logger.debug('close_request(%s)', request_address)
-        print('close_request')
+        print('close_request ' + now.strftime("%Y-%m-%d %H:%M:%S"))
         return socketserver.TCPServer.close_request(self, request_address)
 
     
