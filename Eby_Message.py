@@ -26,7 +26,8 @@ class MessageBase:
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.AsciiRequestMessage) #len(self.libserver.request[:])
         doesContainKeepAlive = self.KeepAliveRequestConstant in self.AsciiRequestMessage #.decode('ascii') #self.libserver.request[:].decode('ascii')
-        if messageLength == 14 and doesContainKeepAlive: #Account for the extra characters created by hexadecimal values
+        #if messageLength == 14 and doesContainKeepAlive: #Account for the extra characters created by hexadecimal values
+        if doesContainKeepAlive:
             return True
         else:
             return False
