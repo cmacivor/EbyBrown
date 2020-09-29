@@ -49,14 +49,19 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     with conn:
         print("Connected by", addr)
         while True:
-            data = conn.recv(1024)
-            if not data:
+            try:
+                data = conn.recv(1024)
+                if not data:
+                    break
+                printable = data.decode('ascii')
+                print(addr + ' wrote ' + printable)
+                response = createResponseMessage(data)
+                print('response: ' + response.decode('ascii'))
+                conn.sendall(response)
+            except:
+                pass
+            else:
                 break
-            printable = data.decode('ascii')
-            print(addr + ' wrote ' + printable)
-            response = createResponseMessage(data)
-            print('response: ' + response.decode('ascii'))
-            conn.sendall(response)
 
 
  
