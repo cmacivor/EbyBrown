@@ -282,7 +282,7 @@ def insert_route_status(routeNumber, priorityNumber):
         cursor = connection.cursor()
 
         insertSQL = ("INSERT INTO route_statuses "
-                    "(route, dock_door, trailer_number, priority, enable, status, date_at, created_at, updated_at) " 
+                    "(route, dock_door, trailer_number, priority, enable, status, date, created_at, updated_at) " 
                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
