@@ -3,6 +3,7 @@ import Eby_Message
 import python_config
 import requests
 import API_02_HostLog as hostLog
+import time
 
 
 def createResponseMessage(message):
@@ -57,14 +58,21 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     with conn:
         print("Connected by", addr)
         while True:
-            data = conn.recv(1024)
-            if not data:
-                break
-            printable = data.decode('ascii')
-            print(' wrote ' + printable)
-            response = createResponseMessage(data)
-            print('response: ' + response.decode('ascii'))
-            conn.sendall(response)
+            try:
+
+                data = conn.recv(1024)
+                if not data:
+                    break
+                printable = data.decode('ascii')
+                print(' wrote ' + printable)
+                response = createResponseMessage(data)
+                print('response: ' + response.decode('ascii'))
+                conn.sendall(response)
+            except:
+                #hostLog.log
+                time.sleep(15)
+
+
             # try:
             #     data = conn.recv(1024)
             #     if not data:
