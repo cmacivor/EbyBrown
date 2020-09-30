@@ -46,7 +46,6 @@ class NewContainer:
             i = stringList[index]
             numberWithoutETX += i
 
-        #numberCartons = self.fields[9].replace('0x3', '')
         return numberWithoutETX
 
     def doesNewContainerAlreadyExist(self):
