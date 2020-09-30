@@ -25,8 +25,10 @@ def createResponseMessage(message):
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
                 #log inbound message
             if enabled == "1":
-                decodedMessage = str(message.decode('utf-8'))
-                hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", "decodedMessage")
+                #decodedMessage = message.replace("\x02", "")
+                #test = str(message.decode('utf8').encode('ascii', errors='ignore'))
+               
+                hostLog.log(auth, domain, "Lucas", "KEEPALIV", message)
                 #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
             else:
                 print(loggingNotEnabledMsg)
@@ -60,9 +62,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     #headers = {'Content-type': 'application/json', "Authorization": auth}
 
-    response = requests.post(url, json=data, allow_redirects=False)
+    #response = requests.post(url, json=data, allow_redirects=False)
 
-    status = response
+    #status = response
 
     s.bind((host, port))
     s.listen()
@@ -80,7 +82,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 response = createResponseMessage(data)
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
-            except:
+            except Exception as e:
+                test = e
                 time.sleep(15)
 
 
