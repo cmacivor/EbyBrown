@@ -54,7 +54,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
-    url = "http://10.22.56.11" + "/api/hostlogs/store"
+    #url = "http://10.22.56.11" + "/api/hostlogs/store"
     #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", "test")
     data = {"source": "test", "type": "test", "message": "test msg"}
 

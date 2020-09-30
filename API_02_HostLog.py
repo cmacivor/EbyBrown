@@ -30,7 +30,7 @@ def log(auth, domain, source, m_type, message):
     api = loggingConfig.get("api")
     url = domain + api
 
-    url = "http://10.22.56.11" + "/api/hostlogs/store"
+    #url = "http://10.22.56.11" + "/api/hostlogs/store"
     #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", "test")
     data = {"source": "test", "type": "test", "message": "test msg"}
 
