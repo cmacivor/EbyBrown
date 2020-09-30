@@ -55,16 +55,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
-    #url = "http://10.22.56.11" + "/api/hostlogs/store"
-    #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", "test")
-    data = {"source": "test", "type": "test", "message": "test msg"}
-
-    #headers = {'Content-type': 'application/json', "Authorization": auth}
-
-    #response = requests.post(url, json=data, allow_redirects=False)
-
-    #status = response
-
     s.bind((host, port))
     s.listen()
     conn, addr = s.accept()
