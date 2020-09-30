@@ -23,13 +23,12 @@ def createResponseMessage(message):
             
         if isKeepAliveMessage:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
-                #log inbound message
-            if enabled == "1":
-                #decodedMessage = message.replace("\x02", "")
-                #test = str(message.decode('utf8').encode('ascii', errors='ignore'))
                
-                hostLog.log(auth, domain, "Lucas", "KEEPALIV", message)
-                #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
+            if enabled == "1":
+                #log inbound message               
+                hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
+                #log the response from WXS
+                hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
             else:
                 print(loggingNotEnabledMsg)
             return response
@@ -38,7 +37,7 @@ def createResponseMessage(message):
             messageBase.getMessageType() #save the message data to the database, log it, etc.
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
             if enabled == "1":
-                hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response)
+                hostLog.log(auth, domain, "WXS to Host", "ACKNOWLE", response)
             else:
                 print(loggingNotEnabledMsg)
             return response

@@ -32,15 +32,6 @@ def log(auth, domain, source, m_type, message):
 
     parsedMessage = str(message).replace("b", "").replace("\\", "")
 
-    # messageCharacterList = list(str(message))
-    # messageLength = len(messageCharacterList)
-    # result = ""
-    # for index in range(1, messageLength - 1):
-    #     i = messageCharacterList[index]
-    #     result += i
-
-    #url = "http://10.22.56.11" + "/api/hostlogs/store"
-    #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", "test")
     data = {"source": source, "type": m_type, "message": parsedMessage}
 
     #headers = {'Content-type': 'application/json', "Authorization": auth}
