@@ -9,7 +9,7 @@ import time
 def createResponseMessage(message):
         loggingConfig = python_config.read_logging_config()
         enabled = loggingConfig.get('enabled')
-        #api = loggingConfig.get('api')
+        api = loggingConfig.get('api')
         auth = loggingConfig.get('auth')
         domain = loggingConfig.get('domain')
 
@@ -26,7 +26,7 @@ def createResponseMessage(message):
                 #log inbound message
             if enabled == "1":
                 decodedMessage = str(message.decode('utf-8'))
-                hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", decodedMessage)
+                hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", "decodedMessage")
                 #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
             else:
                 print(loggingNotEnabledMsg)
@@ -46,11 +46,23 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     loggingConfig = python_config.read_logging_config()
     auth = loggingConfig.get('auth')
     domain = loggingConfig.get('domain')
+    api = loggingConfig.get("api")
+    url = domain + api
 
     serverParams = python_config.read_server_config()
     host = serverParams.get('host')
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
+
+    url = "http://10.22.56.11" + "/api/hostlogs/store"
+    #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", "test")
+    data = {"source": "test", "type": "test", "message": "test msg"}
+
+    #headers = {'Content-type': 'application/json', "Authorization": auth}
+
+    response = requests.post(url, json=data, allow_redirects=False)
+
+    status = response
 
     s.bind((host, port))
     s.listen()
@@ -69,23 +81,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
             except:
-                #hostLog.log
                 time.sleep(15)
 
 
-            # try:
-            #     data = conn.recv(1024)
-            #     if not data:
-            #         break
-            #     printable = data.decode('ascii')
-            #     print(addr + ' wrote ' + printable)
-            #     response = createResponseMessage(data)
-            #     print('response: ' + response.decode('ascii'))
-            #     conn.sendall(response)
-            # except:
-            #     pass
-            # else:
-            #     break
+        
 
 
  
