@@ -5,6 +5,7 @@ import Eby_Message
 import python_config
 import requests
 import API_02_HostLog as hostLog
+import Eby_Server2
 
 
 
@@ -26,18 +27,28 @@ class EbyTCPSocketHandler(socketserver.StreamRequestHandler):
         
         # self.rfile is a file-like object created by the handler;
         # we can now use e.g. readline() instead of raw recv() calls
-        self.data = self.rfile.readline().strip()
+        #self.data = self.rfile.readline().strip()
+        self.data = self.request.recv(1024)
+
 
         print("{} wrote:".format(self.client_address[0]))
         print(self.data)
         test = str(self.data, 'utf-8') #this works!!!
-        hostLog.log(auth, domain, "inbound", "ACK", test)
+        #hostLog.log(auth, domain, "inbound", "ACK", test)
 
         response = self.createResponseMessage(self.data)
+        print('Sending back:')
+        print(response)
+
+        #bytesToReturn = bytearray(response, 'ascii')
+
+        #print('bytes to return:')
+        #print(bytesToReturn)
 
         # Likewise, self.wfile is a file-like object used to write back
         # to the client
         self.wfile.write(response)
+        #self.wfile.write(bytesToReturn)
     
 
     def createResponseMessage(self, message):
@@ -86,7 +97,8 @@ if __name__ == "__main__":
     HOST, PORT = host, port #"localhost", 9999
 
     # instantiate the server, and bind to localhost on port 9999
-    server = socketserver.TCPServer((HOST, PORT), EbyTCPSocketHandler)
+    #server = socketserver.TCPServer((HOST, PORT), EbyTCPSocketHandler)
+    server = Eby_Server2.EchoServer((HOST, PORT), EbyTCPSocketHandler)
 
     # activate the server
     # this will keep running until Ctrl-C

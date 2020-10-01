@@ -39,8 +39,14 @@ class NewContainer:
         return msgSeqNumber
 
     def getNumberCartons(self):
-        numberCartons = self.fields[9].replace('0x3', '')
-        return numberCartons
+        stringList = list(self.fields[9])
+        msgLength = len(stringList)
+        numberWithoutETX = ""
+        for index in range(0, msgLength - 1):
+            i = stringList[index]
+            numberWithoutETX += i
+
+        return numberWithoutETX
 
     def doesNewContainerAlreadyExist(self):
         config = python_config.read_db_config()
@@ -98,7 +104,7 @@ class NewContainer:
 
         if existingRecord is not None:
             if enabled == "1":                                                              #the ContainerID
-                hostLog.log(auth, domain, "Lucas to WXS", "LUCAS sent a duplicate record: ", existingRecord[2])
+                hostLog.log(auth, domain, "HOST to WXS", "Dupl", existingRecord[2])
             return
 
         config = python_config.read_db_config()

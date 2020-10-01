@@ -30,8 +30,15 @@ class ContainerComplete:
         return msgSeqNumber
     
     def getQCFlag(self):
-        qcflag = self.fields[4].replace('0x3', '')
-        return qcflag
+        stringList = list(self.fields[4])
+        msgLength = len(stringList)
+        numberWithoutETX = ""
+        for index in range(0, msgLength - 1):
+            i = stringList[index]
+            numberWithoutETX += i
+
+        #qcflag = self.fields[4].replace('0x3', '')
+        return numberWithoutETX
 
     def updateContainerAsComplete(self):
         config = python_config.read_db_config()

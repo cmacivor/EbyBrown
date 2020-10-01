@@ -31,8 +31,15 @@ class OrderComplete:
         return msgSeqNumber
     
     def getStop(self):
-        stop = self.fields[3].replace('0x3', '')
-        return stop
+        stringList = list(self.fields[3])
+        msgLength = len(stringList)
+        numberWithoutETX = ""
+        for index in range(0, msgLength - 1):
+            i = stringList[index]
+            numberWithoutETX += i
+
+        #stop = self.fields[3].replace('0x3', '')
+        return numberWithoutETX
 
     def updateOrderComplete(self):
         config = python_config.read_db_config()

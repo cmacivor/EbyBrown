@@ -29,8 +29,15 @@ class RouteComplete:
         return msgSeqNumber
 
     def getRoute(self):
-        route = self.fields[2].replace('0x3', '')
-        return route
+        stringList = list(self.fields[2])
+        msgLength = len(stringList)
+        numberWithoutETX = ""
+        for index in range(0, msgLength - 1):
+            i = stringList[index]
+            numberWithoutETX += i
+
+        #route = self.fields[2].replace('0x3', '')
+        return numberWithoutETX
     
     def updateRouteComplete(self):
         config = python_config.read_db_config()
