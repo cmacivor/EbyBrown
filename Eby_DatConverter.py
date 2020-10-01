@@ -282,7 +282,7 @@ def insert_route_status(routeNumber, priorityNumber):
         cursor = connection.cursor()
 
         insertSQL = ("INSERT INTO route_statuses "
-                    "(route, dock_door, trailer_number, priority, enable, status, date_at, created_at, updated_at) " 
+                    "(route, dock_door, trailer_number, priority, enable, status, date, created_at, updated_at) " 
                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -312,10 +312,13 @@ def get_distinct_route_numbers():
 
         cursor = connection.cursor()
 
-        getRouteStatusesSQL = "select distinct route from route_statuses" 
-        #getRouteStatusesSQL = "select * from route_statuses"
+        today = datetime.now().date().strftime('%Y-%m-%d')
 
-        cursor.execute(getRouteStatusesSQL)
+        getRouteStatusesSQL = "select distinct route from route_statuses where date = %s" 
+        
+        queryData = (today,)
+
+        cursor.execute(getRouteStatusesSQL, queryData)
         
         processedResult = []
         result = cursor.fetchall()
@@ -396,12 +399,6 @@ def update_route_status(routeStatus, prioritynumber):
         cursor.execute(getRouteStatusesSQL, updateValues)
 
         connection.commit()
-        
-        # result = cursor.fetchall()
-        # routeStatuses = []
-        # for row in result:
-        #     routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines)
-        #     routeStatuses.append(routeStatus)
         
         cursor.close()
         connection.close()
@@ -505,15 +502,17 @@ def do_everything():
                         dat_insert(temp_dat, "dat_master")
                         # insert data into master table as well
                         
-                        #save to the route status table. route_num in temp_dat has the route number
-                        #save_route_status(temp_dat)
+                        #need to modify the check- only insert new rows to the route_statuses table if the route number AND the date are different. 
+                        #We don't want to insert the route again on the same day
                         if temp_dat.route_num != '':
                             routeNumber = int(temp_dat.route_num.strip())
-                            if routeNumber not in distinctRouteNumbers:
+                            if routeNumber not in distinctRouteNumbers: #distinctRouteNumbers are routes from the current day already in the table
                                 #insert into the route status table
-                                #routeNumbersNotExisting.append(routeNumber)
                                 priorityNumber += 1
                                 insert_route_status(routeNumber, priorityNumber)
+                                print('route number ' + str(routeNumber) + ' inserted into route_statuses')
+                            else:
+                                print('route number ' + str(routeNumber) + ' already in database')
 
 
                     # dat_test(temp_dat)
@@ -523,7 +522,7 @@ def do_everything():
                         # increment for number of file skipped
                     else:
                         if temp_dat.container_id == "":
-                            pass;
+                            pass
                             # dont do anything
                         else:
                             ins += 1
