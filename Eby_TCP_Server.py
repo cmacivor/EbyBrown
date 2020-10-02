@@ -4,7 +4,8 @@ import python_config
 import requests
 import API_02_HostLog as hostLog
 import time
-
+import sys
+import traceback
 
 def createResponseMessage(message):
         loggingConfig = python_config.read_logging_config()
@@ -72,7 +73,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
             except Exception as e:
-                test = e
+                #test = e
+                print(sys.exc_info()[0])
+                print(traceback.format_exc())
+                print("press enter to continue...")
+                input()
                 time.sleep(15)
 
 
