@@ -73,12 +73,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
             except Exception as e:
-                #test = e
+                if isinstance(e, ConnectionResetError):
+                    pass
                 print(sys.exc_info()[0])
                 print(traceback.format_exc())
                 print("press enter to continue...")
                 input()
-                time.sleep(15)
 
 
         
