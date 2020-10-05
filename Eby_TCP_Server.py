@@ -25,13 +25,13 @@ def createResponseMessage(message):
         if isKeepAliveMessage:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
                
-            if enabled == "1":
-                #log inbound message               
-                hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
-                #log the response from WXS
-                hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
-            else:
-                print(loggingNotEnabledMsg)
+            # if enabled == "1":
+            #     #log inbound message               
+            #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
+            #     #log the response from WXS
+            #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
+            # else:
+            #     print(loggingNotEnabledMsg)
             return response
         #if not, then it's a data message
         else:
