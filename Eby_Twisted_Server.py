@@ -55,5 +55,7 @@ class EchoFactory(protocol.Factory):
     def buildProtocol(self, addr):
         return Echo()
 
-endpoints.serverFromString(reactor, "tcp:65432:interface=127.0.0.1").listen(EchoFactory())
-reactor.run()
+if __name__ == "__main__":
+
+    endpoints.serverFromString(reactor, "tcp:65432:interface=127.0.0.1").listen(EchoFactory())
+    reactor.run()
