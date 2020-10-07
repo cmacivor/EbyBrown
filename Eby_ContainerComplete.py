@@ -18,7 +18,7 @@ class ContainerComplete:
         self.MessageID = self.fields[1]
         self.ContainerID = self.fields[2]
         self.AssignmentID = self.fields[3]
-        self.QCFlag = self.getQCFlag()  
+        self.QCFlag =  self.fields[4] #self.getQCFlag()  
 
 
     def populateFields(self):
