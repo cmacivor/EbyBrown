@@ -41,7 +41,12 @@ def createResponseMessage(message):
 class Echo(protocol.Protocol):
     def dataReceived(self, data):
 
+        printable = data.decode('ascii')
+        print(' wrote ' + printable)
+
         response = createResponseMessage(data)
+
+        print('response: ' + response.decode('ascii'))
 
         #self.transport.write(data)
         self.transport.write(response)
