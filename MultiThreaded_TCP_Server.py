@@ -18,8 +18,10 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             if not data:
                 break
 
-            print("{} wrote:".format(self.client_address[0]))
-            print(data)
+            #print("{} wrote:".format(self.client_address[0]))
+            #print(data)
+            printable = data.decode('ascii')
+            print(' wrote ' + printable)
 
             cur_thread = threading.current_thread()
 
@@ -27,8 +29,10 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
             response = createResponseMessage(data) 
 
-            print('Sending back:')
-            print(response)
+            print('response: ' + response.decode('ascii'))
+
+            #print('Sending back:')
+            #print(response)
 
             self.request.sendall(response)
 
