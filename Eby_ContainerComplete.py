@@ -18,7 +18,8 @@ class ContainerComplete:
         self.MessageID = self.fields[1]
         self.ContainerID = self.fields[2]
         self.AssignmentID = self.fields[3]
-        self.QCFlag =  self.fields[4] #self.getQCFlag()  
+        self.QCFlag =  self.fields[4] 
+        self.CigaretteQuantity = self.getCigaretteQuantity()  
 
 
     def populateFields(self):
@@ -28,17 +29,27 @@ class ContainerComplete:
     def getMessageSequenceNumber(self):
         msgSeqNumber =  self.fields[0][3:]
         return msgSeqNumber
-    
-    def getQCFlag(self):
-        stringList = list(self.fields[4])
+
+    def getCigaretteQuantity(self):
+        stringList = list(self.fields[5])
         msgLength = len(stringList)
         numberWithoutETX = ""
         for index in range(0, msgLength - 1):
             i = stringList[index]
             numberWithoutETX += i
 
-        #qcflag = self.fields[4].replace('0x3', '')
         return numberWithoutETX
+
+    # def getQCFlag(self):
+    #     stringList = list(self.fields[4])
+    #     msgLength = len(stringList)
+    #     numberWithoutETX = ""
+    #     for index in range(0, msgLength - 1):
+    #         i = stringList[index]
+    #         numberWithoutETX += i
+
+    #     #qcflag = self.fields[4].replace('0x3', '')
+    #     return numberWithoutETX
 
     def updateContainerAsComplete(self):
         config = python_config.read_db_config()
