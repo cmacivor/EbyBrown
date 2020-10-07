@@ -74,10 +74,15 @@ def client(ip, port, message):
 
 
 if __name__ == "__main__":
-    # Port 0 means to select an arbitrary unused port
-    HOST, PORT = "localhost", 65432
+  
+    serverParams = python_config.read_server_config()
+    host = serverParams.get('host')
+    port = int(serverParams.get('port'))
+    print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
-    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
+    #HOST, PORT = "localhost", 65432
+
+    server = ThreadedTCPServer((host, port), ThreadedTCPRequestHandler)
     with server:
         ip, port = server.server_address
 
@@ -89,11 +94,11 @@ if __name__ == "__main__":
         server_thread.start()
         print("Server loop running in thread:", server_thread.name)
 
-        client(ip, port, b"\x027|KEEPALIV\x03")
+        #client(ip, port, b"\x027|KEEPALIV\x03")
         #sleep(10)
-        client(ip, port, b"\x028|KEEPALIV\x03")
+        #client(ip, port, b"\x028|KEEPALIV\x03")
         #sleep(10)
-        client(ip, port, b"\x029|KEEPALIV\x03")
+        #client(ip, port, b"\x029|KEEPALIV\x03")
 
         #server.shutdown()
         server.serve_forever()
