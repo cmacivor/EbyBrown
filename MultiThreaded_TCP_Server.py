@@ -14,17 +14,24 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         while True:
-            data = str(self.request.recv(1024), 'ascii')
+            data = self.request.recv(1024)
             if not data:
                 break
+
+            print("{} wrote:".format(self.client_address[0]))
+            print(data)
+
             cur_thread = threading.current_thread()
-            response = bytes("{}: {}".format(cur_thread.name, data), 'ascii')
+
+            #response = bytes("{}: {}".format(cur_thread.name, data), 'ascii')
+
+            response = createResponseMessage(data) 
+
+            print('Sending back:')
+            print(response)
+
             self.request.sendall(response)
 
-        # data = str(self.request.recv(1024), 'ascii')
-        # cur_thread = threading.current_thread()
-        # response = bytes("{}: {}".format(cur_thread.name, data), 'ascii')
-        # self.request.sendall(response)
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -61,14 +68,14 @@ def createResponseMessage(message):
 def client(ip, port, message):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.connect((ip, port))
-        sock.sendall(bytes(message, 'ascii'))
-        response = str(sock.recv(1024), 'ascii')
+        sock.sendall(message)
+        response = sock.recv(1024)
         print("Received: {}".format(response))
 
 
 if __name__ == "__main__":
     # Port 0 means to select an arbitrary unused port
-    HOST, PORT = "localhost", 0
+    HOST, PORT = "localhost", 65432
 
     server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
     with server:
@@ -82,10 +89,12 @@ if __name__ == "__main__":
         server_thread.start()
         print("Server loop running in thread:", server_thread.name)
 
-        client(ip, port, "Hello World 1")
-        sleep(10)
-        client(ip, port, "Hello World 2")
-        sleep(10)
-        client(ip, port, "Hello World 3")
+        # client(ip, port, b"Hello World 1")
+        # sleep(10)
+        # client(ip, port, b"Hello World 2")
+        # sleep(10)
+        # client(ip, port, b"Hello World 3")
 
-        server.shutdown()
+        #server.shutdown()
+        server.serve_forever()
+        
