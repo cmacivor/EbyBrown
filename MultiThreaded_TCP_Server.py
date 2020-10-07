@@ -89,11 +89,11 @@ if __name__ == "__main__":
         server_thread.start()
         print("Server loop running in thread:", server_thread.name)
 
-        # client(ip, port, b"Hello World 1")
-        # sleep(10)
-        # client(ip, port, b"Hello World 2")
-        # sleep(10)
-        # client(ip, port, b"Hello World 3")
+        client(ip, port, b"\x027|KEEPALIV\x03")
+        #sleep(10)
+        client(ip, port, b"\x028|KEEPALIV\x03")
+        #sleep(10)
+        client(ip, port, b"\x029|KEEPALIV\x03")
 
         #server.shutdown()
         server.serve_forever()
