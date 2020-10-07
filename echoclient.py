@@ -11,13 +11,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     data = s.recv(1024)
     print(data)
     
-    sleep(10)
+    #sleep(10)
 
     s.sendall(b'Hello, world 2')
     data1 = s.recv(1024)
     print(data1)
 
-    sleep(10)
+    #sleep(10)
 
     s.sendall(b'Hello, world 3')
     data2 = s.recv(1024)

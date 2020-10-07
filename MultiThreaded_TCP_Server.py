@@ -29,7 +29,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
             response = createResponseMessage(data) 
 
-            print('response: ' + response.decode('ascii'))
+            print('response: ' + response.decode('ascii') + cur_thread.name)
 
             #print('Sending back:')
             #print(response)
@@ -98,11 +98,11 @@ if __name__ == "__main__":
         server_thread.start()
         print("Server loop running in thread:", server_thread.name)
 
-        #client(ip, port, b"\x027|KEEPALIV\x03")
+        client(ip, port, b"\x027|KEEPALIV\x03")
         #sleep(10)
-        #client(ip, port, b"\x028|KEEPALIV\x03")
+        client(ip, port, b"\x028|KEEPALIV\x03")
         #sleep(10)
-        #client(ip, port, b"\x029|KEEPALIV\x03")
+        client(ip, port, b"\x029|KEEPALIV\x03")
 
         #server.shutdown()
         server.serve_forever()
