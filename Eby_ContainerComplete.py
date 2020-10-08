@@ -71,6 +71,7 @@ class ContainerComplete:
 
             updateContainerSQL = ("UPDATE dat_master SET "
                                 "c_comp = %s, "
+                                "carton_qty = %s, "
                                 "updated_at = %s "
                                 "WHERE container_id = %s "   
 
@@ -78,7 +79,7 @@ class ContainerComplete:
 
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            updateContainerValues = (self.QCFlag, currentTimeStamp, self.ContainerID)
+            updateContainerValues = (self.QCFlag, self.CigaretteQuantity, currentTimeStamp, self.ContainerID)
 
         
             cursor.execute(updateContainerSQL , updateContainerValues)
