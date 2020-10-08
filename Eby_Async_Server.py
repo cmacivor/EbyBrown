@@ -8,15 +8,23 @@ async def handle_echo(reader, writer):
     while True:
 
         data = await reader.read(100)
+
+        if not data:
+            break
+
         #message = data.decode()
         addr = writer.get_extra_info('peername')
 
         # print(f"Received {message!r} from {addr!r}")
+        #print("received {data}")
+        printable = data.decode('ascii')
+        print(' wrote ' + printable)
 
         # print(f"Send: {message!r}")
 
         #response = createResponseMessage(message)
         response = createResponseMessage(data)
+        print('response: ' + response.decode('ascii'))
 
         writer.write(response)
         await writer.drain()
@@ -27,6 +35,7 @@ async def handle_echo(reader, writer):
 async def main():
     server = await asyncio.start_server(
         handle_echo, '127.0.0.1', 65432)
+
 
     addr = server.sockets[0].getsockname()
     print(f'Serving on {addr}')
@@ -52,12 +61,12 @@ def createResponseMessage(message):
     if isKeepAliveMessage:
         response = messageBase.getFullAcknowledgeKeepAliveMessage()
             #log inbound message
-        if enabled == "1":
-            decodedMessage = str(message.decode('utf-8'))
-            hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", decodedMessage)
-            #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
-        else:
-            print(loggingNotEnabledMsg)
+        # if enabled == "1":
+        #     decodedMessage = str(message.decode('utf-8'))
+        #     hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", decodedMessage)
+        #     #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
+        # else:
+        #     print(loggingNotEnabledMsg)
         return response
     #if not, then it's a data message
     else:
