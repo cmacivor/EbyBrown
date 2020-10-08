@@ -5,25 +5,28 @@ import API_02_HostLog as hostLog
 
 
 async def handle_echo(reader, writer):
-    data = await reader.read(100)
-    message = data.decode()
-    addr = writer.get_extra_info('peername')
+    while True:
 
-    print(f"Received {message!r} from {addr!r}")
+        data = await reader.read(100)
+        #message = data.decode()
+        addr = writer.get_extra_info('peername')
 
-    print(f"Send: {message!r}")
+        # print(f"Received {message!r} from {addr!r}")
 
-    response = createResponseMessage(message)
+        # print(f"Send: {message!r}")
 
-    writer.write(response)
-    await writer.drain()
+        #response = createResponseMessage(message)
+        response = createResponseMessage(data)
 
-    print("Close the connection")
-    writer.close()
+        writer.write(response)
+        await writer.drain()
+
+    #print("Close the connection")
+    #writer.close()
 
 async def main():
     server = await asyncio.start_server(
-        handle_echo, '127.0.0.1', 8888)
+        handle_echo, '127.0.0.1', 65432)
 
     addr = server.sockets[0].getsockname()
     print(f'Serving on {addr}')
