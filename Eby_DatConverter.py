@@ -272,6 +272,7 @@ def dat_truncate(database_name):
 
 def insert_route_status(routeNumber, priorityNumber):
     try:
+
         connection = mysql.connector.connect(
             host= host, 
             user= user, 
@@ -280,6 +281,11 @@ def insert_route_status(routeNumber, priorityNumber):
         )
 
         cursor = connection.cursor()
+
+        existingRoutes = get_existing_route_numbers(routeNumber)
+        if len(existingRoutes) > 0:
+            print('this route number has already been saved for this day')
+            return
 
         insertSQL = ("INSERT INTO route_statuses "
                     "(route, dock_door, trailer_number, priority, enable, status, date, created_at, updated_at) " 
@@ -301,7 +307,7 @@ def insert_route_status(routeNumber, priorityNumber):
         connection.close()
 
 
-def get_distinct_route_numbers():
+def get_existing_route_numbers(routeNo):
     try:
         connection = mysql.connector.connect(
             host= host, 
@@ -314,9 +320,10 @@ def get_distinct_route_numbers():
 
         today = datetime.now().date().strftime('%Y-%m-%d')
 
-        getRouteStatusesSQL = "select distinct route from route_statuses where date = %s" 
+        #getRouteStatusesSQL = "select distinct route from route_statuses where date = %s" 
+        getRouteStatusesSQL = "select route from route_statuses where date = %s && route = %s"
         
-        queryData = (today,)
+        queryData = (today, routeNo)
 
         cursor.execute(getRouteStatusesSQL, queryData)
         
@@ -469,7 +476,7 @@ def do_everything():
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
 
                 existingRoutesStatuses = get_route_statuses(num_lines)
-                distinctRouteNumbers = get_distinct_route_numbers()
+                #distinctRouteNumbers = get_distinct_route_numbers()
 
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
@@ -506,13 +513,14 @@ def do_everything():
                         #We don't want to insert the route again on the same day
                         if temp_dat.route_num != '':
                             routeNumber = int(temp_dat.route_num.strip())
-                            if routeNumber not in distinctRouteNumbers: #distinctRouteNumbers are routes from the current day already in the table
-                                #insert into the route status table
-                                priorityNumber += 1
-                                insert_route_status(routeNumber, priorityNumber)
-                                print('route number ' + str(routeNumber) + ' inserted into route_statuses')
-                            else:
-                                print('route number ' + str(routeNumber) + ' already in database')
+                            # if routeNumber not in distinctRouteNumbers: #distinctRouteNumbers are routes from the current day already in the table
+                            #     #insert into the route status table
+                            priorityNumber += 1
+                            insert_route_status(routeNumber, priorityNumber)
+                            
+                            #     print('route number ' + str(routeNumber) + ' inserted into route_statuses')
+                            # else:
+                            #     print('route number ' + str(routeNumber) + ' already in database')
 
 
                     # dat_test(temp_dat)
