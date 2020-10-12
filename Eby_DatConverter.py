@@ -270,7 +270,7 @@ def dat_truncate(database_name):
     # commit changes
 
 
-def insert_route_status(routeNumber, priorityNumber):
+def insert_route_status(routeNumber):
     try:
 
         connection = mysql.connector.connect(
@@ -295,7 +295,7 @@ def insert_route_status(routeNumber, priorityNumber):
 
         today = datetime.now().date().strftime('%Y-%m-%d')
 
-        newRouteStatus = (routeNumber, "", "", priorityNumber, "Inactive", "Not Started", today, currentTimeStamp, currentTimeStamp)
+        newRouteStatus = (routeNumber, "", "", 0, "Inactive", "Not Started", today, currentTimeStamp, currentTimeStamp)
 
         cursor.execute(insertSQL, newRouteStatus)
         connection.commit()
@@ -360,7 +360,7 @@ def get_route_statuses(numberLines):
         cursor = connection.cursor()
 
         #getRouteStatusesSQL = "select distinct route from route_statuses" 
-        getRouteStatusesSQL = "select * from route_statuses"
+        getRouteStatusesSQL = "select * from route_statuses order by created_at desc"
 
         cursor.execute(getRouteStatusesSQL)
         
@@ -475,7 +475,7 @@ def do_everything():
                 # get read all lines variable
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
 
-                existingRoutesStatuses = get_route_statuses(num_lines)
+
                 #distinctRouteNumbers = get_distinct_route_numbers()
 
                 # get number of lines in the file
@@ -490,7 +490,7 @@ def do_everything():
                 # variable for skipping lines
                 ins = 0
                 # variable for lines inserted
-                priorityNumber = 0
+                #priorityNumber = 0
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
@@ -515,8 +515,8 @@ def do_everything():
                             routeNumber = int(temp_dat.route_num.strip())
                             # if routeNumber not in distinctRouteNumbers: #distinctRouteNumbers are routes from the current day already in the table
                             #     #insert into the route status table
-                            priorityNumber += 1
-                            insert_route_status(routeNumber, priorityNumber)
+                            #priorityNumber += 1
+                            insert_route_status(routeNumber)
                             
                             #     print('route number ' + str(routeNumber) + ' inserted into route_statuses')
                             # else:
@@ -551,6 +551,8 @@ def do_everything():
                 print(str(s) + " files were skipped due to having blank carton and juris fields")
 
                 #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
+                existingRoutesStatuses = get_route_statuses(num_lines)
+                priorityNumber = 0
                 for route in existingRoutesStatuses:
                     priorityNumber +=1
                     update_route_status(route, priorityNumber)
