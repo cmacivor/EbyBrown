@@ -33,8 +33,12 @@ async def handle_echo(reader, writer):
     #writer.close()
 
 async def main():
+    serverParams = python_config.read_server_config()
+    host = serverParams.get('host')
+    port = int(serverParams.get('port'))
+
     server = await asyncio.start_server(
-        handle_echo, '127.0.0.1', 65432)
+        handle_echo, host, port)
 
 
     addr = server.sockets[0].getsockname()
