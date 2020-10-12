@@ -70,28 +70,28 @@ class MessageBase:
     def getMessageType(self):
   
         if GlobalConstants.NewContainer in self.AsciiRequestMessage:
-            newContainer = Eby_NewContainer.NewContainer(self.libserver)
             self.logMessage("Host to WXS", GlobalConstants.NewContainer, self.AsciiRequestMessage)
+            newContainer = Eby_NewContainer.NewContainer(self.libserver)
             result = newContainer.saveNewContainer()
             return result
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
-            containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
+            containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             result = containerComplete.updateContainerAsComplete()
             return result
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
-            assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
+            assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             result = assignmentComplete.updateAssignmentComplete()
             return result
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
-            orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
+            orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             result = orderComplete.updateOrderComplete()
             return result
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
-            routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
+            routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             result = routeComplete.updateRouteComplete()
             return result
             
