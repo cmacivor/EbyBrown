@@ -2,32 +2,37 @@ import asyncio
 import Eby_Message
 import python_config
 import API_02_HostLog as hostLog
+import sys
+import traceback
 
 
 async def handle_echo(reader, writer):
+    
     while True:
+        try:
+            data = await reader.read(1024)
 
-        data = await reader.read(100)
+            if not data:
+                break
 
-        if not data:
-            break
+            printable = data.decode('ascii')
+            print(' wrote ' + printable)
 
-        #message = data.decode()
-        addr = writer.get_extra_info('peername')
+            messageBase = Eby_Message.MessageBase(data)
 
-        # print(f"Received {message!r} from {addr!r}")
-        #print("received {data}")
-        printable = data.decode('ascii')
-        print(' wrote ' + printable)
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
 
-        # print(f"Send: {message!r}")
+            print('response: ' + response.decode('ascii'))
 
-        #response = createResponseMessage(message)
-        response = createResponseMessage(data)
-        print('response: ' + response.decode('ascii'))
-
-        writer.write(response)
-        await writer.drain()
+            writer.write(response)
+            await writer.drain()
+            responseMessage = createResponseMessage(data)
+        except Exception:
+            print(sys.exc_info()[0])
+            print(traceback.format_exc())
+            print("press enter to continue...")
+            input()
+        
 
     #print("Close the connection")
     #writer.close()
