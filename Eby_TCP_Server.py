@@ -6,6 +6,7 @@ import API_02_HostLog as hostLog
 import time
 import sys
 import traceback
+from queue import Queue
 
 def createResponseMessage(message):
         loggingConfig = python_config.read_logging_config()
@@ -44,6 +45,8 @@ def createResponseMessage(message):
             return response
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+
+    messagesQueue = Queue(0)
     
     loggingConfig = python_config.read_logging_config()
     auth = loggingConfig.get('auth')
@@ -56,6 +59,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
+    sentinel = object()
+    while True:
+        currentQueueSize = messagesQueue.qsize()
+        if currentQueueSize > 0:
+            for message in iter(messagesQueue.get, sentinel):
+                createResponseMessage(message)
+   
+
     s.bind((host, port))
     s.listen()
     conn, addr = s.accept()
@@ -65,11 +76,20 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
 
                 data = conn.recv(1024)
+
                 if not data:
                     break
+
                 printable = data.decode('ascii')
                 print(' wrote ' + printable)
-                response = createResponseMessage(data)
+
+                #response = createResponseMessage(data)
+                messagesQueue.put(data)
+
+                messageBase = Eby_Message.MessageBase(data)
+
+                response = messageBase.getFullAcknowledgeKeepAliveMessage()
+
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
             except Exception as e:
