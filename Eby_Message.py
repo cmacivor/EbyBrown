@@ -11,6 +11,7 @@ import API_02_HostLog as hostLog
 import unicodedata
 import string
 import re
+import mysql.connector
 
 class MessageBase:
     KeepAliveRequestConstant = "KEEPALIV"
@@ -67,6 +68,13 @@ class MessageBase:
     #         print(loggingNotEnabledMsg)
 
     def update_host_log_as_processed(self, message, messageType):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        wcsDatabase = config.get('wcsDatabase')
+        password = config.get('password')
+
         try:
             connection = mysql.connector.connect(
                 host= host, 
@@ -103,6 +111,8 @@ class MessageBase:
             result = newContainer.saveNewContainer()
             if result:
                 self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.NewContainer)
+            else:
+                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.NewContainer
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
@@ -110,6 +120,8 @@ class MessageBase:
             result = containerComplete.updateContainerAsComplete(connection)
             if result:
                 self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.ContainerComplete)
+            else:
+                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.ContainerComplete
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
@@ -117,6 +129,8 @@ class MessageBase:
             result = assignmentComplete.updateAssignmentComplete(connection)
             if result:
                 self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.AssignmentComplete)
+            else:
+                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.AssignmentComplete
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
@@ -124,6 +138,8 @@ class MessageBase:
             result = orderComplete.updateOrderComplete(connection)
             if result:
                 self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.OrderComplete)
+            else:
+                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.OrderComplete
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
@@ -131,6 +147,8 @@ class MessageBase:
             result = routeComplete.updateRouteComplete(connection)
             if result:
                 self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.RouteComplete)
+            else:
+                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.RouteComplete
             
       
