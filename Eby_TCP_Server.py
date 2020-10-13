@@ -8,41 +8,41 @@ import sys
 import traceback
 from queue import Queue
 
-def createResponseMessage(message):
-        loggingConfig = python_config.read_logging_config()
-        enabled = loggingConfig.get('enabled')
-        api = loggingConfig.get('api')
-        auth = loggingConfig.get('auth')
-        domain = loggingConfig.get('domain')
+# def createResponseMessage(message):
+#         loggingConfig = python_config.read_logging_config()
+#         enabled = loggingConfig.get('enabled')
+#         api = loggingConfig.get('api')
+#         auth = loggingConfig.get('auth')
+#         domain = loggingConfig.get('domain')
 
-        loggingNotEnabledMsg = "logging is not enabled in the config.ini."
+#         loggingNotEnabledMsg = "logging is not enabled in the config.ini."
         
-        messageBase = Eby_Message.MessageBase(message)
+#         messageBase = Eby_Message.MessageBase(message)
         
-        response = None  
+#         response = None  
             
-        isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
+#         isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
             
-        if isKeepAliveMessage:
-            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+#         if isKeepAliveMessage:
+#             response = messageBase.getFullAcknowledgeKeepAliveMessage()
                
-            # if enabled == "1":
-            #     #log inbound message               
-            #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
-            #     #log the response from WXS
-            #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
-            # else:
-            #     print(loggingNotEnabledMsg)
-            return response
-        #if not, then it's a data message
-        else:
-            messageBase.getMessageType() #save the message data to the database, log it, etc.
-            response = messageBase.getFullAcknowledgeKeepAliveMessage()
-            if enabled == "1":
-                hostLog.log(auth, domain, "WXS to Host", "ACKNOWLE", response)
-            else:
-                print(loggingNotEnabledMsg)
-            return response
+#             # if enabled == "1":
+#             #     #log inbound message               
+#             #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
+#             #     #log the response from WXS
+#             #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
+#             # else:
+#             #     print(loggingNotEnabledMsg)
+#             return response
+#         #if not, then it's a data message
+#         else:
+#             messageBase.getMessageType() #save the message data to the database, log it, etc.
+#             response = messageBase.getFullAcknowledgeKeepAliveMessage()
+#             if enabled == "1":
+#                 hostLog.log(auth, domain, "WXS to Host", "ACKNOWLE", response)
+#             else:
+#                 print(loggingNotEnabledMsg)
+#             return response
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     

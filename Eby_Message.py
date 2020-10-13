@@ -73,27 +73,27 @@ class MessageBase:
             #self.logMessage("Host to WXS", GlobalConstants.NewContainer, self.AsciiRequestMessage)
             newContainer = Eby_NewContainer.NewContainer(self.libserver)
             result = newContainer.saveNewContainer()
-            return result
+            return GlobalConstants.NewContainer
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             result = containerComplete.updateContainerAsComplete(connection)
-            return result
+            return GlobalConstants.ContainerComplete
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             result = assignmentComplete.updateAssignmentComplete(connection)
-            return result
+            return GlobalConstants.AssignmentComplete
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             result = orderComplete.updateOrderComplete(connection)
-            return result
+            return GlobalConstants.OrderComplete
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             result = routeComplete.updateRouteComplete(connection)
-            return result
+            return GlobalConstants.RouteComplete
             
       
             
