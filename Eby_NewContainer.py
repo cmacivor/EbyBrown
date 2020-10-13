@@ -20,13 +20,13 @@ class NewContainer:
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
-        self.RouteNumber = self.fields[2]
-        self.StopNumber = self.fields[3]
-        self.ContainerID = self.fields[4]
-        self.AssignmentID = self.fields[5]
-        self.PickArea = self.fields[6]
-        self.PickType = self.fields[7]
-        self.Jurisdiction = self.fields[8]
+        self.RouteNumber = self.fields[2] if self.fields[2] else ""
+        self.StopNumber = self.fields[3] if self.fields[3] else ""
+        self.ContainerID = self.fields[4] if self.fields[4] else ""
+        self.AssignmentID = self.fields[5] if self.fields[5] else ""
+        self.PickArea = self.fields[6] if self.fields[6] else ""
+        self.PickType = self.fields[7] if self.fields[7] else ""
+        self.Jurisdiction = self.fields[8] if self.fields[8] else ""
         self.NumberCartons = self.getNumberCartons()
         self.loggingConfig = python_config.read_logging_config()  
 
@@ -39,14 +39,16 @@ class NewContainer:
         return msgSeqNumber
 
     def getNumberCartons(self):
-        stringList = list(self.fields[9])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
-
-        return numberWithoutETX
+        try:
+            stringList = list(self.fields[9])
+            msgLength = len(stringList)
+            numberWithoutETX = ""
+            for index in range(0, msgLength - 1):
+                i = stringList[index]
+                numberWithoutETX += i
+            return numberWithoutETX
+        except IndexError:
+            return ""
 
     def doesNewContainerAlreadyExist(self):
         config = python_config.read_db_config()

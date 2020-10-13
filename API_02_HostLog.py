@@ -45,11 +45,17 @@ def log(auth, domain, source, m_type, message):
 
 
 def dbLog(source, m_typ, message):
-    config = python_config.read_db_config()
-    host = config.get('host')
-    user = config.get('user')
-    database = config.get('wcsdatabase')
-    password = config.get('password')
+    # config = python_config.read_db_config()
+    # host = config.get('host')
+    # user = config.get('user')
+    # database = config.get('wcsdatabase')
+    # password = config.get('password')
+
+    host = "10.22.56.11"
+    user = "wcs"
+    database = "wcs"
+    password = "38qa_r4UUaW2d"
+
 
     try:
         connection = mysql.connector.connect(

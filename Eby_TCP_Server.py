@@ -4,7 +4,8 @@ import python_config
 import requests
 import API_02_HostLog as hostLog
 import time
-
+import sys
+import traceback
 
 def createResponseMessage(message):
         loggingConfig = python_config.read_logging_config()
@@ -24,13 +25,13 @@ def createResponseMessage(message):
         if isKeepAliveMessage:
             response = messageBase.getFullAcknowledgeKeepAliveMessage()
                
-            if enabled == "1":
-                #log inbound message               
-                hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
-                #log the response from WXS
-                hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
-            else:
-                print(loggingNotEnabledMsg)
+            # if enabled == "1":
+            #     #log inbound message               
+            #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
+            #     #log the response from WXS
+            #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
+            # else:
+            #     print(loggingNotEnabledMsg)
             return response
         #if not, then it's a data message
         else:
@@ -72,8 +73,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
             except Exception as e:
-                test = e
-                time.sleep(15)
+                if isinstance(e, ConnectionResetError):
+                    pass
+                print(sys.exc_info()[0])
+                print(traceback.format_exc())
+                print("press enter to continue...")
+                input()
 
 
         

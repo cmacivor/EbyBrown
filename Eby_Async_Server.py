@@ -2,28 +2,49 @@ import asyncio
 import Eby_Message
 import python_config
 import API_02_HostLog as hostLog
+import sys
+import traceback
 
 
 async def handle_echo(reader, writer):
-    data = await reader.read(100)
-    message = data.decode()
-    addr = writer.get_extra_info('peername')
+    
+    while True:
+        try:
+            data = await reader.read(1024)
 
-    print(f"Received {message!r} from {addr!r}")
+            if not data:
+                break
 
-    print(f"Send: {message!r}")
+            printable = data.decode('ascii')
+            print(' wrote ' + printable)
 
-    response = createResponseMessage(message)
+            messageBase = Eby_Message.MessageBase(data)
 
-    writer.write(response)
-    await writer.drain()
+            response = messageBase.getFullAcknowledgeKeepAliveMessage()
 
-    print("Close the connection")
-    writer.close()
+            print('response: ' + response.decode('ascii'))
+
+            writer.write(response)
+            await writer.drain()
+            responseMessage = createResponseMessage(data)
+        except Exception:
+            print(sys.exc_info()[0])
+            print(traceback.format_exc())
+            print("press enter to continue...")
+            input()
+        
+
+    #print("Close the connection")
+    #writer.close()
 
 async def main():
+    serverParams = python_config.read_server_config()
+    host = serverParams.get('host')
+    port = int(serverParams.get('port'))
+
     server = await asyncio.start_server(
-        handle_echo, '127.0.0.1', 8888)
+        handle_echo, host, port)
+
 
     addr = server.sockets[0].getsockname()
     print(f'Serving on {addr}')
@@ -49,12 +70,12 @@ def createResponseMessage(message):
     if isKeepAliveMessage:
         response = messageBase.getFullAcknowledgeKeepAliveMessage()
             #log inbound message
-        if enabled == "1":
-            decodedMessage = str(message.decode('utf-8'))
-            hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", decodedMessage)
-            #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
-        else:
-            print(loggingNotEnabledMsg)
+        # if enabled == "1":
+        #     decodedMessage = str(message.decode('utf-8'))
+        #     hostLog.log(auth, domain, "Lucas to WXS", "KEEPALIV", decodedMessage)
+        #     #hostLog.log(auth, domain, "WXS to Lucas", "ACKNOWLE", response.decode('utf-8'))
+        # else:
+        #     print(loggingNotEnabledMsg)
         return response
     #if not, then it's a data message
     else:
