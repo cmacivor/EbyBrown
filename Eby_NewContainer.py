@@ -39,16 +39,18 @@ class NewContainer:
         return msgSeqNumber
 
     def getNumberCartons(self):
-        try:
-            stringList = list(self.fields[9])
-            msgLength = len(stringList)
-            numberWithoutETX = ""
-            for index in range(0, msgLength - 1):
-                i = stringList[index]
-                numberWithoutETX += i
-            return numberWithoutETX
-        except IndexError:
-            return ""
+        numberCartons = self.fields[9].replace("x03", "").strip()
+        return numberCartons
+        # try:
+        #     stringList = list(self.fields[9])
+        #     msgLength = len(stringList)
+        #     numberWithoutETX = ""
+        #     for index in range(0, msgLength - 1):
+        #         i = stringList[index]
+        #         numberWithoutETX += i
+        #     return numberWithoutETX
+        # except IndexError:
+        #     return ""
 
     def doesNewContainerAlreadyExist(self):
         config = python_config.read_db_config()

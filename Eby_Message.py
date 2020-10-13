@@ -66,6 +66,34 @@ class MessageBase:
     #     else:
     #         print(loggingNotEnabledMsg)
 
+    def update_host_log_as_processed(self, message, messageType):
+        try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= wcsDatabase, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+    
+            sql = "UPDATE host_logs SET type = %s where id = %s"
+
+            updateValues = (messageType, message[0])
+
+            cursor.execute(sql, updateValues)
+
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+        except Exception as e:
+            print(e)
+        finally:
+            cursor.close()
+            connection.close()
+
 
     def getMessageType(self, connection):
   
@@ -73,26 +101,36 @@ class MessageBase:
             #self.logMessage("Host to WXS", GlobalConstants.NewContainer, self.AsciiRequestMessage)
             newContainer = Eby_NewContainer.NewContainer(self.libserver)
             result = newContainer.saveNewContainer()
+            if result:
+                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.NewContainer)
             return GlobalConstants.NewContainer
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             result = containerComplete.updateContainerAsComplete(connection)
+            if result:
+                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.ContainerComplete)
             return GlobalConstants.ContainerComplete
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             result = assignmentComplete.updateAssignmentComplete(connection)
+            if result:
+                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.AssignmentComplete)
             return GlobalConstants.AssignmentComplete
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             result = orderComplete.updateOrderComplete(connection)
+            if result:
+                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.OrderComplete)
             return GlobalConstants.OrderComplete
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             result = routeComplete.updateRouteComplete(connection)
+            if result:
+                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.RouteComplete)
             return GlobalConstants.RouteComplete
             
       

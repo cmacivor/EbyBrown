@@ -427,33 +427,7 @@ def update_route_status(routeStatus, prioritynumber):
         cursor.close()
         connection.close()
 
-def update_host_log_as_processed(message, messageType):
-    try:
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= wcsDatabase, 
-            password= password 
-        )
 
-        cursor = connection.cursor()
- 
-        sql = "UPDATE host_logs SET type = %s where id = %s"
-
-        updateValues = (messageType, message[0])
-
-        cursor.execute(sql, updateValues)
-
-        connection.commit()
-
-        cursor.close()
-        connection.close()
-
-    except Exception as e:
-        print(e)
-    finally:
-        cursor.close()
-        connection.close()
 
 
 def processMessages():
@@ -483,8 +457,8 @@ def processMessages():
         for row in result:
             message = row[3]
             messageBase = Eby_Message.MessageBase(message)
-            messageType = messageBase.getMessageType(assignmentConnection)
-            update_host_log_as_processed(row, messageType)
+            messageBase.getMessageType(assignmentConnection)
+            #update_host_log_as_processed(row, messageType)
             #reateResponseMessage(message)
 
     except Exception as e:

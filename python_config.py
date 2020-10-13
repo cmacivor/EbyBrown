@@ -29,7 +29,9 @@ def read_db_config(filename='config.ini', section='mysql'):
 
 def read_logging_config(filename='config.ini', section='logging'):
     parser = SafeConfigParser()
-    parser.read(filename)
+    thisfolder = os.path.dirname(os.path.abspath(__file__))
+    initfile = os.path.join(thisfolder, 'config.ini')
+    parser.read(initfile)
 
     loggingInfo = {}
     if parser.has_section(section):
@@ -57,7 +59,9 @@ def read_server_config(filename='config.ini', section='ServerParams'):
 
 def read_fileconverter_config(filename='config.ini', section='FileConverterParams'):
     parser = SafeConfigParser()
-    parser.read(filename)
+    thisfolder = os.path.dirname(os.path.abspath(__file__))
+    initfile = os.path.join(thisfolder, 'config.ini')
+    parser.read(initfile)
 
     fileConverterParams = {}
     if parser.has_section(section):
