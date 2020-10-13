@@ -29,15 +29,16 @@ class AssignmentComplete:
         return msgSeqNumber
     
     def getAssignmentID(self):
-        stringList = list(self.fields[2])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
+        # stringList = list(self.fields[2])
+        # msgLength = len(stringList)
+        # numberWithoutETX = ""
+        # for index in range(0, msgLength - 1):
+        #     i = stringList[index]
+        #     numberWithoutETX += i
 
-        #assignmentID = self.fields[2].replace('0x3', '')
-        return numberWithoutETX
+        assignmentID = self.fields[2].replace('x03', '')
+        #return numberWithoutETX
+        return assignmentID
 
     def updateAssignmentComplete(self, connection):
         # config = python_config.read_db_config()
