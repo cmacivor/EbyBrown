@@ -31,7 +31,10 @@ class ContainerComplete:
         return msgSeqNumber
 
     def getCigaretteQuantity(self):
-        return self.fields[5]
+        quantity = self.fields[5].replace("x03", "")
+        return quantity
+
+        #return self.fields[5]
         # stringList = list(self.fields[5])
         # msgLength = len(stringList)
         # numberWithoutETX = ""
