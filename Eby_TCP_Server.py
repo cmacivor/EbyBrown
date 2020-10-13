@@ -59,13 +59,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
-    sentinel = object()
-    while True:
-        currentQueueSize = messagesQueue.qsize()
-        if currentQueueSize > 0:
-            for message in iter(messagesQueue.get, sentinel):
-                createResponseMessage(message)
-   
 
     s.bind((host, port))
     s.listen()
@@ -83,7 +76,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 printable = data.decode('ascii')
                 print(' wrote ' + printable)
 
-                #response = createResponseMessage(data)
                 messagesQueue.put(data)
 
                 messageBase = Eby_Message.MessageBase(data)
@@ -99,6 +91,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print(traceback.format_exc())
                 print("press enter to continue...")
                 input()
+
+        sentinel = object()
+        while True:
+            currentQueueSize = messagesQueue.qsize()
+            if currentQueueSize > 0:
+                for message in iter(messagesQueue.get, sentinel):
+                    createResponseMessage(message)
 
 
         
