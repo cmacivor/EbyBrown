@@ -13,7 +13,7 @@ import GlobalFunctions
 class AssignmentComplete:
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.replace("'", "") #libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
@@ -39,21 +39,21 @@ class AssignmentComplete:
         #assignmentID = self.fields[2].replace('0x3', '')
         return numberWithoutETX
 
-    def updateAssignmentComplete(self):
-        config = python_config.read_db_config()
+    def updateAssignmentComplete(self, connection):
+        # config = python_config.read_db_config()
 
-        host = config.get('host')
-        user = config.get('user')
-        database = config.get('database')
-        password = config.get('password')
+        # host = config.get('host')
+        # user = config.get('user')
+        # database = config.get('database')
+        # password = config.get('password')
 
         try:
-            connection = mysql.connector.connect(
-                host= host, 
-                user= user, 
-                database= database, 
-                password= password 
-            )
+            # connection = mysql.connector.connect(
+            #     host= host, 
+            #     user= user, 
+            #     database= database, 
+            #     password= password 
+            # )
 
             cursor = connection.cursor()
 

@@ -51,10 +51,16 @@ def dbLog(source, m_typ, message):
     # database = config.get('wcsdatabase')
     # password = config.get('password')
 
-    host = "10.22.56.11"
-    user = "wcs"
+    # host = "10.22.56.11"
+    # user = "wcs"
+    # database = "wcs"
+    # password = "38qa_r4UUaW2d"
+
+    
+    host = "localhost"
+    user = "root"
     database = "wcs"
-    password = "38qa_r4UUaW2d"
+    password = "Pendant05"
 
 
     try:

@@ -11,11 +11,18 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     #s.sendall(b'\x0200013|ADDCONTA|307604|1123|SC307604112-006|307604112|006003|SPLITCASE|113205|20\x03') # New Container
     #s.sendall(b'\x0200013|CONTCOMP|SC307604112-006|307604112|1\x03') #Container Complete
 
-    s.sendall(b'\x02201|CONTCOMP|FZ2005783-001  |FZ2005783                |0|15') # a container complete from the actual system
+    s.sendall(b'x02247|CONTCOMP|FZ2005798-001  |FZ2005798                |0|15x03') #Container Complete
+
+    #s.sendall(b'\x02201|CONTCOMP|FZ2005783-001  |FZ2005783                |0|15') # a container complete from the actual system
 
     #s.sendall(b'\x0200013|ASGNCOMP|307604112\x03') #Assignment Complete
+    #s.sendall(b'x02248|ASGNCOMP|FZ2005798                x03') #Assignment Complete
+
     #s.sendall(b'\x0200013|ORDRCOMP|307604|1123\x03') #Order Complete
+    #s.sendall(b'x02246|ORDRCOMP|401   |110 x03') #Order Complete
+
     #s.sendall(b'\x0200013|ROUTCOMP|307604\x03') # Route Complete
+    #s.sendall(b'x02245|ROUTCOMP|401   x03') # Route Complete
     data = s.recv(1024)
 
 print("Received", repr(data))

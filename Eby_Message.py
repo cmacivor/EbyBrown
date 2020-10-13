@@ -21,7 +21,7 @@ class MessageBase:
     #constructor
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii')  #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.replace("'", "")   #libserver.decode('ascii')  #libserver.request[:].decode('ascii')
 
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.AsciiRequestMessage) #len(self.libserver.request[:])
@@ -52,45 +52,45 @@ class MessageBase:
         fields = self.AsciiRequestMessage.split('|')
         return fields
     
-    def logMessage(self, source, messageType, messageContent):
-        loggingConfig = python_config.read_logging_config()
-        enabled = loggingConfig.get('enabled')
-        #api = loggingConfig.get('api')
-        auth = loggingConfig.get('auth')
-        domain = loggingConfig.get('domain')
+    # def logMessage(self, source, messageType, messageContent):
+    #     loggingConfig = python_config.read_logging_config()
+    #     enabled = loggingConfig.get('enabled')
+    #     #api = loggingConfig.get('api')
+    #     auth = loggingConfig.get('auth')
+    #     domain = loggingConfig.get('domain')
 
-        loggingNotEnabledMsg = "logging is not enabled in the config.ini."
+    #     loggingNotEnabledMsg = "logging is not enabled in the config.ini."
 
-        if enabled == "1":
-            hostLog.log(auth, domain, source, messageType, messageContent)
-        else:
-            print(loggingNotEnabledMsg)
+    #     if enabled == "1":
+    #         hostLog.log(auth, domain, source, messageType, messageContent)
+    #     else:
+    #         print(loggingNotEnabledMsg)
 
 
-    def getMessageType(self):
+    def getMessageType(self, connection):
   
         if GlobalConstants.NewContainer in self.AsciiRequestMessage:
-            self.logMessage("Host to WXS", GlobalConstants.NewContainer, self.AsciiRequestMessage)
+            #self.logMessage("Host to WXS", GlobalConstants.NewContainer, self.AsciiRequestMessage)
             newContainer = Eby_NewContainer.NewContainer(self.libserver)
             result = newContainer.saveNewContainer()
             return result
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
-            self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
+            #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             result = containerComplete.updateContainerAsComplete()
             return result
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
-            self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
+            #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
-            result = assignmentComplete.updateAssignmentComplete()
+            result = assignmentComplete.updateAssignmentComplete(connection)
             return result
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
-            self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
+            #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             result = orderComplete.updateOrderComplete()
             return result
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
-            self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
+            #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             result = routeComplete.updateRouteComplete()
             return result
