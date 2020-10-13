@@ -31,14 +31,15 @@ class ContainerComplete:
         return msgSeqNumber
 
     def getCigaretteQuantity(self):
-        stringList = list(self.fields[5])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
+        return self.fields[5]
+        # stringList = list(self.fields[5])
+        # msgLength = len(stringList)
+        # numberWithoutETX = ""
+        # for index in range(0, msgLength - 1):
+        #     i = stringList[index]
+        #     numberWithoutETX += i
 
-        return numberWithoutETX
+        # return numberWithoutETX
 
     # def getQCFlag(self):
     #     stringList = list(self.fields[4])
