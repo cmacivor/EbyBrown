@@ -72,7 +72,7 @@ class MessageBase:
 
         host = config.get('host')
         user = config.get('user')
-        wcsDatabase = config.get('wcsDatabase')
+        wcsDatabase = config.get('wcsdatabase')
         password = config.get('password')
 
         try:
@@ -84,6 +84,13 @@ class MessageBase:
             )
 
             cursor = connection.cursor()
+
+            #first we search the log table for the message
+            # searchSql = "SELECT * FROM host_logs WHERE message LIKE '%{message}%'"
+
+            # cursor.execute(searchSql)
+            # hostLog
+
     
             sql = "UPDATE host_logs SET type = %s where id = %s"
 
