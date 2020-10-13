@@ -45,8 +45,6 @@ def createResponseMessage(message):
             return response
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-
-   # messagesQueue = Queue(0)
     
     loggingConfig = python_config.read_logging_config()
     auth = loggingConfig.get('auth')
@@ -76,15 +74,19 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 printable = data.decode('ascii')
                 print(' wrote ' + printable)
 
-                #messagesQueue.put(data)
-
-                #messageBase = Eby_Message.MessageBase(data)
-
-                #response = messageBase.getFullAcknowledgeKeepAliveMessage()
-                response = createResponseMessage(data)
+                messageBase = Eby_Message.MessageBase(data)
+            
+                response = messageBase.getFullAcknowledgeKeepAliveMessage()
+                #response = createResponseMessage(data)
 
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
+
+                isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
+            
+                if not isKeepAliveMessage:
+                    hostLog.log(auth, domain, "Host to WXS", "UNKWN", data)
+
             except Exception as e:
                 if isinstance(e, ConnectionResetError):
                     pass
@@ -93,13 +95,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print("press enter to continue...")
                 input()
 
-        # sentinel = object()
-        # while True:
-        #     currentQueueSize = messagesQueue.qsize()
-        #     if currentQueueSize > 0:
-        #         for message in iter(messagesQueue.get, sentinel):
-        #             print('current size')
-        #             createResponseMessage(message)
 
 
         
