@@ -67,7 +67,7 @@ class MessageBase:
     #     else:
     #         print(loggingNotEnabledMsg)
 
-    def update_host_log_as_processed(self, message, messageType):
+    def update_host_log_as_processed(self, hostLogId, messageType):
         config = python_config.read_db_config()
 
         host = config.get('host')
@@ -86,15 +86,16 @@ class MessageBase:
             cursor = connection.cursor()
 
             #first we search the log table for the message
-            # searchSql = "SELECT * FROM host_logs WHERE message LIKE '%{message}%'"
+            # searchSql = "SELECT * FROM host_logs WHERE message = " + self.libserver
 
             # cursor.execute(searchSql)
-            # hostLog
+            # # hostLog
+            # result = cursor.fetchone()
 
     
             sql = "UPDATE host_logs SET type = %s where id = %s"
 
-            updateValues = (messageType, message[0])
+            updateValues = (messageType, hostLogId)
 
             cursor.execute(sql, updateValues)
 
@@ -110,14 +111,14 @@ class MessageBase:
             connection.close()
 
 
-    def getMessageType(self, connection):
+    def getMessageType(self, connection, hostLog):
   
         if GlobalConstants.NewContainer in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.NewContainer, self.AsciiRequestMessage)
             newContainer = Eby_NewContainer.NewContainer(self.libserver)
             result = newContainer.saveNewContainer()
             if result:
-                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.NewContainer)
+                self.update_host_log_as_processed(hostLog[0] , GlobalConstants.NewContainer)
             else:
                 hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.NewContainer
@@ -126,7 +127,7 @@ class MessageBase:
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
             result = containerComplete.updateContainerAsComplete(connection)
             if result:
-                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.ContainerComplete)
+                self.update_host_log_as_processed(hostLog[0], GlobalConstants.ContainerComplete)
             else:
                 hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.ContainerComplete
@@ -135,7 +136,7 @@ class MessageBase:
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             result = assignmentComplete.updateAssignmentComplete(connection)
             if result:
-                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.AssignmentComplete)
+                self.update_host_log_as_processed(hostLog[0] , GlobalConstants.AssignmentComplete)
             else:
                 hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.AssignmentComplete
@@ -144,7 +145,7 @@ class MessageBase:
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
             result = orderComplete.updateOrderComplete(connection)
             if result:
-                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.OrderComplete)
+                self.update_host_log_as_processed(hostLog[0] , GlobalConstants.OrderComplete)
             else:
                 hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.OrderComplete
@@ -153,7 +154,7 @@ class MessageBase:
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
             result = routeComplete.updateRouteComplete(connection)
             if result:
-                self.update_host_log_as_processed(self.AsciiRequestMessage, GlobalConstants.RouteComplete)
+                self.update_host_log_as_processed(hostLog[0], GlobalConstants.RouteComplete)
             else:
                 hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.RouteComplete

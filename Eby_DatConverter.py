@@ -457,7 +457,7 @@ def processMessages():
         for row in result:
             message = row[3]
             messageBase = Eby_Message.MessageBase(message)
-            messageBase.getMessageType(assignmentConnection)
+            messageBase.getMessageType(assignmentConnection, row)
             #update_host_log_as_processed(row, messageType)
             #reateResponseMessage(message)
 
