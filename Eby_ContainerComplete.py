@@ -52,7 +52,7 @@ class ContainerComplete:
     #     #qcflag = self.fields[4].replace('0x3', '')
     #     return numberWithoutETX
 
-    def updateContainerAsComplete(self):
+    def updateContainerAsComplete(self, connection):
         config = python_config.read_db_config()
 
         host = config.get('host')

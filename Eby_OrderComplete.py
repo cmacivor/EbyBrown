@@ -31,31 +31,32 @@ class OrderComplete:
         return msgSeqNumber
     
     def getStop(self):
-        stringList = list(self.fields[3])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
+        # stringList = list(self.fields[3])
+        # msgLength = len(stringList)
+        # numberWithoutETX = ""
+        # for index in range(0, msgLength - 1):
+        #     i = stringList[index]
+        #     numberWithoutETX += i
 
-        #stop = self.fields[3].replace('0x3', '')
-        return numberWithoutETX
+        stop = self.fields[3].replace('x03', '')
+        return stop
+        #return numberWithoutETX
 
-    def updateOrderComplete(self):
-        config = python_config.read_db_config()
+    def updateOrderComplete(self, connection):
+        # config = python_config.read_db_config()
 
-        host = config.get('host')
-        user = config.get('user')
-        database = config.get('database')
-        password = config.get('password')
+        # host = config.get('host')
+        # user = config.get('user')
+        # database = config.get('database')
+        # password = config.get('password')
 
         try:
-            connection = mysql.connector.connect(
-                host= host, 
-                user= user, 
-                database= database, 
-                password= password 
-            )
+            # connection = mysql.connector.connect(
+            #     host= host, 
+            #     user= user, 
+            #     database= database, 
+            #     password= password 
+            # )
 
             cursor = connection.cursor()
 

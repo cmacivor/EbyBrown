@@ -77,7 +77,7 @@ class MessageBase:
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
             containerComplete = Eby_ContainerComplete.ContainerComplete(self.libserver)
-            result = containerComplete.updateContainerAsComplete()
+            result = containerComplete.updateContainerAsComplete(connection)
             return result
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
@@ -87,12 +87,12 @@ class MessageBase:
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
             orderComplete = Eby_OrderComplete.OrderComplete(self.libserver)
-            result = orderComplete.updateOrderComplete()
+            result = orderComplete.updateOrderComplete(connection)
             return result
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
             routeComplete = Eby_RouteComplete.RouteComplete(self.libserver)
-            result = routeComplete.updateRouteComplete()
+            result = routeComplete.updateRouteComplete(connection)
             return result
             
       

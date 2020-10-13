@@ -1,4 +1,6 @@
-from configparser import ConfigParser
+from configparser import SafeConfigParser
+import os
+
 
 def read_db_config(filename='config.ini', section='mysql'):
     """ Read database configuration file and return a dictionary object
@@ -7,8 +9,12 @@ def read_db_config(filename='config.ini', section='mysql'):
     :return: a dictionary of database parameters
     """
     # create parser and read ini configuration file
-    parser = ConfigParser()
-    parser.read(filename)
+    parser = SafeConfigParser()
+    
+    thisfolder = os.path.dirname(os.path.abspath(__file__))
+    initfile = os.path.join(thisfolder, 'config.ini')
+
+    parser.read(initfile)
 
     # get section, default to mysql
     db = {}
@@ -22,7 +28,7 @@ def read_db_config(filename='config.ini', section='mysql'):
     return db
 
 def read_logging_config(filename='config.ini', section='logging'):
-    parser = ConfigParser()
+    parser = SafeConfigParser()
     parser.read(filename)
 
     loggingInfo = {}
@@ -36,7 +42,7 @@ def read_logging_config(filename='config.ini', section='logging'):
     return loggingInfo
 
 def read_server_config(filename='config.ini', section='ServerParams'):
-    parser = ConfigParser()
+    parser = SafeConfigParser()
     parser.read(filename)
 
     serverParams = {}
@@ -50,7 +56,7 @@ def read_server_config(filename='config.ini', section='ServerParams'):
     return serverParams
 
 def read_fileconverter_config(filename='config.ini', section='FileConverterParams'):
-    parser = ConfigParser()
+    parser = SafeConfigParser()
     parser.read(filename)
 
     fileConverterParams = {}
