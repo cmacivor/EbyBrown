@@ -1,5 +1,6 @@
 import socket
 import Eby_Message
+import Eby_MessageTCPServer
 import python_config
 import requests
 import API_02_HostLog as hostLog
@@ -74,7 +75,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 printable = data.decode('ascii')
                 print(' wrote ' + printable)
 
-                messageBase = Eby_Message.MessageBase(data)
+                #messageBase = Eby_Message.MessageBase(data)
+                messageBase = Eby_MessageTCPServer.MessageBaseTCPServer(data)
             
                 response = messageBase.getFullAcknowledgeKeepAliveMessage()
                 #response = createResponseMessage(data)
