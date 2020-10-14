@@ -7,19 +7,19 @@ PORT = 65432        # The port used by the server
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((HOST, PORT))
 
-    s.sendall(b'Hello, world')
+    s.sendall(b'\x027|KEEPALIV\x03')
     data = s.recv(1024)
     print(data)
     
     #sleep(10)
 
-    s.sendall(b'Hello, world 2')
+    s.sendall(b'\x027|KEEPALIV\x03')
     data1 = s.recv(1024)
     print(data1)
 
     #sleep(10)
 
-    s.sendall(b'Hello, world 3')
+    s.sendall(b'\x027|KEEPALIV\x03')
     data2 = s.recv(1024)
     print(data2)
 
