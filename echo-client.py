@@ -36,11 +36,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # sleep(1)
 
-    s.sendall(b'x02246|ORDRCOMP|401   |110 x03') #Order Complete
+    #s.sendall(b'x02246|ORDRCOMP|401   |110 x03') #Order Complete
 
     # sleep(1)
 
     #s.sendall(b'x02199|CONTCOMP|FZ2005798-001  |FZ2005798                |1|15x03')
+    s.sendall(b'x02247|CONTCOMP|FA2005798-003  |FA2005798                |0|15x03')
 
     # sleep(1)
 

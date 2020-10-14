@@ -80,7 +80,10 @@ class OrderComplete:
             
             cursor.close()
             connection.close()
-            return True
+            if rowcount > 0:
+                return True
+            else:
+                return False
         except Exception as e:
             print(e)
             #connection.rollback()

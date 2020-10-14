@@ -7,7 +7,7 @@ import Eby_OrderComplete
 import Eby_RouteComplete
 import python_config
 import requests
-import API_02_HostLog as hostLog
+import API_02_HostLog as log
 import unicodedata
 import string
 import re
@@ -120,7 +120,7 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.NewContainer)
             else:
-                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                log.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
             return GlobalConstants.NewContainer
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
@@ -129,7 +129,7 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0], GlobalConstants.ContainerComplete)
             else:
-                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
             return GlobalConstants.ContainerComplete
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
@@ -138,7 +138,7 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.AssignmentComplete)
             else:
-                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
             return GlobalConstants.AssignmentComplete
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
@@ -147,7 +147,7 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.OrderComplete)
             else:
-                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
             return GlobalConstants.OrderComplete
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
@@ -156,7 +156,7 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0], GlobalConstants.RouteComplete)
             else:
-                hostLog.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
             return GlobalConstants.RouteComplete
             
       
