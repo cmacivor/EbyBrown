@@ -36,7 +36,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # sleep(1)
 
-    #s.sendall(b'x02246|ORDRCOMP|401   |110 x03') #Order Complete
+    s.sendall(b'x02246|ORDRCOMP|401   |110 x03') #Order Complete
 
     # sleep(1)
 
@@ -44,7 +44,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
     # sleep(1)
 
-    s.sendall(b'x0281|ADDCONTA|401   |220 |FC1005785-002  |FC1005785                |61    |Split Case|                              |  x03')
+    #s.sendall(b'x0281|ADDCONTA|401   |220 |FC1005785-002  |FC1005785                |61    |Split Case|                              |  x03')
 
 
     data = s.recv(1024)

@@ -43,20 +43,20 @@ class OrderComplete:
         #return numberWithoutETX
 
     def updateOrderComplete(self, connection):
-        # config = python_config.read_db_config()
+        config = python_config.read_db_config()
 
-        # host = config.get('host')
-        # user = config.get('user')
-        # database = config.get('database')
-        # password = config.get('password')
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
 
         try:
-            # connection = mysql.connector.connect(
-            #     host= host, 
-            #     user= user, 
-            #     database= database, 
-            #     password= password 
-            # )
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
 
             cursor = connection.cursor()
 
