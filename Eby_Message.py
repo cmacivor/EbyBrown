@@ -84,18 +84,45 @@ class MessageBase:
             )
 
             cursor = connection.cursor()
-
-            #first we search the log table for the message
-            # searchSql = "SELECT * FROM host_logs WHERE message = " + self.libserver
-
-            # cursor.execute(searchSql)
-            # # hostLog
-            # result = cursor.fetchone()
-
     
             sql = "UPDATE host_logs SET type = %s where id = %s"
 
             updateValues = (messageType, hostLogId)
+
+            cursor.execute(sql, updateValues)
+
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+        except Exception as e:
+            print(e)
+        finally:
+            cursor.close()
+            connection.close()
+    
+    def update_host_log_as_no_update(self, hostLogId):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        wcsDatabase = config.get('wcsdatabase')
+        password = config.get('password')
+
+        try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= wcsDatabase, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            sql = "UPDATE host_logs SET type = 'No Upd' where id = %s"
+
+            updateValues = (hostLogId,)
 
             cursor.execute(sql, updateValues)
 
@@ -120,7 +147,9 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.NewContainer)
             else:
-                log.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                #log.dbLog("DatConverter", "Proc Error", self.AsciiRequestMessage)
+                print("No update for " + self.AsciiRequestMessage)
+                self.update_host_log_as_no_update(hostLog[0])
             return GlobalConstants.NewContainer
         if GlobalConstants.ContainerComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.ContainerComplete, self.AsciiRequestMessage)
@@ -129,7 +158,9 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0], GlobalConstants.ContainerComplete)
             else:
-                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
+                #log.dbLog("DatConverter", "No Upd", self.AsciiRequestMessage)
+                print("No update for " + self.AsciiRequestMessage)
+                self.update_host_log_as_no_update(hostLog[0])
             return GlobalConstants.ContainerComplete
         if GlobalConstants.AssignmentComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
@@ -138,7 +169,8 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.AssignmentComplete)
             else:
-                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
+                print("No update for " + self.AsciiRequestMessage)
+                self.update_host_log_as_no_update(hostLog[0])
             return GlobalConstants.AssignmentComplete
         if GlobalConstants.OrderComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.OrderComplete, self.AsciiRequestMessage)
@@ -147,7 +179,8 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.OrderComplete)
             else:
-                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
+                print("No update for " + self.AsciiRequestMessage)
+                self.update_host_log_as_no_update(hostLog[0])
             return GlobalConstants.OrderComplete
         if GlobalConstants.RouteComplete in self.AsciiRequestMessage:
             #self.logMessage("Host to WXS", GlobalConstants.RouteComplete, self.AsciiRequestMessage)
@@ -156,7 +189,8 @@ class MessageBase:
             if result:
                 self.update_host_log_as_processed(hostLog[0], GlobalConstants.RouteComplete)
             else:
-                log.dbLog("DatConverter", "No Proc", self.AsciiRequestMessage)
+                print("No update for " + self.AsciiRequestMessage)
+                self.update_host_log_as_no_update(hostLog[0])
             return GlobalConstants.RouteComplete
             
       

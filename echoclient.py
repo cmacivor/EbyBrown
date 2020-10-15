@@ -6,11 +6,11 @@ import python_config
 import Eby_GlobalConstants as GlobalConstants
 
 
-# HOST = '127.0.0.1'  # The server's hostname or IP address
-# PORT = 65432        # The port used by the server
+HOST = '127.0.0.1'  # The server's hostname or IP address
+PORT = 65432        # The port used by the server
 
-HOST = '10.22.56.11'  # The server's hostname or IP address
-PORT = 9998        # The port used by the server
+# HOST = '10.22.56.11'  # The server's hostname or IP address
+# PORT = 9998        # The port used by the server
 
 def getLogs():
     try:
@@ -62,7 +62,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
             data = s.recv(1024)
             print(data)
-            sleep(1)
+            sleep(0.1)
 
   
     

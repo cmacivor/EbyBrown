@@ -616,11 +616,13 @@ def do_everything():
         print("No file present")
         # acknowledge no file is there
 
+    processMessages()
+
 # do it every x amount of  seconds
 schedule.every(check_interval).seconds.do(do_everything)
 
 #schedule the processing of messages
-schedule.every(process_message_interval).seconds.do(processMessages)
+#schedule.every(process_message_interval).seconds.do(processMessages)
 
 schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 # schedule checking and deleting of tables
