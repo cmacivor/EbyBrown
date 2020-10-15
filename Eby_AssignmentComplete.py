@@ -25,7 +25,7 @@ class AssignmentComplete:
         return fields
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber =  self.fields[0][3:]
+        msgSeqNumber =  self.fields[0].replace("x02", "")
         return msgSeqNumber
     
     def getAssignmentID(self):

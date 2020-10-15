@@ -19,7 +19,7 @@ class ContainerComplete:
         self.ContainerID = self.fields[2]
         self.AssignmentID = self.fields[3]
         self.QCFlag =  self.fields[4] 
-        self.CigaretteQuantity = self.getCigaretteQuantity()  
+        self.CigaretteQuantity = self.getCigaretteQuantity()
 
 
     def populateFields(self):
@@ -27,11 +27,11 @@ class ContainerComplete:
         return fields
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber =  self.fields[0][3:]
+        msgSeqNumber =  self.fields[0].replace("x02", "")
         return msgSeqNumber
 
     def getCigaretteQuantity(self):
-        quantity = self.fields[5].replace("x03", "").replace("'", "").strip()
+        quantity = self.fields[5].replace("x03", "").replace("'", "").replace("\"", "").strip()
         return quantity
 
         #return self.fields[5]
