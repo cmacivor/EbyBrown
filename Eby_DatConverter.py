@@ -28,6 +28,7 @@ from pathlib import Path, PureWindowsPath
 from datetime import datetime
 import API_02_HostLog as hostLog
 import Eby_Message
+import threading
 
 #get db credentials
 config = python_config.read_db_config()
@@ -616,13 +617,20 @@ def do_everything():
         print("No file present")
         # acknowledge no file is there
 
-    processMessages()
+    #processMessages()
+
+def run_threaded(job_func):
+    job_thread = threading.Thread(target=job_func)
+    job_thread.start()
+
+
 
 # do it every x amount of  seconds
-schedule.every(check_interval).seconds.do(do_everything)
+#schedule.every(check_interval).seconds.do(do_everything)
+schedule.every(check_interval).seconds.do(run_threaded, do_everything)
 
 #schedule the processing of messages
-#schedule.every(process_message_interval).seconds.do(processMessages)
+schedule.every(process_message_interval).seconds.do(run_threaded, processMessages)
 
 schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 # schedule checking and deleting of tables
