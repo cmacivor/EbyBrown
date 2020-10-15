@@ -90,7 +90,7 @@ class RouteComplete:
             exceptionDetails = ''.join('!! ' + line for line in lines)
           
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
-          
+            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
             return False
         
         finally:

@@ -89,7 +89,7 @@ class AssignmentComplete:
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             exceptionMsg = exc_value.msg
             exceptionDetails = ''.join('!! ' + line for line in lines)
-          
+            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
             return False
         

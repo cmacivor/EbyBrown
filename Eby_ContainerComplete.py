@@ -31,7 +31,7 @@ class ContainerComplete:
         return msgSeqNumber
 
     def getCigaretteQuantity(self):
-        quantity = self.fields[5].replace("x03", "")
+        quantity = self.fields[5].replace("x03", "").replace("'", "").strip()
         return quantity
 
         #return self.fields[5]
@@ -107,6 +107,7 @@ class ContainerComplete:
                 exceptionDetails = ''.join('!! ' + line for line in lines)
             
                 GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+                hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
                 return False
         
         finally:
