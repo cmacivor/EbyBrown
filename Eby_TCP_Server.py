@@ -1,47 +1,49 @@
 import socket
 import Eby_Message
+import Eby_MessageTCPServer
 import python_config
 import requests
 import API_02_HostLog as hostLog
 import time
 import sys
 import traceback
+from queue import Queue
 
-def createResponseMessage(message):
-        loggingConfig = python_config.read_logging_config()
-        enabled = loggingConfig.get('enabled')
-        api = loggingConfig.get('api')
-        auth = loggingConfig.get('auth')
-        domain = loggingConfig.get('domain')
+# def createResponseMessage(message):
+#         loggingConfig = python_config.read_logging_config()
+#         enabled = loggingConfig.get('enabled')
+#         api = loggingConfig.get('api')
+#         auth = loggingConfig.get('auth')
+#         domain = loggingConfig.get('domain')
 
-        loggingNotEnabledMsg = "logging is not enabled in the config.ini."
+#         loggingNotEnabledMsg = "logging is not enabled in the config.ini."
         
-        messageBase = Eby_Message.MessageBase(message)
+#         messageBase = Eby_Message.MessageBase(message)
         
-        response = None  
+#         response = None  
             
-        isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
+#         isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
             
-        if isKeepAliveMessage:
-            response = messageBase.getFullAcknowledgeKeepAliveMessage()
+#         if isKeepAliveMessage:
+#             response = messageBase.getFullAcknowledgeKeepAliveMessage()
                
-            # if enabled == "1":
-            #     #log inbound message               
-            #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
-            #     #log the response from WXS
-            #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
-            # else:
-            #     print(loggingNotEnabledMsg)
-            return response
-        #if not, then it's a data message
-        else:
-            messageBase.getMessageType() #save the message data to the database, log it, etc.
-            response = messageBase.getFullAcknowledgeKeepAliveMessage()
-            if enabled == "1":
-                hostLog.log(auth, domain, "WXS to Host", "ACKNOWLE", response)
-            else:
-                print(loggingNotEnabledMsg)
-            return response
+#             # if enabled == "1":
+#             #     #log inbound message               
+#             #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
+#             #     #log the response from WXS
+#             #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
+#             # else:
+#             #     print(loggingNotEnabledMsg)
+#             return response
+#         #if not, then it's a data message
+#         else:
+#             messageBase.getMessageType() #save the message data to the database, log it, etc.
+#             response = messageBase.getFullAcknowledgeKeepAliveMessage()
+#             if enabled == "1":
+#                 hostLog.log(auth, domain, "WXS to Host", "ACKNOWLE", response)
+#             else:
+#                 print(loggingNotEnabledMsg)
+#             return response
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     
@@ -56,6 +58,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
+
     s.bind((host, port))
     s.listen()
     conn, addr = s.accept()
@@ -65,13 +68,27 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
 
                 data = conn.recv(1024)
+
                 if not data:
                     break
+
                 printable = data.decode('ascii')
                 print(' wrote ' + printable)
-                response = createResponseMessage(data)
+
+                #messageBase = Eby_Message.MessageBase(data)
+                messageBase = Eby_MessageTCPServer.MessageBaseTCPServer(data)
+            
+                response = messageBase.getFullAcknowledgeKeepAliveMessage()
+                #response = createResponseMessage(data)
+
                 print('response: ' + response.decode('ascii'))
                 conn.sendall(response)
+
+                isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
+            
+                if not isKeepAliveMessage:
+                    hostLog.log(auth, domain, "Host to WXS", "UNKWN", data)
+
             except Exception as e:
                 if isinstance(e, ConnectionResetError):
                     pass
@@ -79,6 +96,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 print(traceback.format_exc())
                 print("press enter to continue...")
                 input()
+
 
 
         

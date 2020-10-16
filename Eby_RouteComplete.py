@@ -13,7 +13,7 @@ import GlobalFunctions
 class RouteComplete:
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.replace("'", "") #libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
@@ -25,21 +25,22 @@ class RouteComplete:
         return fields
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber =  self.fields[0][3:]
+        msgSeqNumber =  self.fields[0].replace("x02", "")
         return msgSeqNumber
 
     def getRoute(self):
-        stringList = list(self.fields[2])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
+        # stringList = list(self.fields[2])
+        # msgLength = len(stringList)
+        # numberWithoutETX = ""
+        # for index in range(0, msgLength - 1):
+        #     i = stringList[index]
+        #     numberWithoutETX += i
 
-        #route = self.fields[2].replace('0x3', '')
-        return numberWithoutETX
+        route = self.fields[2].replace('x03', '')
+        return route
+        #return numberWithoutETX
     
-    def updateRouteComplete(self):
+    def updateRouteComplete(self, connection):
         config = python_config.read_db_config()
 
         host = config.get('host')
@@ -75,7 +76,10 @@ class RouteComplete:
             
             cursor.close()
             connection.close()
-            return True
+            if rowcount > 0:
+                return True
+            else:
+                return False
         except Exception as e:
             print(e)
             #connection.rollback()
@@ -86,7 +90,7 @@ class RouteComplete:
             exceptionDetails = ''.join('!! ' + line for line in lines)
           
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
-          
+            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
             return False
         
         finally:

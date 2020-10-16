@@ -27,6 +27,8 @@ import python_config
 from pathlib import Path, PureWindowsPath
 from datetime import datetime
 import API_02_HostLog as hostLog
+import Eby_Message
+import threading
 
 #get db credentials
 config = python_config.read_db_config()
@@ -61,8 +63,11 @@ output_path = PureWindowsPath(outputPath).__str__()
 input_processed_path = PureWindowsPath(inputProcessedPath).__str__()
 # assign path for Processed .DAT files
 output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
-check_interval = 5  # seconds
 # amount of time to wait in between next check IN SECONDS
+check_interval = 5  # seconds
+#interval in seconds for processing messages
+process_message_interval = 20
+
 delete_interval = 24  # hours
 # amount of time it waits to check for old records IN HOURS
 deploy_db = "assignment"
@@ -424,6 +429,49 @@ def update_route_status(routeStatus, prioritynumber):
         connection.close()
 
 
+
+
+def processMessages():
+    print("processing messages from the host_logs table...")
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        assignmentConnection = mysql.connector.connect(
+            host = host,
+            user = user,
+            database = database,
+            password = password
+        )
+
+        cursor = connection.cursor()
+ 
+        sql = "select * from host_logs where type = 'UNKWN'"
+
+        cursor.execute(sql)
+
+        result = cursor.fetchall()
+        for row in result:
+            message = row[3]
+            messageBase = Eby_Message.MessageBase(message)
+            messageBase.getMessageType(assignmentConnection, row)
+            #update_host_log_as_processed(row, messageType)
+            #reateResponseMessage(message)
+
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
+
+
+                     
+
+
 def do_everything():
     # put it all in a function
     working_path = input_path;  # replace with dir that 
@@ -481,7 +529,7 @@ def do_everything():
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
                 if enabled == "1":
-                    hostLog.log(auth, domain, "DAT Converter to WXS", "Numer Lines Checked", "Number of lines to be checked " + str(num_lines))
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "Nmbr Lines", "Number of lines to be checked " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
                 #dat_table_create(table_name)
@@ -569,9 +617,21 @@ def do_everything():
         print("No file present")
         # acknowledge no file is there
 
+    #processMessages()
 
-schedule.every(check_interval).seconds.do(do_everything)
+def run_threaded(job_func):
+    job_thread = threading.Thread(target=job_func)
+    job_thread.start()
+
+
+
 # do it every x amount of  seconds
+#schedule.every(check_interval).seconds.do(do_everything)
+schedule.every(check_interval).seconds.do(run_threaded, do_everything)
+
+#schedule the processing of messages
+schedule.every(process_message_interval).seconds.do(run_threaded, processMessages)
+
 schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 # schedule checking and deleting of tables
 while 1:

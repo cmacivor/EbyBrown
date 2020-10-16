@@ -12,14 +12,14 @@ import GlobalFunctions
 class ContainerComplete:
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.replace("'", "") # libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
         self.ContainerID = self.fields[2]
         self.AssignmentID = self.fields[3]
         self.QCFlag =  self.fields[4] 
-        self.CigaretteQuantity = self.getCigaretteQuantity()  
+        self.CigaretteQuantity = self.getCigaretteQuantity()
 
 
     def populateFields(self):
@@ -27,18 +27,22 @@ class ContainerComplete:
         return fields
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber =  self.fields[0][3:]
+        msgSeqNumber =  self.fields[0].replace("x02", "")
         return msgSeqNumber
 
     def getCigaretteQuantity(self):
-        stringList = list(self.fields[5])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
+        quantity = self.fields[5].replace("x03", "").replace("'", "").replace("\"", "").strip()
+        return quantity
 
-        return numberWithoutETX
+        #return self.fields[5]
+        # stringList = list(self.fields[5])
+        # msgLength = len(stringList)
+        # numberWithoutETX = ""
+        # for index in range(0, msgLength - 1):
+        #     i = stringList[index]
+        #     numberWithoutETX += i
+
+        # return numberWithoutETX
 
     # def getQCFlag(self):
     #     stringList = list(self.fields[4])
@@ -51,7 +55,7 @@ class ContainerComplete:
     #     #qcflag = self.fields[4].replace('0x3', '')
     #     return numberWithoutETX
 
-    def updateContainerAsComplete(self):
+    def updateContainerAsComplete(self, connection):
         config = python_config.read_db_config()
 
         host = config.get('host')
@@ -89,7 +93,10 @@ class ContainerComplete:
             
             cursor.close()
             connection.close()
-            return True
+            if rowcount > 0:
+                return True
+            else:
+                return False
         except Exception as e:
                 print(e)
                 #connection.rollback()
@@ -100,6 +107,7 @@ class ContainerComplete:
                 exceptionDetails = ''.join('!! ' + line for line in lines)
             
                 GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+                hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
                 return False
         
         finally:

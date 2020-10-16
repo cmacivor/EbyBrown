@@ -13,7 +13,7 @@ import GlobalFunctions
 class AssignmentComplete:
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.replace("'", "") #libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
@@ -25,21 +25,22 @@ class AssignmentComplete:
         return fields
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber =  self.fields[0][3:]
+        msgSeqNumber =  self.fields[0].replace("x02", "")
         return msgSeqNumber
     
     def getAssignmentID(self):
-        stringList = list(self.fields[2])
-        msgLength = len(stringList)
-        numberWithoutETX = ""
-        for index in range(0, msgLength - 1):
-            i = stringList[index]
-            numberWithoutETX += i
+        # stringList = list(self.fields[2])
+        # msgLength = len(stringList)
+        # numberWithoutETX = ""
+        # for index in range(0, msgLength - 1):
+        #     i = stringList[index]
+        #     numberWithoutETX += i
 
-        #assignmentID = self.fields[2].replace('0x3', '')
-        return numberWithoutETX
+        assignmentID = self.fields[2].replace('x03', '')
+        #return numberWithoutETX
+        return assignmentID
 
-    def updateAssignmentComplete(self):
+    def updateAssignmentComplete(self, connection):
         config = python_config.read_db_config()
 
         host = config.get('host')
@@ -76,7 +77,10 @@ class AssignmentComplete:
             
             cursor.close()
             connection.close()
-            return True
+            if rowcount > 0:
+                return True
+            else:
+                return False
         except Exception as e:
             print(e)
             #connection.rollback()
@@ -85,7 +89,7 @@ class AssignmentComplete:
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             exceptionMsg = exc_value.msg
             exceptionDetails = ''.join('!! ' + line for line in lines)
-          
+            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
             return False
         

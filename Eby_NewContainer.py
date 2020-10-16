@@ -16,7 +16,7 @@ class NewContainer:
     #constructor
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii') #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver.replace("'", "") #libserver.decode('ascii') #libserver.request[:].decode('ascii')
         self.fields = self.populateFields()
         self.MsgSequenceNumber = self.getMessageSequenceNumber()
         self.MessageID = self.fields[1]
@@ -35,20 +35,22 @@ class NewContainer:
         return fields
 
     def getMessageSequenceNumber(self):
-        msgSeqNumber =  self.fields[0][3:]
+        msgSeqNumber =  self.fields[0].replace("x02", "")
         return msgSeqNumber
 
     def getNumberCartons(self):
-        try:
-            stringList = list(self.fields[9])
-            msgLength = len(stringList)
-            numberWithoutETX = ""
-            for index in range(0, msgLength - 1):
-                i = stringList[index]
-                numberWithoutETX += i
-            return numberWithoutETX
-        except IndexError:
-            return ""
+        numberCartons = self.fields[9].replace("x03", "").strip()
+        return numberCartons
+        # try:
+        #     stringList = list(self.fields[9])
+        #     msgLength = len(stringList)
+        #     numberWithoutETX = ""
+        #     for index in range(0, msgLength - 1):
+        #         i = stringList[index]
+        #         numberWithoutETX += i
+        #     return numberWithoutETX
+        # except IndexError:
+        #     return ""
 
     def doesNewContainerAlreadyExist(self):
         config = python_config.read_db_config()
@@ -154,7 +156,7 @@ class NewContainer:
             exceptionDetails = ''.join('!! ' + line for line in lines)
             # print(''.join('!! ' + line for line in lines))
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)  
-
+            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
             return False
         
         finally:
