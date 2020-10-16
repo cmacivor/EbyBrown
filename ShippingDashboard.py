@@ -14,7 +14,44 @@ def main():
     #update the dashboard_routes1 table with the route number and trailer number from highest priority row from the route_status table
     updateDashboardRoutes1(unCompletedRouteStatus.Route, unCompletedRouteStatus.TrailerNumber)
 
+    #get rows from dat_master by the route number and date created
     datMasterRowsByRouteNoAndDate = getNumberRowsFromDatMasterByRouteNumberAndDate(unCompletedRouteStatus.Route, unCompletedRouteStatus.DateAt)
+
+    #update the dashboard_routes table with the value
+    updateDashboardRouteTotalExpected(datMasterRowsByRouteNoAndDate)
+
+def updateDashboardRouteTotalExpected(total):
+    try:
+        config = python_config.read_db_config()
+        host = config.get('host')
+        user = config.get('user')
+        #database = config.get('database')
+        wcsDatabase = config.get('wcsdatabase')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        
+        sql = "update wcs.dashboard_routes set total_expected = %s where route_type = 'current'"
+
+        updateValues = (total,)
+
+        cursor.execute(sql, updateValues)
+
+        connection.commit()
+
+        cursor.close()
+
+        connection.close()
+    except Exception as e:
+        print(e)
 
 def getNumberRowsFromDatMasterByRouteNumberAndDate(routeNumber, routeStatusDate):
     try:
