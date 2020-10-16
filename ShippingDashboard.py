@@ -9,8 +9,47 @@ import RouteStatus
 
 def main():
     #get the highest priority non-completed Route Status of Door 1 
-    unCompletedRouteStatuses = getUnCompletedRouteStatuses()
-    updateDashboardRoutes1(unCompletedRouteStatuses.Route, unCompletedRouteStatuses.TrailerNumber)
+    unCompletedRouteStatus = getUnCompletedRouteStatuses()
+
+    #update the dashboard_routes1 table with the route number and trailer number from highest priority row from the route_status table
+    updateDashboardRoutes1(unCompletedRouteStatus.Route, unCompletedRouteStatus.TrailerNumber)
+
+    datMasterRowsByRouteNoAndDate = getNumberRowsFromDatMasterByRouteNumberAndDate(unCompletedRouteStatus.Route, unCompletedRouteStatus.DateAt)
+
+def getNumberRowsFromDatMasterByRouteNumberAndDate(routeNumber, routeStatusDate):
+    try:
+        config = python_config.read_db_config()
+        host = config.get('host')
+        user = config.get('user')
+        #database = config.get('database')
+        wcsDatabase = config.get('wcsdatabase')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        sql = "select count(*) from assignment.dat_master where route_no = %s and DATE(created_at) = %s "
+
+        selectValues = (routeNumber, routeStatusDate)
+
+        cursor.execute(sql, selectValues)
+
+        result = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        return result[0]
+    except Exception as e:
+        print(e)
+    
+
 
 def updateDashboardRoutes1(routeNumber, trailerNumber):
     try:
