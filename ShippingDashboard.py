@@ -8,8 +8,46 @@ import RouteStatus
 
 
 def main():
+    #get the highest priority non-completed Route Status of Door 1 
     unCompletedRouteStatuses = getUnCompletedRouteStatuses()
-    test = unCompletedRouteStatuses
+    updateDashboardRoutes1(unCompletedRouteStatuses.Route, unCompletedRouteStatuses.TrailerNumber)
+
+def updateDashboardRoutes1(routeNumber, trailerNumber):
+    try:
+        config = python_config.read_db_config()
+        host = config.get('host')
+        user = config.get('user')
+        #database = config.get('database')
+        wcsDatabase = config.get('wcsdatabase')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        sql = "update wcs.dashboard_routes1 set number = %s, trailer = %s where route_type = 'current'"
+
+        updateValues = (routeNumber, trailerNumber)
+
+        cursor.execute(sql, updateValues)
+
+        connection.commit()
+
+        rowCount = cursor.rowcount
+
+        cursor.close()
+        connection.close()
+
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connection.close()
     
 
 def getUnCompletedRouteStatuses():
