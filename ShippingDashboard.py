@@ -30,18 +30,22 @@ def getUnCompletedRouteStatuses():
 
         cursor = connection.cursor()
 
-        getRouteStatusesSQL = "select * from route_statuses where status != 'Complete' order by priority"
+        getRouteStatusesSQL = "select * from route_statuses where status != 'Complete' order by priority limit 1"
 
         cursor.execute(getRouteStatusesSQL)
 
-        routeStatusObjList = []
-        result = cursor.fetchall()
-        for routeStatus in result:
-            routeStatusObj = RouteStatus.route_status(routeStatus[0], routeStatus[1], routeStatus[2], routeStatus[3], routeStatus[4], routeStatus[5], routeStatus[6], routeStatus[7], 
-                                                        routeStatus[8], routeStatus[9], 0, 0)
-            routeStatusObjList.append(routeStatusObj)
+        #routeStatusObjList = []
 
-        return routeStatusObjList
+        result = cursor.fetchone()
+
+        #for routeStatus in result:
+        routeStatusObj = RouteStatus.route_status(result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], 
+                                                        result[8], result[9], 0, 0)
+
+        return routeStatusObj
+            #routeStatusObjList.append(routeStatusObj)
+
+        #return routeStatusObjList
 
     except Exception as e:
         print(e)
