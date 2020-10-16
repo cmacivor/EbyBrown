@@ -5,7 +5,7 @@ import GlobalFunctions
 import sys
 import traceback
 import RouteStatus
-
+import datetime
 
 def main():
     #get the highest priority non-completed Route Status of Door 1 
@@ -38,10 +38,11 @@ def updateDashboardRouteTotalExpected(total):
 
         cursor = connection.cursor()
 
+        currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        sql = "update wcs.dashboard_routes set total_expected = %s where route_type = 'current'"
+        sql = "update wcs.dashboard_routes set total_expected = %s, updated_at = %s where route_type = 'current'"
 
-        updateValues = (total,)
+        updateValues = (total, currentTimeStamp)
 
         cursor.execute(sql, updateValues)
 
@@ -104,11 +105,13 @@ def updateDashboardRoutes1(routeNumber, trailerNumber):
             password= password 
         )
 
+        currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         cursor = connection.cursor()
 
-        sql = "update wcs.dashboard_routes1 set number = %s, trailer = %s where route_type = 'current'"
+        sql = "update wcs.dashboard_routes1 set number = %s, trailer = %s, updated_at = %s where route_type = 'current'"
 
-        updateValues = (routeNumber, trailerNumber)
+        updateValues = (routeNumber, trailerNumber, currentTimeStamp)
 
         cursor.execute(sql, updateValues)
 
