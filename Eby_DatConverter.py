@@ -29,6 +29,9 @@ from datetime import datetime
 import API_02_HostLog as hostLog
 import Eby_Message
 import threading
+import traceback
+import GlobalFunctions
+import RouteStatus 
 
 #get db credentials
 config = python_config.read_db_config()
@@ -88,18 +91,7 @@ mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db)
 mycursor.execute("USE " + deploy_db + ";")
 # switch to right database
 
-class route_status:
-    def __init__(self, id, route, dockDoor, trailerNumber, priority, enable, status, date_at, created_at, updated_at, numberLines, existingRecordCount):
-        self.ID = id
-        self.Route = route
-        self.DockDoor = dockDoor
-        self.TrailerNumber = trailerNumber
-        self.Priority = priority  #+ numberLines - existingRecordCount + 1
-        self.Enable = enable
-        self.Status = status
-        self.DateAt = date_at
-        self.CreatedAt = created_at
-        self.UpdatedAt = updated_at
+
     
 
 
@@ -373,7 +365,7 @@ def get_route_statuses(numberLines):
         existingRecordCount = len(result)
         routeStatuses = []
         for row in result:
-            routeStatus = route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines, existingRecordCount)
+            routeStatus = RouteStatus.route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines, existingRecordCount)
             routeStatuses.append(routeStatus)
         
         cursor.close()
