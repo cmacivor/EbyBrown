@@ -8,7 +8,22 @@ def process(containerId):
     #query the dat_master table against the containerId, get the jurisdiction and qty
     datFileRecord = getDatFileRecordByContainerId(containerId)
 
+    #create the sub dat file contents
+    fileContents = createFileContents(datFileRecord)
+
     #create the sub dat file
+
+#TODO: what to do if the fields are blank?
+def createFileContents(datrecord):
+    jurisdiction = datrecord[8]
+    carton_quantity = datrecord[9]
+
+    fileContents = jurisdiction + "000000" + carton_quantity
+
+    return fileContents
+
+
+
 
 def getDatFileRecordByContainerId(containerId):
     try:
