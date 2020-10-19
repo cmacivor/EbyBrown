@@ -14,6 +14,9 @@ def process(containerId):
     #query the dat_master table against the containerId, get the jurisdiction and qty
     datFileRecord = getDatFileRecordByContainerId(containerId)
 
+    if datFileRecord == "ContainerNotFound":
+        return "ContainerNotFound"
+
     #create the sub dat file contents
     fileContents = createFileContents(datFileRecord)
 
@@ -74,6 +77,9 @@ def getDatFileRecordByContainerId(containerId):
 
         result = cursor.fetchone()
 
+        if result == None:
+            return "ContainerNotFound"
+
         cursor.close()
         assignmentConnection.close()
         return result
@@ -87,4 +93,5 @@ def getDatFileRecordByContainerId(containerId):
 
 
 if __name__ == "__main__":
-    process("FB1005530-006  ")
+    #process("FB1005530-006  ")
+    process("FB1005530-00  ")
