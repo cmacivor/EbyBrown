@@ -31,7 +31,7 @@ def createFileContents(datrecord):
     jurisdiction = datrecord[8]
     carton_quantity = datrecord[9]
 
-    fileContents = jurisdiction + "," + "000001" + "," + carton_quantity
+    fileContents = jurisdiction + "," + "000000" + "," + carton_quantity
 
     return fileContents
 
