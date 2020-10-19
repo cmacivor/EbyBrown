@@ -17,6 +17,9 @@ def process(containerId):
     #create the sub dat file contents
     fileContents = createFileContents(datFileRecord)
 
+    if fileContents == "JurisdictionEmpty" or fileContents == "QtyEmpty":
+        return fileContents
+
     fileName = containerId.strip() + ".dat"
 
     fullFilePath = outputPath + "\\" + fileName
@@ -25,11 +28,19 @@ def process(containerId):
         containerFile.write(fileContents)
         print(containerFile.name + " created." )
 
+        return "Success"
+
 
 #TODO: what to do if the fields are blank?
 def createFileContents(datrecord):
     jurisdiction = datrecord[8]
     carton_quantity = datrecord[9]
+
+    if jurisdiction is None or jurisdiction.isspace():
+        return "JurisdictionEmpty"
+    
+    if carton_quantity is None or carton_quantity.isspace():
+        return "QtyEmpty"
 
     fileContents = jurisdiction + "," + "000000" + "," + carton_quantity
 
@@ -76,4 +87,4 @@ def getDatFileRecordByContainerId(containerId):
 
 
 if __name__ == "__main__":
-    process("FB1005530-007  ")
+    process("FB1005530-006  ")
