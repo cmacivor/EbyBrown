@@ -20,6 +20,85 @@ def main():
     #update the dashboard_routes table with the value
     updateDashboardRouteTotalExpected(datMasterRowsByRouteNoAndDate)
 
+    calculateRemainingToScan()
+
+
+def calculateRemainingToScan():
+    currentDashboardRoute1 = getCurrentDashboardRoute1()
+    total_expected = currentDashboardRoute1[2]
+    door_scanned = currentDashboardRoute1[3]
+    remaining_to_scan = total_expected - door_scanned
+    updateRemainingToScan(remaining_to_scan)
+
+
+def updateRemainingToScan(remaingToScan):
+    try:
+        config = python_config.read_db_config()
+        host = config.get('host')
+        user = config.get('user')
+        #database = config.get('database')
+        wcsDatabase = config.get('wcsdatabase')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        sql = "update wcs.dashboard_routes1 set remaining_to_scan = %s, updated_at = %s where route_type = 'current'"
+
+        updateValues = (remaingToScan, currentTimeStamp)
+
+        cursor.execute(sql, updateValues)
+
+        connection.commit()
+
+        cursor.close()
+
+        connection.close()
+    except Exception as e:
+        print(e)
+
+
+def getCurrentDashboardRoute1():
+    try:
+        config = python_config.read_db_config()
+        host = config.get('host')
+        user = config.get('user')
+        #database = config.get('database')
+        wcsDatabase = config.get('wcsdatabase')
+        password = config.get('password')
+
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        sql = "select * from wcs.dashboard_routes1 where route_type = 'current'"
+
+        cursor.execute(sql)
+
+        result = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        return result
+    except Exception as e:
+        print(e)
+
+
+
 def updateDashboardRouteTotalExpected(total):
     try:
         config = python_config.read_db_config()
