@@ -11,6 +11,7 @@ import schedule
 
 
 def updateDashboard():
+    print('updating the dashboard...')
     #get the highest priority non-completed Route Status of Door 1 
     unCompletedRouteStatus = getUnCompletedRouteStatuses()
 
@@ -67,6 +68,12 @@ def updateRemainingToScan(remaingToScan):
         connection.close()
     except Exception as e:
         print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
 
 
 def getCurrentDashboardRoute1():
@@ -99,6 +106,12 @@ def getCurrentDashboardRoute1():
         return result
     except Exception as e:
         print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
 
 
 
@@ -135,6 +148,12 @@ def updateDashboardRouteTotalExpected(total):
         connection.close()
     except Exception as e:
         print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
 
 def getNumberRowsFromDatMasterByRouteNumberAndDate(routeNumber, routeStatusDate):
     try:
@@ -168,6 +187,12 @@ def getNumberRowsFromDatMasterByRouteNumberAndDate(routeNumber, routeStatusDate)
         return result[0]
     except Exception as e:
         print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
     
 
 
@@ -199,13 +224,17 @@ def updateDashboardRoutes1(routeNumber, trailerNumber):
 
         connection.commit()
 
-        rowCount = cursor.rowcount
-
         cursor.close()
         connection.close()
 
     except Exception as e:
         print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
     finally:
         cursor.close()
         connection.close()
@@ -233,8 +262,6 @@ def getUnCompletedRouteStatuses():
 
         cursor.execute(getRouteStatusesSQL)
 
-        #routeStatusObjList = []
-
         result = cursor.fetchone()
 
         #for routeStatus in result:
@@ -242,10 +269,7 @@ def getUnCompletedRouteStatuses():
                                                         result[8], result[9], 0, 0)
 
         return routeStatusObj
-            #routeStatusObjList.append(routeStatusObj)
-
-        #return routeStatusObjList
-
+      
     except Exception as e:
         print(e)
         exc_type, exc_value, exc_traceback = sys.exc_info()
