@@ -7,7 +7,7 @@ import traceback
 import RouteStatus
 import datetime
 
-def main():
+def updateDashboard():
     #get the highest priority non-completed Route Status of Door 1 
     unCompletedRouteStatus = getUnCompletedRouteStatuses()
 
@@ -256,7 +256,7 @@ def getUnCompletedRouteStatuses():
 
 
 if __name__ == "__main__":
-    main()
+    updateDashboard()
 
 
 
