@@ -8,11 +8,8 @@ from pathlib import Path
 def process(containerId):
     #get file paths
     datFileConverterConfig = python_config.read_fileconverter_config()
-    #inputPath = datFileConverterConfig.get('input_path')
+
     outputPath = datFileConverterConfig.get('output_path')
-    #inputProcessedPath = datFileConverterConfig.get('input_processed_path')
-    #outputProcessedPath = datFileConverterConfig.get('output_processed_path')
-    #fileDeleteInterval = datFileConverterConfig.get('file_delete_interval')
 
     #query the dat_master table against the containerId, get the jurisdiction and qty
     datFileRecord = getDatFileRecordByContainerId(containerId)
@@ -24,30 +21,17 @@ def process(containerId):
 
     fullFilePath = outputPath + "\\" + fileName
 
-    #check if the file exists
-    #if fullFilePath.is_file():
-    if os.path.exists(fullFilePath):
-        #overwrite it
-        test = fullFilePath
-    else:
-        #create a new one
-        with open(fullFilePath, "w") as containerFile:
-            containerFile.write(fileContents)
-            print(containerFile.name + " created." )
+    with open(fullFilePath, "w") as containerFile:
+        containerFile.write(fileContents)
+        print(containerFile.name + " created." )
 
-
-
-
-
-
-    #create the sub dat file
 
 #TODO: what to do if the fields are blank?
 def createFileContents(datrecord):
     jurisdiction = datrecord[8]
     carton_quantity = datrecord[9]
 
-    fileContents = jurisdiction + "," + "000000" + "," + carton_quantity
+    fileContents = jurisdiction + "," + "000001" + "," + carton_quantity
 
     return fileContents
 
