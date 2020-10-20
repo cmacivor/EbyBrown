@@ -33,6 +33,23 @@ def process(containerId):
 
         return "Success"
 
+def deleteFile(containerId):
+    datFileConverterConfig = python_config.read_fileconverter_config()
+
+    outputPath = datFileConverterConfig.get('output_path')
+
+    fileName = containerId.strip() + ".dat"
+
+    fullFilePath = outputPath + "\\" + fileName
+
+    if os.path.exists(fullFilePath):
+        os.remove(fullFilePath)
+    else:
+        print(fullFilePath + " not found")
+
+
+
+
 
 #TODO: what to do if the fields are blank?
 def createFileContents(datrecord):
@@ -93,5 +110,6 @@ def getDatFileRecordByContainerId(containerId):
 
 
 if __name__ == "__main__":
-    process("FB1005530-007  ")
+    deleteFile("FB1005530-007")
+    #process("FB1005530-007  ")
     #process("FB1005530-00  ")
