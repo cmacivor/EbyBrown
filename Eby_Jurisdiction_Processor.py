@@ -45,7 +45,7 @@ def createFileContents(datrecord):
     if carton_quantity is None or carton_quantity.isspace():
         return "QtyEmpty"
 
-    fileContents = jurisdiction + "," + "000000" + "," + carton_quantity
+    fileContents = jurisdiction + "," + "000000" + "," + "000000," + carton_quantity
 
     return fileContents
 
@@ -93,5 +93,5 @@ def getDatFileRecordByContainerId(containerId):
 
 
 if __name__ == "__main__":
-    #process("FB1005530-006  ")
-    process("FB1005530-00  ")
+    process("FB1005530-007  ")
+    #process("FB1005530-00  ")
