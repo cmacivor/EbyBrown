@@ -6,32 +6,42 @@ import python_config
 from pathlib import Path
 
 def process(containerId):
-    #get file paths
-    datFileConverterConfig = python_config.read_fileconverter_config()
+    try:
+        #get file paths
+        datFileConverterConfig = python_config.read_fileconverter_config()
 
-    outputPath = datFileConverterConfig.get('output_path')
+        outputPath = datFileConverterConfig.get('output_path')
 
-    #query the dat_master table against the containerId, get the jurisdiction and qty
-    datFileRecord = getDatFileRecordByContainerId(containerId)
+        #query the dat_master table against the containerId, get the jurisdiction and qty
+        datFileRecord = getDatFileRecordByContainerId(containerId)
 
-    if datFileRecord == "ContainerNotFound":
-        return "ContainerNotFound"
+        if datFileRecord == "ContainerNotFound":
+            return "ContainerNotFound"
 
-    #create the sub dat file contents
-    fileContents = createFileContents(datFileRecord)
+        #create the sub dat file contents
+        fileContents = createFileContents(datFileRecord)
 
-    if fileContents == "JurisdictionEmpty" or fileContents == "QtyEmpty":
-        return fileContents
+        if fileContents == "JurisdictionEmpty" or fileContents == "QtyEmpty":
+            return fileContents
 
-    fileName = containerId.strip() + ".dat"
+        fileName = containerId.strip() + ".dat"
 
-    fullFilePath = outputPath + "\\" + fileName
+        fullFilePath = outputPath + "\\" + fileName
 
-    with open(fullFilePath, "w") as containerFile:
-        containerFile.write(fileContents)
-        print(containerFile.name + " created." )
+        with open(fullFilePath, "w") as containerFile:
+            containerFile.write(fileContents)
+            print(containerFile.name + " created." )
+            return "Success"
+    except Exception as e:
+        print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        return "Unknown"
 
-        return "Success"
 
 def deleteFile(containerId):
     datFileConverterConfig = python_config.read_fileconverter_config()
@@ -110,6 +120,6 @@ def getDatFileRecordByContainerId(containerId):
 
 
 if __name__ == "__main__":
-    deleteFile("FB1005530-007")
-    #process("FB1005530-007  ")
+    #deleteFile("FB1005530-007")
+    process("FB1005530-007  ")
     #process("FB1005530-00  ")
