@@ -192,21 +192,23 @@ def dat_test(obj_dat):
 
 
 def dat_insert(obj_dat, table_name):
-    currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
-    stop_no,container_id,assignment_id,pick_area,pick_type,
-    jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s)""")
-    # setup table insertion
-    val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
-    obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, currentTimeStamp, currentTimeStamp)
-    # setup values for insertion
-    mycursor.execute(sql, val)
-    # insert the data into the table
-    cnct.commit()
-    # commit to database
+    if obj_dat.rec_id == "CARTONIZ":
+        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
+        stop_no,container_id,assignment_id,pick_area,pick_type,
+        jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s)""")
+        # setup table insertion
+        val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
+        obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, currentTimeStamp, currentTimeStamp)
+        # setup values for insertion
+        mycursor.execute(sql, val)
+        # insert the data into the table
+        cnct.commit()
+        # commit to database
+    else:
+        print('blank space found')
 
-     #TODO: this is where to call a new function to save to the route_statuses table
-    #save_route_status(obj_dat)
+ 
 
     
     
@@ -618,11 +620,11 @@ def run_threaded(job_func):
 
 
 # do it every x amount of  seconds
-#schedule.every(check_interval).seconds.do(do_everything)
-schedule.every(check_interval).seconds.do(run_threaded, do_everything)
+schedule.every(check_interval).seconds.do(do_everything)
+#schedule.every(check_interval).seconds.do(run_threaded, do_everything)
 
 #schedule the processing of messages
-schedule.every(process_message_interval).seconds.do(run_threaded, processMessages)
+#schedule.every(process_message_interval).seconds.do(run_threaded, processMessages)
 
 schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 # schedule checking and deleting of tables
