@@ -24,19 +24,19 @@ api = "/api/eby-brown/jurisdiction/filter?code="
 errorMessage = httpMessage.httpStatusCodes
 
 
-def jurisdiction(auth, domain, jurisdiction_code):
+def lookup(auth, domain, jurisdiction_code):
     url = domain + api + jurisdiction_code
     request = requests.get(url, headers={"Authorization": auth, "Content-Type": "application/json", "Accept": "application/json"})
-    hostLog.log(auth, domain, "PLC to WXS", "Lane Request", "Request for " + jurisdiction_code)
+    #hostLog.log(auth, domain, "PLC to WXS", "Lane Request", "Request for " + jurisdiction_code)
     httpcode = (str(request))[11:14]
     # print(httpCode)
     if httpcode == "200":
         data = request.json()
         lanes = ("".join(str(data))).replace("[", "").replace("]", "")
-        hostLog.log(auth, domain, "WXS to PLC", "Lane Reply", "Lane(s) " + lanes)
+        #hostLog.log(auth, domain, "WXS to PLC", "Lane Reply", "Lane(s) " + lanes)
         return httpcode, lanes
     else:
-        hostLog.log(auth, domain, "WXS to PLC", "Error Reply", httpCode + " " + errorMessage[httpcode])
+        #hostLog.log(auth, domain, "WXS to PLC", "Error Reply", httpCode + " " + errorMessage[httpcode])
         return httpcode, errorMessage[httpcode]
 
 

@@ -79,9 +79,9 @@ def dbLog(source, m_typ, message):
                                 "(source, type, message, created_at, updated_at) "
                                 "VALUES (%s, %s, %s, %s, %s)")
         
-        parsedMessage = str(message).replace("b", "").replace("\\", "").replace("\x02", "").replace("\x03", "")
         
-        newLog = (source, m_typ, parsedMessage, currentTimeStamp, currentTimeStamp)
+        
+        newLog = (source, m_typ, message, currentTimeStamp, currentTimeStamp)
 
         cursor.execute(insertLogSql, newLog)
         connection.commit()
