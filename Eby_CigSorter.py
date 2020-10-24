@@ -124,11 +124,11 @@ while True:
             RxMessage = "99"
         
         # Create new Stamper DAT file after carton scanned
-        ret = datCreate.process(TxMessage)
-        if ret == "Success":
-            pass
-        else:
-            print("dat file create fail")
+        #ret = datCreate.process(TxMessage)
+        #if ret == "Success":
+        #    pass
+        #else:
+        #    print("dat file create fail")
 
 
         # Write response to PLC and log message
