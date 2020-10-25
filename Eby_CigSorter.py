@@ -39,13 +39,16 @@ DWORD = 211
 STRING = 218
 
 
+
 config = python_config.read_db_config()
 host = config.get('host')
 user = config.get('user')
 database = config.get('wcsdatabase')
 password = config.get('password')
-auth = config.get("auth")
-domain = config.get("domain")
+
+logging = python_config.read_logging_config()
+auth = logging.get('auth')
+domain = logging.get('domain')
 plcIP = "10.22.56.34"
 
 
