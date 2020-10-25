@@ -69,7 +69,7 @@ while True:
         print(triggerBit)
         ret = comm.Read("CigSorter.TxMessage", datatype=STRING)
         if ret.value != None:
-            TxMessage = ret.value[5:]
+            TxMessage = ret.value[5:18]
         else:
             TxMessage = "Blank"
         print(TxMessage)
@@ -91,6 +91,7 @@ while True:
                 cursor = connection.cursor()
 
                 query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
+
                 cursor.execute(query)
                 extResult = cursor.fetchone()
                 if extResult == None:
@@ -135,8 +136,9 @@ while True:
         # Create new Stamper DAT file after carton scanned
         ret = datCreate.process(TxMessage)
         if ret == "Success":
-            pass
+            break
         else:
+            print(ret)
             print("dat file create fail")
 
 
