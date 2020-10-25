@@ -571,22 +571,22 @@ def do_everything():
                         s += 1
                         # increment for number of file skipped
                     else:
-                        if temp_dat.container_id == "":
-                            pass
+                        #if temp_dat.container_id == "":
+                        #    pass
                             # dont do anything
-                        else:
-                            ins += 1
+                        #else:
+                        #    ins += 1
                             # increment incrementer
-                            new_file_name = temp_dat.container_id + ".DAT"
+                        #    new_file_name = temp_dat.container_id + ".DAT"
                             # get name for new dat file from line data 
-                            new_name_complete = os.path.join(save_path, new_file_name)
+                        #    new_name_complete = os.path.join(save_path, new_file_name)
                             # and name combined with save path
-                            new_file_data = stamp_data(temp_dat)
+                        #    new_file_data = stamp_data(temp_dat)
                             # get data to be added to the new dat file
                             #new_file = open(new_name_complete, "w")
-                            with open(new_name_complete, "w") as new_file:
+                        #    with open(new_name_complete, "w") as new_file:
                             # Creates a new file from the temp vars
-                                new_file.write(new_file_data)
+                        #        new_file.write(new_file_data)
                                 #new_file.close()
                             # print that data was inserted for files true
                 print(str(table_name) + " had " + str(ins) + " files created and data inserted")
