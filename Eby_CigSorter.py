@@ -20,9 +20,7 @@ import Eby_Jurisdiction_Processor as datCreate
 sys.path.append("..")
 
 
-plcIP = "10.22.56.34"
-auth = "Basic YWE6YQ=="
-domain = "http://10.22.56.11"
+
 
 # Data Types
 STRUCT = 160
@@ -46,7 +44,9 @@ host = config.get('host')
 user = config.get('user')
 database = config.get('wcsdatabase')
 password = config.get('password')
-
+auth = config.get("auth")
+domain = config.get("domain")
+plcIP = "10.22.56.34"
 
 
 
@@ -73,10 +73,10 @@ while True:
         ret = comm.Read("CigSorter.TxTriggerID", datatype=INT)
         TxTriggerID = ret.value
         print(TxTriggerID)
-        plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Request Lane for " + TxMessage)
+        plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Lane Request for " + TxMessage)
 
         # Query DB Table for jurisdiction from carton_id
-        if TxMessage != "NOREAD" and TxMessage != "MULTIREAD":
+        if TxMessage != "NOREAD" and TxMessage != "MULTIREAD" and TxMessage != "Blank":
             try:
                 connection = mysql.connector.connect(
                     host= host, 
@@ -91,24 +91,27 @@ while True:
                 cursor.execute(query)
                 extResult = cursor.fetchone()
                 if extResult == None:
-                    result = 99
+                    result = 9996
+                    print(result)
                 else:
                     result = extResult[0]
                     print(result)
 
             except Exception as e:
                 print(e)
-                result = 99
+                result = 9999
         
             
         
         else:
             if TxMessage == "NOREAD":
-                result = 99
+                result = 9999
             elif TxMessage == "MULTIREAD":
-                result = 98
+                result = 9998
+            elif TxMessage == "Blank":
+                result = 9997
             else:
-                result = 99
+                result = 9999
 
         
         # Run Jurisdiction API for Lane Assignment
@@ -118,20 +121,20 @@ while True:
             result = ret[1]
             RxMessage = result
         else:
-            result = "API Error " + httpCode
+            result = "API Error Code " + httpCode
         print(httpCode)
         print(result)
         
-        # If response is out of range send 99
-        if int(RxMessage) < 1 or int(RxMessage) > 99:
-            RxMessage = "99"
+        # If response is out of range send 9999
+        if int(RxMessage) < 1 or int(RxMessage) > 9999:
+            RxMessage = "9999"
         
         # Create new Stamper DAT file after carton scanned
-        #ret = datCreate.process(TxMessage)
-        #if ret == "Success":
-        #    pass
-        #else:
-        #    print("dat file create fail")
+        ret = datCreate.process(TxMessage)
+        if ret == "Success":
+            pass
+        else:
+            print("dat file create fail")
 
 
         # Write response to PLC and log message
@@ -139,12 +142,12 @@ while True:
         comm.Write("CigSorter.RxMessage", str(RxMessage))
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
-        #ret = comm.Write(tags)
-        #for r in ret:
-        #    print(r.TagName, r.Status)
-        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage))
+        
+        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(result))
 
     else:
         print("ValueError: Out of Range")
     
+    comm.Close()
+
     time.sleep(0.250)
