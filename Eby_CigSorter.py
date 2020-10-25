@@ -76,7 +76,7 @@ while True:
         plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Request Lane for " + TxMessage)
 
         # Query DB Table for jurisdiction from carton_id
-        if TxMessage != "No Read" and TxMessage != "Multi-Read":
+        if TxMessage != "NOREAD" and TxMessage != "MULTIREAD":
             try:
                 connection = mysql.connector.connect(
                     host= host, 
@@ -90,8 +90,11 @@ while True:
                 query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
                 cursor.execute(query)
                 extResult = cursor.fetchone()
-                result = extResult[0]
-                print(result)
+                if extResult == None:
+                    result = 99
+                else:
+                    result = extResult[0]
+                    print(result)
 
             except Exception as e:
                 print(e)
@@ -100,16 +103,16 @@ while True:
             
         
         else:
-            if TxMessage == "No Read":
+            if TxMessage == "NOREAD":
                 result = 99
-            elif TxMessage == "Multi-Read":
+            elif TxMessage == "MULTIREAD":
                 result = 98
             else:
                 result = 99
 
         
         # Run Jurisdiction API for Lane Assignment
-        ret = jurisdiction.lookup(auth, domain, result)
+        ret = jurisdiction.lookup(auth, domain, str(result))
         httpCode = ret[0]
         if httpCode == "200":
             result = ret[1]
@@ -139,7 +142,7 @@ while True:
         #ret = comm.Write(tags)
         #for r in ret:
         #    print(r.TagName, r.Status)
-        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Assigned Carton " + TxMessage + " to Lane " + RxMessage)
+        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage))
 
     else:
         print("ValueError: Out of Range")
