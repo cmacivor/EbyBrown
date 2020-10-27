@@ -78,6 +78,12 @@ def current_route(door):
         dry = result[0]
         #print(dry)
 
+        date = "SELECT date FROM wcs.route_statuses WHERE priority = " + str(priority)
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+
         scanned = 40   
 
         cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET number=" + str(route) + " WHERE route_type = 'current'")
@@ -100,6 +106,9 @@ def current_route(door):
         connection.commit()
 
         cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET trailer=" + str(trailer_number) + " WHERE route_type = 'current'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET date=" + "'" + str(date) + "'" + " WHERE route_type = 'current'")
         connection.commit()
 
         currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -187,7 +196,15 @@ def next_route(door):
             result = cursor.fetchone()
             dry = result[0]
             #print(dry)
+
+            date = "SELECT date FROM wcs.route_statuses WHERE priority = " + str(priority)
+            cursor.execute(date)
+            result = cursor.fetchone()
+            date = result[0]
+            #print(date)
+
             scanned = 0
+
         else:
             route = 0
             door = door
@@ -196,6 +213,7 @@ def next_route(door):
             cooler = 0
             dry = 0
             scanned = 0
+            date = 0
 
            
 
@@ -219,6 +237,9 @@ def next_route(door):
         connection.commit()
 
         cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET trailer=" + str(trailer_number) + " WHERE route_type = 'next'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET date=" + "'" + str(date) + "'" + " WHERE route_type = 'next'")
         connection.commit()
 
         currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -259,10 +280,63 @@ def current_stop(door):
 
         cursor = connection.cursor()
 
-        stops = "SELECT priority FROM wcs.route_statuses WHERE status <> \"Complete\" AND dock_door = " + str(door)
 
-        cursor.execute(priorities)
+        route = "SELECT number FROM wcs.dashboard_routes" + str(door) + " WHERE route_type = 'current'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+
+        date = "SELECT date FROM wcs.dashboard_routes" + str(door) + " WHERE route_type = 'current'"
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+
+
+        allStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'"
+        cursor.execute(allStops)
         result = cursor.fetchall()
+        resultList = []
+        for i in result:
+            if int(i[0]) not in resultList:
+                resultList.append(int(i[0]))
+                stopsList = sorted(resultList, reverse=True)
+        #print(stopsList)
+
+
+        # Find Active Stop
+        activeStop = 0
+        while activeStop == 0:
+            for i in stopsList:                
+                if activeStop == 0:
+                    idList = "SELECT id FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'" + " AND stop_no=" + str(i)
+                    cursor.execute(idList)
+                    result = cursor.fetchall()
+                    resultList = []
+                    for r in result:
+                        resultList.append(r[0])                
+                    for result in resultList:
+                        stopCheck = "SELECT stop_scan FROM assignment.dat_master WHERE id=" + str(result)
+                        cursor.execute(stopCheck)
+                        results = cursor.fetchone()
+                        stopCheck = int(results[0])
+                        #print(stopCheck)
+                        if stopCheck == 0:
+                            activeStop = str(i)
+                            break                        
+                        else:
+                            continue
+                else:
+                    break
+            print(activeStop)
+
+        
+        
+
+
+
+
 
     
     except Exception as e:
@@ -279,14 +353,16 @@ def current_stop(door):
 
 
 while True:
-    current_door1 = current_route(1)
-    print(current_door1)
-    current_door2 = current_route(2)
-    print(current_door2)
-    next_route1 = next_route(1)
-    print(next_route1)
-    next_route2 = next_route(2)
-    print(next_route2)
+    #current_door1 = current_route(1)
+    #print(current_door1)
+    #current_door2 = current_route(2)
+    #print(current_door2)
+    #next_route1 = next_route(1)
+    #print(next_route1)
+    #next_route2 = next_route(2)
+    #print(next_route2)
+    current_stop1 = current_stop(1)
+    print(current_stop1)
 
 
 
