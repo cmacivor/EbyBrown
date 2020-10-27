@@ -121,7 +121,7 @@ def current_route(door):
         cursor.close()
         connection.close()
 
-        return "success"
+        return "success - Current Route Door " + str(door)
 
 
     except Exception as e:
@@ -255,7 +255,102 @@ def next_route(door):
         if priority == 0:
             return "None"
         else:
-            return "Success"
+            return "success - Next Route Door " + str(door)
+
+
+    except Exception as e:
+        print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+
+
+
+def previous_stop(door):
+    try:
+        connection = mysql.connector.connect(
+            host= host, 
+            user= user, 
+            database= wcsDatabase, 
+            password= password 
+        )
+
+        cursor = connection.cursor()
+
+        stop = "SELECT number FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = result[0]
+        #print(stop)
+
+        dry_goods_expected = "SELECT dry_goods_expected FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(dry_goods_expected)
+        result = cursor.fetchone()
+        dry_goods_expected = result[0]
+        #print(dry_goods_expected)
+
+        door_scanned = "SELECT door_scanned FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(door_scanned)
+        result = cursor.fetchone()
+        door_scanned = result[0]
+        #print(door_scanned)
+
+        door_no_read = "SELECT door_no_read FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(door_no_read)
+        result = cursor.fetchone()
+        door_no_read = result[0]
+        #print(door_no_read)
+
+        late = "SELECT late FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(late)
+        result = cursor.fetchone()
+        late = result[0]
+        #print(late)
+
+        pending_heavy = "SELECT pending_heavy FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(pending_heavy)
+        result = cursor.fetchone()
+        pending_heavy = result[0]
+        #print(pending_heavy)
+
+        remaining_to_scan = "SELECT remaining_to_scan FROM wcs.dashboard_stop" + str(door) + " WHERE stop_type = 'current'"
+        cursor.execute(remaining_to_scan)
+        result = cursor.fetchone()
+        remaining_to_scan = result[0]
+        #print(remaining_to_scan)
+
+        
+        # Write to previous stop
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET number=" + str(stop) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET dry_goods_expected=" + str(dry_goods_expected) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET door_scanned=" + str(door_scanned) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET door_no_read=" + str(door_no_read) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET late=" + str(late) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET pending_heavy=" + str(pending_heavy) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET remaining_to_scan=" + str(remaining_to_scan) + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        #print(currentTimeStamp)        
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET updated_at=" + "'" + currentTimeStamp + "'" + " WHERE stop_type = 'previous'")
+        connection.commit()
+
+        return "success - Previous Stop Door " + str(door)
 
 
     except Exception as e:
@@ -281,6 +376,9 @@ def current_stop(door):
         cursor = connection.cursor()
 
 
+        
+
+
         route = "SELECT number FROM wcs.dashboard_routes" + str(door) + " WHERE route_type = 'current'"
         cursor.execute(route)
         result = cursor.fetchone()
@@ -298,14 +396,17 @@ def current_stop(door):
         cursor.execute(allStops)
         result = cursor.fetchall()
         resultList = []
+        stopsList = []
         for i in result:
             if int(i[0]) not in resultList:
                 resultList.append(int(i[0]))
                 stopsList = sorted(resultList, reverse=True)
         #print(stopsList)
 
+        if len(stopsList) == 0:
+            return "None - Current Stop Door " + str(door)
 
-        # Find Active Stop
+        # Find Active Stop and picks per stop
         activeStop = 0
         while activeStop == 0:
             for i in stopsList:                
@@ -324,15 +425,65 @@ def current_stop(door):
                         #print(stopCheck)
                         if stopCheck == 0:
                             activeStop = str(i)
+                            carton_qty = len(resultList)
                             break                        
                         else:
                             continue
                 else:
                     break
-            print(activeStop)
+            #print(activeStop)
+            #print(carton_qty)
 
         
-        
+        # Find picks scanned
+        totalScanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'" + " AND stop_no=" + str(activeStop) + " AND stop_scan=1"
+        cursor.execute(totalScanned)
+        result = cursor.fetchone()
+        totalScanned = result[0]
+        #print(totalScanned)
+
+
+        # If this stop has finihsed, copy to previous stop before writing over
+        print(carton_qty)
+        print(totalScanned)
+        if carton_qty == totalScanned:
+            previous_stop = previous_stop(door)
+            print(previous_stop)
+        else:
+            pass
+
+
+        # Write to dashboard stops table
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET number=" + str(activeStop) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET dry_goods_expected=" + str(carton_qty) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET door_scanned=" + str(totalScanned) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET door_no_read=" + str(0) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET late=" + str(0) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET pending_heavy=" + str(0) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        remaining_to_scan = carton_qty - totalScanned
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET remaining_to_scan=" + str(remaining_to_scan) + " WHERE stop_type = 'current'")
+        connection.commit()
+
+        currentTimeStamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        #print(currentTimeStamp)        
+        cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET updated_at=" + "'" + currentTimeStamp + "'" + " WHERE stop_type = 'current'")
+        connection.commit()
+
+
+        return "success - Current Stop Door " + str(door)
+
 
 
 
@@ -363,6 +514,8 @@ while True:
     #print(next_route2)
     current_stop1 = current_stop(1)
     print(current_stop1)
+    #current_stop2 = current_stop(2)
+    #print(current_stop2)
 
 
 
