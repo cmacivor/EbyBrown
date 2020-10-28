@@ -534,7 +534,7 @@ def do_everything():
 
                 if enabled == "1":
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
-                    hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
+                    #hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
                         #print that data was inserted for file
                 print("moving the file " + orig_dat_file.name + "to " + input_processed_path)
                 orig_dat_file.close()
