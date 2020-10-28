@@ -41,7 +41,6 @@ def current_route(door):
         #cursor = connection.cursor()
 
         priority = "SELECT MIN(priority) FROM wcs.route_statuses WHERE status <> \"Complete\" AND dock_door = " + str(door)
-
         cursor.execute(priority)
         result = cursor.fetchone()
         priority = result[0]
@@ -52,6 +51,12 @@ def current_route(door):
         result = cursor.fetchone()
         route = result[0]
         #print(route)
+
+        date = "SELECT date FROM wcs.route_statuses WHERE priority = " + str(priority)
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
 
         door = door
 
@@ -73,19 +78,21 @@ def current_route(door):
         cooler = result[0]
         #print(cooler)
 
-        dry = "SELECT pick_qty FROM wcs.route_statuses WHERE priority = " + str(priority)
+        dry = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'"
         cursor.execute(dry)
         result = cursor.fetchone()
         dry = result[0]
-        #print(dry)
+        print(dry)
 
-        date = "SELECT date FROM wcs.route_statuses WHERE priority = " + str(priority)
-        cursor.execute(date)
+        scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1"
+        cursor.execute(scanned)
         result = cursor.fetchone()
-        date = result[0]
-        #print(date)
+        scanned = result[0]
+        print(scanned)
 
-        scanned = 40   
+        
+
+          
 
         cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET number=" + str(route) + " WHERE route_type = 'current';")
         #connection.commit()
@@ -180,6 +187,12 @@ def next_route(door):
             trailer_number = result[0]
             #print(trailer_number)
 
+            date = "SELECT date FROM wcs.route_statuses WHERE priority = " + str(priority)
+            cursor.execute(date)
+            result = cursor.fetchone()
+            date = result[0]
+            #print(date)
+
             freezer = "SELECT freezer_container FROM wcs.route_statuses WHERE priority = " + str(priority)
             cursor.execute(freezer)
             result = cursor.fetchone()
@@ -192,19 +205,21 @@ def next_route(door):
             cooler = result[0]
             #print(cooler)
 
-            dry = "SELECT pick_qty FROM wcs.route_statuses WHERE priority = " + str(priority)
+            dry = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'"
             cursor.execute(dry)
             result = cursor.fetchone()
             dry = result[0]
             #print(dry)
 
-            date = "SELECT date FROM wcs.route_statuses WHERE priority = " + str(priority)
-            cursor.execute(date)
+            scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1"
+            cursor.execute(scanned)
             result = cursor.fetchone()
-            date = result[0]
-            #print(date)
+            scanned = result[0]
+            print(scanned)
 
-            scanned = 0
+            
+
+            
 
         else:
             route = 0
