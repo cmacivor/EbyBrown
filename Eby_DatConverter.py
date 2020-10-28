@@ -65,7 +65,7 @@ output_path = PureWindowsPath(outputPath).__str__()
 # assign path to save output with dat files folder
 input_processed_path = PureWindowsPath(inputProcessedPath).__str__()
 # assign path for Processed .DAT files
-output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
+#output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
 # amount of time to wait in between next check IN SECONDS
 check_interval = 5  # seconds
 #interval in seconds for processing messages
