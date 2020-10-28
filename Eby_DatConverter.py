@@ -194,12 +194,17 @@ def dat_test(obj_dat):
 def dat_insert(obj_dat, table_name):
     if obj_dat.rec_id == "CARTONIZ":
         currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        now = datetime.now()
+        todaysDate = now.date()
+        todaysDateString = todaysDate.strftime('%Y-%m-%d')
+        
         sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
         stop_no,container_id,assignment_id,pick_area,pick_type,
-        jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s)""")
+        jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, date, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s, %s)""")
         # setup table insertion
         val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
-        obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, currentTimeStamp, currentTimeStamp)
+        obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, todaysDateString, currentTimeStamp, currentTimeStamp)
         # setup values for insertion
         mycursor.execute(sql, val)
         # insert the data into the table
