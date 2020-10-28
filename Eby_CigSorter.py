@@ -60,7 +60,7 @@ while True:
     with PLC() as comm:
         comm.IPAddress = plcIP
         ret = comm.Read("CigSorter.TxTrigger", datatype=BOOL)        
-        triggerBit = ret.value               
+        triggerBit = ret.Value               
 
     if triggerBit == False:
         print(triggerBit)
@@ -68,13 +68,13 @@ while True:
     elif triggerBit == True:        
         print(triggerBit)
         ret = comm.Read("CigSorter.TxMessage", datatype=STRING)
-        if ret.value != None:
-            TxMessage = ret.value[5:18]
+        if ret.Value != None:
+            TxMessage = ret.Value[5:18]
         else:
             TxMessage = "Blank"
         print(TxMessage)
         ret = comm.Read("CigSorter.TxTriggerID", datatype=INT)
-        TxTriggerID = ret.value
+        TxTriggerID = ret.Value
         print(TxTriggerID)
         plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Lane Request for " + TxMessage)
 
@@ -136,7 +136,7 @@ while True:
         # Create new Stamper DAT file after carton scanned
         ret = datCreate.process(TxMessage)
         if ret == "Success":
-            break
+            pass
         else:
             print(ret)
             print("dat file create fail")

@@ -85,7 +85,7 @@ def process(containerId):
         except Exception as e:
             print(e)                
 
-        temp = containerId + ".dat"
+        temp = containerId + ".DAT"
         fileName = temp.replace(" ","")
         print(fileName)
 
@@ -117,7 +117,7 @@ def deleteFile(containerId):
 
     outputPath = datFileConverterConfig.get('output_path')
 
-    fileName = containerId.strip() + ".dat"
+    fileName = containerId.strip() + ".DAT"
 
     fullFilePath = outputPath + "\\" + fileName
 
