@@ -21,8 +21,50 @@ from pylogix import PLC
 import sys
 
 
+config = python_config.read_db_config()
+host = config.get('host')
+user = config.get('user')
+database = config.get('wcsdatabase')
+password = config.get('password')
 
-def 
+logging = python_config.read_logging_config()
+auth = logging.get('auth')
+domain = logging.get('domain')
+plcIP = "10.22.56.34"
+
+
+# Connect to DB
+try:
+    connection = mysql.connector.connect(
+        host= host, 
+        user= user, 
+        database= database, 
+        password= password 
+    )
+
+    cursor = connection.cursor()
+
+except Exception as e:
+        print(e)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        exceptionMsg = exc_value.msg
+        exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+
+
+
+
+
+
+def check_trailer_verify(door):
+    with PLC() as comm:
+        comm.IPAddress = plcIP
+    
+    
+
+
 
 
 
