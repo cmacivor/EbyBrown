@@ -299,7 +299,7 @@ def insert_route_status(routeNumber):
 
         today = datetime.now().date().strftime('%Y-%m-%d')
 
-        newRouteStatus = (routeNumber, "", "", 0, "Inactive", "Not Started", today, currentTimeStamp, currentTimeStamp)
+        newRouteStatus = (routeNumber, "", "", 0, "Active", "Not Started", today, currentTimeStamp, currentTimeStamp)
 
         cursor.execute(insertSQL, newRouteStatus)
         connection.commit()
