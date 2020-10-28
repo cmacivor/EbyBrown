@@ -422,47 +422,6 @@ def update_route_status(routeStatus, prioritynumber):
         cursor.close()
         connection.close()
 
-
-
-
-def processMessages():
-    print("processing messages from the host_logs table...")
-    try:
-        connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= wcsDatabase, 
-            password= password 
-        )
-
-        assignmentConnection = mysql.connector.connect(
-            host = host,
-            user = user,
-            database = database,
-            password = password
-        )
-
-        cursor = connection.cursor()
- 
-        sql = "select * from host_logs where type = 'UNKWN'"
-
-        cursor.execute(sql)
-
-        result = cursor.fetchall()
-        for row in result:
-            message = row[3]
-            messageBase = Eby_Message.MessageBase(message)
-            messageBase.getMessageType(assignmentConnection, row)
-            #update_host_log_as_processed(row, messageType)
-            #reateResponseMessage(message)
-
-    except Exception as e:
-        print(e)
-    finally:
-        cursor.close()
-        connection.close()
-
-
                      
 
 
