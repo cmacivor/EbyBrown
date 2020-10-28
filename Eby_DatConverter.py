@@ -467,17 +467,12 @@ def do_everything():
             os.remove(orig_file_path)
             # move original file
         else:
-            os.mkdir(save_path)
-            # create new folder for dat files
-            #orig_dat_file = open(orig_file_name, "r")
             with open(orig_file_name, "r") as orig_dat_file:
             # openfile
                 all_lines = orig_dat_file.readlines()
                 # get read all lines variable
                 num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
 
-
-                #distinctRouteNumbers = get_distinct_route_numbers()
 
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
@@ -492,6 +487,7 @@ def do_everything():
                 ins = 0
                 # variable for lines inserted
                 #priorityNumber = 0
+                print("processing " + str(num_lines) + " lines in " + orig_file_name)
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
@@ -514,57 +510,33 @@ def do_everything():
                         #We don't want to insert the route again on the same day
                         if temp_dat.route_num != '':
                             routeNumber = int(temp_dat.route_num.strip())
-                            # if routeNumber not in distinctRouteNumbers: #distinctRouteNumbers are routes from the current day already in the table
-                            #     #insert into the route status table
-                            #priorityNumber += 1
                             insert_route_status(routeNumber)
-                            
-                            #     print('route number ' + str(routeNumber) + ' inserted into route_statuses')
-                            # else:
-                            #     print('route number ' + str(routeNumber) + ' already in database')
 
-
-                    # dat_test(temp_dat)
-                    # test those values
                     if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
                         s += 1
                         # increment for number of file skipped
-                    else:
-                        #if temp_dat.container_id == "":
-                        #    pass
-                            # dont do anything
-                        #else:
-                        #    ins += 1
-                            # increment incrementer
-                        #    new_file_name = temp_dat.container_id + ".DAT"
-                            # get name for new dat file from line data 
-                        #    new_name_complete = os.path.join(save_path, new_file_name)
-                            # and name combined with save path
-                        #    new_file_data = stamp_data(temp_dat)
-                            # get data to be added to the new dat file
-                            #new_file = open(new_name_complete, "w")
-                        #    with open(new_name_complete, "w") as new_file:
-                            # Creates a new file from the temp vars
-                        #        new_file.write(new_file_data)
-                                #new_file.close()
-                            # print that data was inserted for files true
-                print(str(table_name) + " had " + str(ins) + " files created and data inserted")
-                print(str(s) + " files were skipped due to having blank carton and juris fields")
+                    else:                       
+                        #print(str(table_name) + " had " + str(ins) + " files created and data inserted")
+                        #print(str(s) + " files were skipped due to having blank carton and juris fields")
 
-                #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
-                existingRoutesStatuses = get_route_statuses(num_lines)
-                priorityNumber = 0
-                for route in existingRoutesStatuses:
-                    priorityNumber +=1
-                    update_route_status(route, priorityNumber)
+                        #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
+                        existingRoutesStatuses = get_route_statuses(num_lines)
+                        priorityNumber = 0
+                        for route in existingRoutesStatuses:
+                            priorityNumber +=1
+                            update_route_status(route, priorityNumber)
 
 
                 if enabled == "1":
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
-                # print that data was inserted for file
-                #os.remove(orig_file_path)
-                # delete original file
+                        #print that data was inserted for file
+                print("moving the file " + orig_dat_file.name + "to " + input_processed_path)
+                orig_dat_file.close()
+                shutil.move(orig_file_path, inputProcessedPath)
+                        #os.remove(orig_file_path)
+                        #os.remove(orig_file_path)
+                        #delete original file
 
     else:
         print("No file present")
@@ -572,9 +544,6 @@ def do_everything():
 
     #processMessages()
 
-def run_threaded(job_func):
-    job_thread = threading.Thread(target=job_func)
-    job_thread.start()
 
 
 
