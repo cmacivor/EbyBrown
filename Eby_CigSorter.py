@@ -79,6 +79,7 @@ while True:
         plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Lane Request for " + TxMessage)
 
         # Query DB Table for jurisdiction from carton_id
+        jurisdictionCode = "N/A"
         if TxMessage != "NOREAD" and TxMessage != "MULTIREAD" and TxMessage != "Blank":
             try:
                 connection = mysql.connector.connect(
@@ -100,6 +101,7 @@ while True:
                 else:
                     result = extResult[0]
                     print(result)
+                    jurisdictionCode = str(result)
 
             except Exception as e:
                 print(e)
@@ -108,18 +110,19 @@ while True:
             
         
         else:
-            if TxMessage == "NOREAD":
+            if "NOREAD" in TxMessage:
                 result = 9999
-            elif TxMessage == "MULTIREAD":
+            elif "MULTIREAD" in TxMessage:
                 result = 9998
-            elif TxMessage == "Blank":
+            elif "Blank" in TxMessage:
                 result = 9997
             else:
                 result = 9999
 
         
         # Run Jurisdiction API for Lane Assignment
-        jurisdictionCode = str(result)
+        RxMessage = ""
+        #print(jurisdictionCode)
         ret = jurisdiction.lookup(auth, domain, str(result))
         httpCode = ret[0]
         if httpCode == "200":
@@ -127,20 +130,26 @@ while True:
             RxMessage = result
         else:
             result = "API Error Code " + httpCode
-        print(httpCode)
-        print(result)
+        #print(httpCode)
+        #print(result)
         
         # If response is out of range send 9999
         if int(RxMessage) < 1 or int(RxMessage) > 9999:
             RxMessage = "9999"
         
         # Create new Stamper DAT file after carton scanned
-        ret = datCreate.process(TxMessage)
-        if ret == "Success":
-            pass
+        if RxMessage  == "1" or RxMessage == "2" or RxMessage == "3":
+            ret = datCreate.process(TxMessage)
+            if ret == "Success":
+                print("success - dat file created")
+                pass
+            else:
+                print(ret)
+                print("dat file create fail")
+                pass
         else:
-            print(ret)
-            print("dat file create fail")
+            pass
+        
 
 
         # Write response to PLC and log message

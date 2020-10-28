@@ -65,13 +65,13 @@ def process(containerId):
                 cursor.execute(query_juris)
                 extResult = cursor.fetchone()
                 jurisdiction = extResult[0]
-                print(jurisdiction)
+                #print(jurisdiction)
 
                 query_qty = ("SELECT carton_qty FROM assignment.dat_master WHERE container_id=\"" + containerId + "\"")
                 cursor.execute(query_qty)
                 extResult = cursor.fetchone()
                 carton_qty = extResult[0]
-                print(carton_qty)
+                #print(carton_qty)
                        
                            
                 
@@ -87,18 +87,18 @@ def process(containerId):
 
         temp = containerId + ".DAT"
         fileName = temp.replace(" ","")
-        print(fileName)
+        #print(fileName)
 
         fileContents = "000" + str(jurisdiction) + ",000000,000000," + str(carton_qty)
-        print(fileContents)        
+        #print(fileContents)        
 
         fullFilePath = outputPath + "\\" + fileName
-        print(fullFilePath)
+        #print(fullFilePath)
 
         
         with open(fullFilePath, "w") as containerFile:
             containerFile.write(fileContents)
-            print(containerFile.name + " created." )
+            #print(containerFile.name + " created." )
             return "Success"
         
     except Exception as e:
