@@ -119,6 +119,7 @@ while True:
 
         
         # Run Jurisdiction API for Lane Assignment
+        jurisdictionCode = str(result)
         ret = jurisdiction.lookup(auth, domain, str(result))
         httpCode = ret[0]
         if httpCode == "200":
@@ -148,7 +149,7 @@ while True:
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
         
-        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(result))
+        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionCode))
 
     else:
         print("ValueError: Out of Range")
