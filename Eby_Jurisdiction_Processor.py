@@ -37,7 +37,7 @@ def process(containerId):
         #get file paths
         datFileConverterConfig = python_config.read_fileconverter_config()
 
-        outputPath = datFileConverterConfig.get('output_path')
+        outputPath = datFileConverterConfig.get('output_jurisdiction_path')
 
         #query the dat_master table against the containerId, get the jurisdiction and qty
         #datFileRecord = getDatFileRecordByContainerId(containerId)
