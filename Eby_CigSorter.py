@@ -70,6 +70,13 @@ while True:
         ret = comm.Read("CigSorter.TxMessage", datatype=STRING)
         if ret.Value != None:
             TxMessage = ret.Value[5:18]
+            if "NOREAD" in TxMessage:
+                TxMessage = "NOREAD"
+            elif "MULTIREAD" in TxMessage:
+                TxMessage  = "MULTIREAD"
+            else:
+                pass
+        
         else:
             TxMessage = "Blank"
         print(TxMessage)
