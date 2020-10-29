@@ -136,6 +136,9 @@ while True:
         door1_active = door_active(1)
         print(door1_active)
 
+        door2_active = door_active(2)
+        print(door2_active)
+
         time.sleep(3)
 
 
