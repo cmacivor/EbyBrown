@@ -87,7 +87,7 @@ def update_pick_qty():
         exceptionMsg = exc_value.msg
         exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
         
         
 

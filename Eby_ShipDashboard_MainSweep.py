@@ -82,13 +82,13 @@ def current_route(door):
         cursor.execute(dry)
         result = cursor.fetchone()
         dry = result[0]
-        print(dry)
+        #print(dry)
 
         scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1"
         cursor.execute(scanned)
         result = cursor.fetchone()
         scanned = result[0]
-        print(scanned)
+        #print(scanned)
 
         
 
@@ -139,7 +139,7 @@ def current_route(door):
         exceptionMsg = exc_value.msg
         exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
 
 
 
@@ -215,7 +215,7 @@ def next_route(door):
             cursor.execute(scanned)
             result = cursor.fetchone()
             scanned = result[0]
-            print(scanned)
+            #print(scanned)
 
             
 
@@ -281,7 +281,7 @@ def next_route(door):
         exceptionMsg = exc_value.msg
         exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
 
 
 
@@ -360,7 +360,7 @@ def previous_stop(door):
         exceptionMsg = exc_value.msg
         exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
 
 
 
@@ -505,7 +505,7 @@ def current_stop(door):
         exceptionMsg = exc_value.msg
         exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
 
 
 
@@ -545,7 +545,7 @@ while True:
         exceptionMsg = exc_value.msg
         exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
 
 
     time.sleep(1)
