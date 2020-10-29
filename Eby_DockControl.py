@@ -68,19 +68,19 @@ def door_active(door):
     doorActive = False
     for route in routes:
         print("")
-        print(route)
+        #print(route)
 
         pre_verify = "SELECT pre_verify FROM wcs.verify_trailers WHERE route=" + str(route)
         cursor.execute(pre_verify)
         result = cursor.fetchone()
         pre_verify = result[0]
-        print(pre_verify)
+        #print(pre_verify)
         
         status = "SELECT status FROM wcs.verify_trailers WHERE route=" + str(route)
         cursor.execute(status)
         result = cursor.fetchone()
         status = result[0]
-        print(status)
+        #print(status)
 
         if pre_verify == 1 and status != "Complete":
             doorActive = True
@@ -92,18 +92,19 @@ def door_active(door):
     if doorActive == True:
         with PLC() as comm:
             comm.IPAddress = plcIP
-            comm.Write("wxsDoor" + str(door) + "Active", True)
+            comm.Write("wxsDoor" + str(door) + "Control", 1)
             
     elif doorActive != True:
         with PLC() as comm:
             comm.IPAddress = plcIP
-            comm.Write("wxsDoor" + str(door) + "Active", False)
+            comm.Write("wxsDoor" + str(door) + "Control", 0)
     
-    bit = comm.Read("wxsDoor" + str(door) + "Active", datatype=BOOL)
+    ret = comm.Read("wxsDoor" + str(door) + "Control", datatype=INT)
+    print(ret.value)
     comm.Close()
 
 
-
+    return "Executed"
 
 
 

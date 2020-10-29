@@ -19,6 +19,7 @@ import mysql.connector
 from datetime import datetime
 from pylogix import PLC
 import sys
+import atexit
 
 
 config = python_config.read_db_config()
@@ -72,11 +73,12 @@ def update_pick_qty():
             
             cursor.execute("UPDATE wcs.route_statuses SET pick_qty=" + str(pick_qty) + " WHERE id=" + str(row) + ";")
             connection.commit()
-    
+
+        connection.close()
     
         return "pick quantites updated for " + str(len(rows)) + " route(s)"
     
-    
+
 
     except Exception as e:
         print(e)
@@ -93,5 +95,10 @@ while True:
     updatePickQty = update_pick_qty()
     print(updatePickQty)
 
-    time.sleep(1)
+    time.sleep(5)
+
+
+
+atexit.register(cursor.close)
+atexit.register(connection.close())
     
