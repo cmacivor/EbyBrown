@@ -88,6 +88,12 @@ def add_routes(door):
         status = str(result[0])
         #print(status)
 
+        date = "SELECT date FROM wcs.route_statuses WHERE id=" + str(record)
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = str(result[0])
+        #print(date)
+
         
 
         # Check if Route already exists in table
@@ -104,7 +110,7 @@ def add_routes(door):
             #print(route)
             copied += 1
             # Insert record to verify_trailers table
-            cursor.execute("INSERT INTO wcs.verify_trailers (door_id,route,dock_door_number,trailer_number,freezer_container,cooler_container,dry_container,priority,status) VALUES ("+str(door)+","+route+","+str(door)+","+trailer_number+","+freezer_container+","+cooler_container+","+pick_qty+","+priority+","+"'"+status+"')")
+            cursor.execute("INSERT INTO wcs.verify_trailers (door_id,route,dock_door_number,trailer_number,freezer_container,cooler_container,dry_container,priority,status,date) VALUES ("+str(door)+","+route+","+str(door)+","+trailer_number+","+freezer_container+","+cooler_container+","+pick_qty+","+priority+","+"'"+status+"','"+date+"')")
             connection.commit()
 
         else:
