@@ -55,120 +55,128 @@ plcIP = "10.22.56.34"
 
 
 while True:
-    triggerBit = False
+    
+    try:
+    
+        triggerBit = False
 
-    with PLC() as comm:
-        comm.IPAddress = plcIP
-        ret = comm.Read("CigSorter.TxTrigger", datatype=BOOL)        
-        triggerBit = ret.Value               
+        with PLC() as comm:
+            comm.IPAddress = plcIP
+            ret = comm.Read("CigSorter.TxTrigger", datatype=BOOL)        
+            triggerBit = ret.Value               
 
-    if triggerBit == False:
-        print(triggerBit)
+        if triggerBit == False:
+            print(triggerBit)
 
-    elif triggerBit == True:        
-        print(triggerBit)
-        ret = comm.Read("CigSorter.TxMessage", datatype=STRING)
-        if ret.Value != None:
-            TxMessage = ret.Value[5:18]
-            if "NOREAD" in TxMessage:
-                TxMessage = "NOREAD"
-            elif "MULTIREAD" in TxMessage:
-                TxMessage  = "MULTIREAD"
+        elif triggerBit == True:        
+            print(triggerBit)
+            ret = comm.Read("CigSorter.TxMessage", datatype=STRING)
+            if ret.Value != None:
+                TxMessage = ret.Value[5:18]
+                if "NOREAD" in TxMessage:
+                    TxMessage = "NOREAD"
+                elif "MULTIREAD" in TxMessage:
+                    TxMessage  = "MULTIREAD"
+                else:
+                    pass
+            
+            else:
+                TxMessage = "Blank"
+            print(TxMessage)
+            ret = comm.Read("CigSorter.TxTriggerID", datatype=INT)
+            TxTriggerID = ret.Value
+            print(TxTriggerID)
+            plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Lane Request for " + TxMessage)
+
+            # Query DB Table for jurisdiction from carton_id
+            jurisdictionCode = "N/A"
+            if TxMessage != "NOREAD" and TxMessage != "MULTIREAD" and TxMessage != "Blank":
+                try:
+                    connection = mysql.connector.connect(
+                        host= host, 
+                        user= user, 
+                        database= database, 
+                        password= password 
+                    )
+
+                    cursor = connection.cursor()
+
+                    query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
+
+                    cursor.execute(query)
+                    extResult = cursor.fetchone()
+                    if extResult == None:
+                        result = 9996
+                        print(result)
+                    else:
+                        result = extResult[0]
+                        print(result)
+                        jurisdictionCode = str(result)
+
+                except Exception as e:
+                    print(e)
+                    result = 9999
+            
+                
+            
+            else:
+                if "NOREAD" in TxMessage:
+                    result = 9999
+                elif "MULTIREAD" in TxMessage:
+                    result = 9998
+                elif "Blank" in TxMessage:
+                    result = 9997
+                else:
+                    result = 9999
+
+            
+            # Run Jurisdiction API for Lane Assignment
+            RxMessage = ""
+            #print(jurisdictionCode)
+            ret = jurisdiction.lookup(auth, domain, str(result))
+            httpCode = ret[0]
+            if httpCode == "200":
+                result = ret[1]
+                RxMessage = result
+            else:
+                result = "API Error Code " + httpCode
+            #print(httpCode)
+            #print(result)
+            
+            # If response is out of range send 9999
+            if int(RxMessage) < 1 or int(RxMessage) > 9999:
+                RxMessage = "9999"
+            
+            # Create new Stamper DAT file after carton scanned
+            if RxMessage  == "1" or RxMessage == "2" or RxMessage == "3":
+                ret = datCreate.process(TxMessage)
+                if ret == "Success":
+                    print("success - dat file created")
+                    pass
+                else:
+                    print(ret)
+                    print("dat file create fail")
+                    pass
             else:
                 pass
-        
+            
+
+
+            # Write response to PLC and log message
+            tags = [("CigSorter.RxMessage", str(RxMessage)), ("CigSorter.RxTriggerID", TxTriggerID), ("CigSorter.TxTrigger", False)]
+            comm.Write("CigSorter.RxMessage", str(RxMessage))
+            comm.Write("CigSorter.RxTriggerID", TxTriggerID)
+            comm.Write("CigSorter.TxTrigger", False)
+            
+            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionCode))
+
         else:
-            TxMessage = "Blank"
-        print(TxMessage)
-        ret = comm.Read("CigSorter.TxTriggerID", datatype=INT)
-        TxTriggerID = ret.Value
-        print(TxTriggerID)
-        plcLog.dbLog("PLC to WXS", "Lane Request", "RequestID " + str(TxTriggerID) + " | Lane Request for " + TxMessage)
-
-        # Query DB Table for jurisdiction from carton_id
-        jurisdictionCode = "N/A"
-        if TxMessage != "NOREAD" and TxMessage != "MULTIREAD" and TxMessage != "Blank":
-            try:
-                connection = mysql.connector.connect(
-                    host= host, 
-                    user= user, 
-                    database= database, 
-                    password= password 
-                )
-
-                cursor = connection.cursor()
-
-                query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
-
-                cursor.execute(query)
-                extResult = cursor.fetchone()
-                if extResult == None:
-                    result = 9996
-                    print(result)
-                else:
-                    result = extResult[0]
-                    print(result)
-                    jurisdictionCode = str(result)
-
-            except Exception as e:
-                print(e)
-                result = 9999
-        
+            print("ValueError: Out of Range")
             
         
-        else:
-            if "NOREAD" in TxMessage:
-                result = 9999
-            elif "MULTIREAD" in TxMessage:
-                result = 9998
-            elif "Blank" in TxMessage:
-                result = 9997
-            else:
-                result = 9999
-
+    except Exception as e:
+        print(e)
         
-        # Run Jurisdiction API for Lane Assignment
-        RxMessage = ""
-        #print(jurisdictionCode)
-        ret = jurisdiction.lookup(auth, domain, str(result))
-        httpCode = ret[0]
-        if httpCode == "200":
-            result = ret[1]
-            RxMessage = result
-        else:
-            result = "API Error Code " + httpCode
-        #print(httpCode)
-        #print(result)
-        
-        # If response is out of range send 9999
-        if int(RxMessage) < 1 or int(RxMessage) > 9999:
-            RxMessage = "9999"
-        
-        # Create new Stamper DAT file after carton scanned
-        if RxMessage  == "1" or RxMessage == "2" or RxMessage == "3":
-            ret = datCreate.process(TxMessage)
-            if ret == "Success":
-                print("success - dat file created")
-                pass
-            else:
-                print(ret)
-                print("dat file create fail")
-                pass
-        else:
-            pass
-        
-
-
-        # Write response to PLC and log message
-        tags = [("CigSorter.RxMessage", str(RxMessage)), ("CigSorter.RxTriggerID", TxTriggerID), ("CigSorter.TxTrigger", False)]
-        comm.Write("CigSorter.RxMessage", str(RxMessage))
-        comm.Write("CigSorter.RxTriggerID", TxTriggerID)
-        comm.Write("CigSorter.TxTrigger", False)
-        
-        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionCode))
-
-    else:
-        print("ValueError: Out of Range")
     
     comm.Close()
 
