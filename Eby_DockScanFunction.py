@@ -16,7 +16,7 @@ import API_04_PLCLog as plcLog
 import requests
 import python_config
 import mysql.connector
-from datetime import datetime
+import datetime
 from pylogix import PLC
 import sys
 import atexit
@@ -66,15 +66,71 @@ def dock_scan_control(door):
         print(triggerBit)
 
     elif triggerBit == True:
-        print(triggerBit)
+        try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
 
-        ret = comm.Read("DockDoorScanner" + door + ".TxTriggerID", datatype=INT)
-        TxTriggerID = ret.value
-        print(TxTriggerID)
+            cursor = connection.cursor()
+        
+            print(triggerBit)
 
-        ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
-        TxMessage = ret.value[5:18]
-        print(TxMessage)
+            ret = comm.Read("DockDoorScanner" + door + ".TxTriggerID", datatype=INT)
+            TxTriggerID = ret.value
+            print(TxTriggerID)
+
+            ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
+            TxMessage = ret.value[5:18]
+            print(TxMessage)
+
+            if "NOREAD" in TxMessage:
+                TxMessage = "No Read"
+            elif "MULTIREAD" in TxMessage:
+                TxMessage = "Multi-Read"
+            else:
+                pass
+
+            print(TxMessage)
+
+            route = ""
+            stop = ""
+            if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "":
+                # Mark in dat_master table as stop_scan
+                cursor.execute("UPDATE assignment.dat_master SET stop_scan=1 WHERE container_id='" + str(TxMessage) + "';")
+                connection.commit()
+
+                route = "SELECT route_no, stop_no FROM assignment.dat_master WHERE container_id='" + str(TxMessage) + "'"
+                cursor.execute(route)
+                result = cursor.fetchall()                
+                route = str(result[0][0])
+                stop = str(result[0][1])
+                print(route)
+                print(stop)
+
+            else:
+                pass
+            
+            currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+            reason = ""
+            # Log Scan to dashboard_door_scans regardless of read type
+            cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+door+","+str(TxMessage)+","+route+","+stop+","+reason+",'"+currentTimeStamp+"','"+currentTimeStamp+"';)")
+            connection.commit()
+
+            RxMessage = "Scan Logged"
+
+            # After scan is logged, write received and reset bit
+            comm.Write("DockDoorScanner" + door + ".RxMessage", RxMessage)
+            comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
+            comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
+            print("Scan Logged")
+
+        
+        except Exception as e:
+            print(e)
 
 
     else:
