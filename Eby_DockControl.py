@@ -52,6 +52,13 @@ STRING = 218
 
 
 
+def door_enabled(door):
+
+    # Check table for status of Enabled/Disabled and Normal/Override
+
+
+    # Write values into PLC
+
 
 
 def door_active(door):
@@ -117,6 +124,8 @@ def door_active(door):
 
 # Connect to DB and run functions
 
+doors = [1, 2]
+
 while True:
     try:
         connection = mysql.connector.connect(
@@ -130,16 +139,15 @@ while True:
 
 
 
+        for door in doors:
+            doorEnabled = door_enabled(door)
+            print("Door " + str(door) + " Enabled = " doorEnabled)
 
+            doorActive = door_active(door)
+            print("Door " + str(door) + " Active = " doorActive)
 
-
-        door1_active = door_active(1)
-        print(door1_active)
-
-        door2_active = door_active(2)
-        print(door2_active)
-
-        time.sleep(3)
+            
+        
 
 
 
@@ -152,6 +160,9 @@ while True:
             exceptionDetails = ''.join('!! ' + line for line in lines)
             
             GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+
+    
+    time.sleep(3)
 
 
 

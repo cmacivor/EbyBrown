@@ -86,10 +86,13 @@ def dock_scan_control(door):
             TxMessage = ret.value[5:18]
             print(TxMessage)
 
+            reason = ""
             if "NOREAD" in TxMessage:
                 TxMessage = "No Read"
+                reason = "No Read"
             elif "MULTIREAD" in TxMessage:
                 TxMessage = "Multi-Read"
+                reason = "Muti-Read"
             else:
                 pass
 
@@ -115,7 +118,7 @@ def dock_scan_control(door):
             
             currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
-            reason = ""
+            
             # Log Scan to dashboard_door_scans regardless of read type
             cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+door+","+str(TxMessage)+","+route+","+stop+","+reason+",'"+currentTimeStamp+"','"+currentTimeStamp+"';)")
             connection.commit()
