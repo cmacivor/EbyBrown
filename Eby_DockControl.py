@@ -105,9 +105,9 @@ def door_override(door):
 
         
     if override == True:
-        return "Door " +str(door)+ " is Normal"
-    else:
         return "Door " +str(door)+ " is Override"
+    else:
+        return "Door " +str(door)+ " is Normal"
 
 
 
@@ -117,38 +117,41 @@ def door_override(door):
 def door_active(door):
     
     # Check verify_trailers table for active route
-    routes = "SELECT route FROM wcs.verify_trailers"
+    routes = "SELECT route FROM wcs.verify_trailers WHERE door_id=" + str(door)
     cursor.execute(routes)
     result = cursor.fetchall()
     routes = []
-    for r in result:
-        routes.append(r[0])
-    #print(routes)
+    if len(result) > 0:
+        for r in result:
+            routes.append(r[0])
+        #print(routes)
 
-    doorActive = False
-    for route in routes:
-        print("")
-        #print(route)
+        doorActive = False
+        for route in routes:
+            #print("")
+            #print(route)
 
-        pre_verify = "SELECT pre_verify FROM wcs.verify_trailers WHERE route=" + str(route)
-        cursor.execute(pre_verify)
-        result = cursor.fetchone()
-        pre_verify = result[0]
-        #print(pre_verify)
-        
-        status = "SELECT status FROM wcs.verify_trailers WHERE route=" + str(route)
-        cursor.execute(status)
-        result = cursor.fetchone()
-        status = result[0]
-        #print(status)
+            pre_verify = "SELECT pre_verify FROM wcs.verify_trailers WHERE route=" + str(route)
+            cursor.execute(pre_verify)
+            result = cursor.fetchone()
+            pre_verify = result[0]
+            #print(pre_verify)
+            
+            status = "SELECT status FROM wcs.verify_trailers WHERE route=" + str(route)
+            cursor.execute(status)
+            result = cursor.fetchone()
+            status = result[0]
+            #print(status)
 
-        if pre_verify == 1 and status != "Complete":
-            doorActive = True
-            break
-        else:
-            doorActive = False
+            if pre_verify == 1 and status != "Complete":
+                doorActive = True
+                break
+            else:
+                doorActive = False
+    else:
+        doorActive  = False
     
-    print(doorActive)
+    #print(doorActive)
     if doorActive == True:
         with PLC() as comm:
             comm.IPAddress = plcIP
@@ -161,13 +164,13 @@ def door_active(door):
             comm.Write("wxsDoor" + str(door) + "Control", 0)
     
     ret = comm.Read("wxsDoor" + str(door) + "Control", datatype=INT)
-    print(ret.value)
+    #print(ret.Value)
     comm.Close()
 
     if doorActive == True:
-        return "Active"
+        return "Door " + str(door) + " is Active"
     elif doorActive != True:
-        return "Inactive"
+        return "Door " + str(door) + " is Inactive"
 
 
 
@@ -204,6 +207,8 @@ while True:
 
             doorActive = door_active(door)
             print(doorActive)
+            
+            print("")
 
             
         

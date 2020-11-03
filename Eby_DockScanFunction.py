@@ -60,7 +60,7 @@ def dock_scan_control(door):
     with PLC() as comm:
         comm.IPAddress = plcIP
         ret = comm.Read("DockDoorScanner" + door + ".TxTrigger", datatype=BOOL)        
-        triggerBit = ret.value
+        triggerBit = ret.Value
 
     if triggerBit == False:
         print(triggerBit)
@@ -79,12 +79,12 @@ def dock_scan_control(door):
             print(triggerBit)
 
             ret = comm.Read("DockDoorScanner" + door + ".TxTriggerID", datatype=INT)
-            TxTriggerID = ret.value
+            TxTriggerID = ret.Value
             print(TxTriggerID)
 
             ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
-            TxMessage = ret.value[5:18]
-            print(TxMessage)
+            TxMessage = ret.Value[5:18]
+            #print(TxMessage)
 
             reason = ""
             if "NOREAD" in TxMessage:
@@ -92,35 +92,43 @@ def dock_scan_control(door):
                 reason = "No Read"
             elif "MULTIREAD" in TxMessage:
                 TxMessage = "Multi-Read"
-                reason = "Muti-Read"
+                reason = "Multi-Read"
             else:
                 pass
 
             print(TxMessage)
+            
+            exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(TxMessage) + "')"
+            cursor.execute(exists)
+            result = cursor.fetchone()
+            exists = result[0]
+            print(exists)
 
             route = ""
             stop = ""
-            if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "":
-                # Mark in dat_master table as stop_scan
-                cursor.execute("UPDATE assignment.dat_master SET stop_scan=1 WHERE container_id='" + str(TxMessage) + "';")
-                connection.commit()
+            if exists == 1:
+                
+                if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "":
+                    # Mark in dat_master table as stop_scan
+                    cursor.execute("UPDATE assignment.dat_master SET stop_scan=1 WHERE container_id=" + "'" + str(TxMessage) + "'")
+                    connection.commit()
 
-                route = "SELECT route_no, stop_no FROM assignment.dat_master WHERE container_id='" + str(TxMessage) + "'"
-                cursor.execute(route)
-                result = cursor.fetchall()                
-                route = str(result[0][0])
-                stop = str(result[0][1])
-                print(route)
-                print(stop)
+                    info = "SELECT route_no, stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(TxMessage)+ "'"
+                    cursor.execute(info)
+                    result = cursor.fetchall()                
+                    route = str(result[0][0])
+                    stop = str(result[0][1])
+                    print(route)
+                    print(stop)
 
-            else:
-                pass
+                else:
+                    pass
             
             currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
             
             # Log Scan to dashboard_door_scans regardless of read type
-            cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+door+","+str(TxMessage)+","+route+","+stop+","+reason+",'"+currentTimeStamp+"','"+currentTimeStamp+"';)")
+            cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+str(door)+",'"+str(TxMessage)+"','"+route+"','"+stop+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
             connection.commit()
 
             RxMessage = "Scan Logged"
@@ -134,6 +142,18 @@ def dock_scan_control(door):
         
         except Exception as e:
             print(e)
+            
+            currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            
+            # Log Scan to dashboard_door_scans regardless of read type
+            cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+str(door)+",'"+str(TxMessage)+"','"+route+"','"+stop+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
+            connection.commit()
+            
+            # After scan is logged, write received and reset bit
+            comm.Write("DockDoorScanner" + door + ".RxMessage", "NACK")
+            comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
+            comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
+            print("Error in DB Lookup")
 
 
     else:
@@ -145,10 +165,19 @@ def dock_scan_control(door):
 
 
 
-
+doors = [1, 2]
 
 while True:
-    door1 = dock_scan_control(1)
-    #print(door1)
+    
+    for door in doors:
+        
+        doorScan = dock_scan_control(door)
+        print(doorScan)
 
+   
     time.sleep(0.250)
+    
+    
+    
+atexit.register(cursor.close)
+atexit.register(connection.close())
