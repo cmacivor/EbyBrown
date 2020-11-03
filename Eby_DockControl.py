@@ -54,10 +54,63 @@ STRING = 218
 
 def door_enabled(door):
 
-    # Check table for status of Enabled/Disabled and Normal/Override
+    # Check table for status of Enabled/Disabled
+    enabled = "SELECT field_value FROM wcs.configs WHERE field_label = 'door" +str(door)+ " Enable'"
+    cursor.execute(enabled)
+    result = cursor.fetchone()
+    enabled = int(result[0])
+    if enabled == 1:
+        enabled == True
+    elif enabled == 0:
+        enabled == False
+    #print(enabled)
+
+    
 
 
     # Write values into PLC
+    with PLC() as comm:
+        comm.IPAddress = plcIP
+        comm.Write("wxsDoor" +str(door)+ "Enable", enabled)
+
+
+    if enabled == True:
+        return "Door " +str(door)+ " is Enabled"
+    else:
+        return "Door " +str(door)+ " is Disabled"
+        
+
+
+
+
+
+def door_override(door):
+
+    # Check table for status of Normal/Override
+    override = "SELECT field_value FROM wcs.configs WHERE field_label = 'door" +str(door)+ " Overrite'"
+    cursor.execute(override)
+    result = cursor.fetchone()
+    override = int(result[0])
+    if override == 1:
+        override == True
+    elif override == 0:
+        override == False
+    #print(override)
+
+
+    # Write values into PLC
+    with PLC() as comm:
+        comm.IPAddress = plcIP        
+        comm.Write("wxsDoor" +str(door)+ "Override", override)
+
+        
+    if override == True:
+        return "Door " +str(door)+ " is Normal"
+    else:
+        return "Door " +str(door)+ " is Override"
+
+
+
 
 
 
@@ -101,6 +154,7 @@ def door_active(door):
             comm.IPAddress = plcIP
             comm.Write("wxsDoor" + str(door) + "Control", 1)
             
+            
     elif doorActive != True:
         with PLC() as comm:
             comm.IPAddress = plcIP
@@ -110,8 +164,10 @@ def door_active(door):
     print(ret.value)
     comm.Close()
 
-
-    return "Executed"
+    if doorActive == True:
+        return "Active"
+    elif doorActive != True:
+        return "Inactive"
 
 
 
@@ -141,10 +197,13 @@ while True:
 
         for door in doors:
             doorEnabled = door_enabled(door)
-            print("Door " + str(door) + " Enabled = " doorEnabled)
+            print(doorEnabled)
+
+            doorOverride = door_override(door)
+            print(doorOverride)
 
             doorActive = door_active(door)
-            print("Door " + str(door) + " Active = " doorActive)
+            print(doorActive)
 
             
         
@@ -154,15 +213,15 @@ while True:
 
     except Exception as e:
             print(e)
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            exceptionMsg = exc_value.msg
-            exceptionDetails = ''.join('!! ' + line for line in lines)
+            # exc_type, exc_value, exc_traceback = sys.exc_info()
+            # #lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            # exceptionMsg = exc_value.msg
+            # exceptionDetails = ''.join('!! ' + line for line in lines)
             
-            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            # #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
 
     
-    time.sleep(3)
+    time.sleep(1)
 
 
 
