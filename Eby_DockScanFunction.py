@@ -55,6 +55,7 @@ STRING = 218
 
 def dock_scan_control(door):
     door = str(door)
+    #print(door)
     triggerBit = False
     
     with PLC() as comm:
@@ -63,7 +64,7 @@ def dock_scan_control(door):
         triggerBit = ret.Value
 
     if triggerBit == False:
-        print(triggerBit)
+        print("Door " + str(door) + " = " + str(triggerBit))
 
     elif triggerBit == True:
         try:
@@ -76,7 +77,7 @@ def dock_scan_control(door):
 
             cursor = connection.cursor()
         
-            print(triggerBit)
+            print("Door " + str(door) + " = " + str(triggerBit))
 
             ret = comm.Read("DockDoorScanner" + door + ".TxTriggerID", datatype=INT)
             TxTriggerID = ret.Value
@@ -123,6 +124,13 @@ def dock_scan_control(door):
 
                 else:
                     pass
+                
+            elif exists == 0 and TxMessage == "No Read":
+                reason = "No Read"
+            elif exists == 0 and TxMessage == "Multi-Read":
+                reason = "Multi-Read"
+            else:
+                reason = "Not in DB"
             
             currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
@@ -137,7 +145,9 @@ def dock_scan_control(door):
             comm.Write("DockDoorScanner" + door + ".RxMessage", RxMessage)
             comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
             comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
-            print("Scan Logged")
+            #print("Scan Logged")
+            
+            return "Scan Logged"
 
         
         except Exception as e:
@@ -154,6 +164,8 @@ def dock_scan_control(door):
             comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
             comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
             print("Error in DB Lookup")
+            
+            return "Error in Processing"
 
 
     else:
