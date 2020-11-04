@@ -172,7 +172,7 @@ def dat_assign(obj_dat):
     obj_dat.pick_area = tem[63:69]
     obj_dat.pick_type = tem[70:80]
     obj_dat.juris = tem[81:111]
-    obj_dat.carton_num = tem[112:114]
+    obj_dat.carton_num = tem[112:116]
     # assign all fields for sql insertion
     return obj_dat
 
