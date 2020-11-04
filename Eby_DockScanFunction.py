@@ -20,6 +20,7 @@ import datetime
 from pylogix import PLC
 import sys
 import atexit
+#import Eby_DockScanPause as scanPause
 
 
 config = python_config.read_db_config()
@@ -85,7 +86,7 @@ def dock_scan_control(door):
 
             ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
             TxMessage = ret.Value[5:18]
-            #print(TxMessage)
+            print(TxMessage)
 
             reason = ""
             if "NOREAD" in TxMessage:
@@ -148,6 +149,11 @@ def dock_scan_control(door):
             #print("Scan Logged")
             
             return "Scan Logged"
+        
+            # Execute Scan Reason Logic
+            # TODO Add Function here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            # pause = scanPause()
+            # print(pause)
 
         
         except Exception as e:
@@ -163,7 +169,7 @@ def dock_scan_control(door):
             comm.Write("DockDoorScanner" + door + ".RxMessage", "NACK")
             comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
             comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
-            print("Error in DB Lookup")
+            print("Error")
             
             return "Error in Processing"
 
@@ -181,11 +187,21 @@ doors = [1, 2]
 
 while True:
     
-    for door in doors:
-        
-        doorScan = dock_scan_control(door)
-        print(doorScan)
+    try:
+        for door in doors:
+            
+            doorScan = dock_scan_control(door)
+            print(doorScan)
+            
+    except Exception as e:
+        print(e)    
 
+        with PLC() as comm:
+            comm.IPAddress = plcIP
+            # After scan is logged, write received and reset bit
+            comm.Write("DockDoorScanner" + str(door) + ".RxMessage", "NACK")            
+            comm.Write("DockDoorScanner" + str(door) + ".TxTrigger", False)
+            print("Processing Error")
    
     time.sleep(0.250)
     

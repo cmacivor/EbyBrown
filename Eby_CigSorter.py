@@ -100,18 +100,29 @@ while True:
                     )
 
                     cursor = connection.cursor()
+                    
+                    exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(TxMessage) + "')"
+                    cursor.execute(exists)
+                    result = cursor.fetchone()
+                    exists = result[0]
+                    print(exists)
+                    
+                    
+                    if exists == 1:
+                        query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
 
-                    query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
-
-                    cursor.execute(query)
-                    extResult = cursor.fetchone()
-                    if extResult == None:
-                        result = 9996
-                        print(result)
+                        cursor.execute(query)
+                        extResult = cursor.fetchone()
+                        if extResult == None:
+                            result = 9996
+                            print(result)
+                        else:
+                            result = extResult[0]
+                            print(result)
+                            jurisdictionCode = str(result)
+                            
                     else:
-                        result = extResult[0]
-                        print(result)
-                        jurisdictionCode = str(result)
+                        result = 9996
 
                 except Exception as e:
                     print(e)
@@ -162,8 +173,7 @@ while True:
             
 
 
-            # Write response to PLC and log message
-            tags = [("CigSorter.RxMessage", str(RxMessage)), ("CigSorter.RxTriggerID", TxTriggerID), ("CigSorter.TxTrigger", False)]
+            # Write response to PLC and log message            
             comm.Write("CigSorter.RxMessage", str(RxMessage))
             comm.Write("CigSorter.RxTriggerID", TxTriggerID)
             comm.Write("CigSorter.TxTrigger", False)
@@ -176,6 +186,19 @@ while True:
         
     except Exception as e:
         print(e)
+        
+        result = 9996
+        ret = jurisdiction.lookup(auth, domain, str(result))
+            httpCode = ret[0]
+            if httpCode == "200":
+                result = ret[1]
+                RxMessage = result
+            else:
+                result = "API Error Code " + httpCode
+        
+        comm.Write("CigSorter.RxMessage", str(RxMessage))
+        comm.Write("CigSorter.RxTriggerID", TxTriggerID)
+        comm.Write("CigSorter.TxTrigger", False)
         
     
     comm.Close()

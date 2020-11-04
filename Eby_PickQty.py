@@ -95,7 +95,7 @@ while True:
     updatePickQty = update_pick_qty()
     print(updatePickQty)
 
-    time.sleep(5)
+    time.sleep(1)
 
 
 
