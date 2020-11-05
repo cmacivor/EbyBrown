@@ -456,13 +456,13 @@ def do_everything():
             # delete non dat files
     # do stuff if a file .true doesn't exist.
     if exists == True:
-        assignment_name = fname.replace("ASSIGNMENT-","").replace(".DAT","")
         orig_file_name = fname;  # insert fancy functions to get name of file
         temp_name = orig_file_name[:-3]
         # get variable for file name and var for path
         orig_file_path = working_path + "\\" + orig_file_name
         # path to delete file after job is done
-        save_path = save_path_location + "\\" + temp_name
+        #save_path = save_path_location + "\\" + temp_name
+        save_path = inputProcessedPath + "\\" + fname
         # create save path name
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and moving")
