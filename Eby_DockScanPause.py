@@ -91,7 +91,7 @@ def multi_read(code):
 
 
 def code_not_found(code):
-    #barcode scanned doesn't exist in database (has to be the approved barcode symbology, containing the dash in the correct spot, correct number of characters, etc.)
+    # barcode scanned doesn't exist in database (has to be the approved barcode symbology, containing the dash in the correct spot, correct number of characters, etc.)
     
     enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Barcode Not Found'"
     cursor.execute(enabled)
@@ -114,8 +114,8 @@ def code_not_found(code):
         return False
         
 
-def route_not_active(code):
-    #Stuff
+def route_not_active(code, door):
+    # Not an active route for the barcode scanned
     
     enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Route Not Active'"
     cursor.execute(enabled)
@@ -123,27 +123,124 @@ def route_not_active(code):
     enabled = int(result[0])
     #print(enabled)
     
+    if enabled == 1:
+        currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+ " WHERE route_type=current"
+        cursor.execute(currentRoute)
+        result = cursor.fetchone()
+        currentRoute = result[0]
+        #print(currentRoute)
+        
+        codeRoute = "SELECT route_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(codeRoute)
+        result = cursor.fetchone()
+        codeRoute = result[0]
+        #print(codeRoute)
+        
+        if codeRoute != currentRoute:
+            return True
+        else:
+            return False
+    else:
+        return False
+    
     
     
 
 def door_not_found(code):
-    #Stuff
-    test = test
+    # Dock door input is outside the acceptible dock door options (door 1 and 2, but user input door 4 for example)
+    
+    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Dock Door Not Found'"
+    cursor.execute(enabled)
+    result = cursor.fetchone()
+    enabled = int(result[0])
+    #print(enabled)
+    
+    if enabled == 1:
+        return False
+    else:
+        return False
     
     
-def route_not_found(code):
-    #Stuff
-    test = test
+def route_not_found(code, door):
+    # Label scanned belongs to a route not in the database for that day
+    
+    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Route Not Found'"
+    cursor.execute(enabled)
+    result = cursor.fetchone()
+    enabled = int(result[0])
+    #print(enabled)
+    
+    if enabled == 1:
+        route = "SELECT route_no FROM assignement.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        print(route)
+        
+        activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE dock_door_number=" + "'" + str(door) + "'"
+        cursor.execute(activeRoutes)
+        results = cursor.fetchall()
+        activeRoutes = []        
+        for idx, r in enumerate(results):
+            activeRoutes.append(results[idx][0])
+        #print(activeRoutes)
+        
+        if route not in activeRoutes:
+            return True
+        else:
+            return False
+    else:
+        return False
+        
     
     
 def stop_not_found(code):
-    #Stuff
-    test = test
+    # Stop on route is not found
+    
+    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Stop Not Found'"
+    cursor.execute(enabled)
+    result = cursor.fetchone()
+    enabled = int(result[0])
+    #print(enabled)
+    
+    if enabled == 1:
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+        
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = result[0]
+        #print(stop)
+        
+        date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+        
+        return False
+    
+    else:
+        return False
+        
+        
     
     
 def next_route(code):
-    #Stuff
-    test = test
+    # First container of next route scanned
+    
+    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Next Route'"
+    cursor.execute(enabled)
+    result = cursor.fetchone()
+    enabled = int(result[0])
+    #print(enabled)
+    
+    if enabled == 1:
+        
     
     
 def wrong_route(code):
