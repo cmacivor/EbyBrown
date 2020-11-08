@@ -25,6 +25,27 @@ import os
 
 
 
+config = python_config.read_db_config()
+host = config.get('host')
+user = config.get('user')
+database = config.get('wcsdatabase')
+password = config.get('password')
+
+logging = python_config.read_logging_config()
+auth = logging.get('auth')
+domain = logging.get('domain')
+plcIP = "10.22.56.34"
+
+
+
+connection = mysql.connector.connect(
+                        host= host, 
+                        user= user, 
+                        database= database, 
+                        password= password 
+                    )
+
+cursor = connection.cursor()
 
 
 
@@ -80,7 +101,7 @@ def code_not_found(code):
         exists = result[0]
         #print(exists)
         
-        if exists == 1:
+        if exists != 1:
             return True
         else:
             return False
@@ -133,20 +154,20 @@ def jurisdiction_lane_not_configured(code):
         cursor.execute(juris)
         result = cursor.fetchone()
         juris = result[0]
-        print(juris)
+        #print(juris)
         
         ret = jurisdiction.lookup(auth, domain, str(juris))
         httpCode = ret[0]
         if httpCode == "200":
-            lane = ret[1]
+            lane = int(ret[1])
             
             if lane == 1 or lane == 2 or lane == 3:
-                return True
-            else:
                 return False
+            else:
+                return True
             
         else:
-            return False
+            return True
     else:
         return False
     
@@ -170,7 +191,6 @@ def stamp_file_not_found(code):
         
     
     
-    
-    
+   
 
 
