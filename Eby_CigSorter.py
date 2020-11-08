@@ -19,6 +19,7 @@ import sys
 import Eby_Jurisdiction_Processor as datCreate
 sys.path.append("..")
 import atexit
+import Eby_CigScanPause as scanPause
 
 
 
@@ -75,15 +76,15 @@ def cig_sorter():
         ret = comm.Read("CigSorter.TxMessage", datatype=STRING)
         if ret.Value != None:
             TxMessage = ret.Value[5:18]
-            if "NOREAD" in TxMessage.upper():
-                TxMessage = "NOREAD"
-            elif "MULTIREAD" in TxMessage.upper():
-                TxMessage  = "MULTIREAD"
+            if "NO" in TxMessage.upper():
+                TxMessage = "No Read"
+            elif "MULTI" in TxMessage.upper():
+                TxMessage  = "Multi-Read"
             else:
                 pass
         
         else:
-            TxMessage = "Blank"
+            TxMessage = "Empty String"
         print(TxMessage)
         ret = comm.Read("CigSorter.TxTriggerID", datatype=INT)
         TxTriggerID = ret.Value
@@ -92,7 +93,7 @@ def cig_sorter():
 
         # Query DB Table for jurisdiction from carton_id
         jurisdictionCode = "N/A"
-        if TxMessage != "NOREAD" and TxMessage != "MULTIREAD" and TxMessage != "Blank":            
+        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":            
                 
             exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(TxMessage) + "')"
             cursor.execute(exists)
@@ -121,11 +122,11 @@ def cig_sorter():
             
         
         else:
-            if "NOREAD" in TxMessage.upper():
+            if TxMessage == "No Read":
                 result = 9999
-            elif "MULTIREAD" in TxMessage.upper():
+            elif TxMessage == " Multi-Read":
                 result = 9998
-            elif "Blank" in TxMessage:
+            elif TxMessage == "Empty String":
                 result = 9997
             else:
                 result = 9999
@@ -152,7 +153,7 @@ def cig_sorter():
         if RxMessage  == "1" or RxMessage == "2" or RxMessage == "3":
             ret = datCreate.process(TxMessage)
             if ret == "Success":
-                print("success - dat file created")
+                print("dat file created")
                 pass
             else:
                 print(ret)
@@ -161,7 +162,37 @@ def cig_sorter():
         else:
             pass
         
-
+        # Check for Cig Sorter Pause Request as per Scan Reasons table/page
+        
+        noRead = scanPause.no_read(TxMessage)
+        
+        multiRead = scanPause.multi_read(TxMessage)        
+         
+        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+            
+            noCode = scanPause.code_not_found(TxMessage)
+        
+            noStampReq = scanPause.stamp_not_required(TxMessage)
+            
+            noJurisdiction = scanPause.jurisdiction_not_found(TxMessage)
+            
+            laneNotConfigured = scanPause.jurisdiction_lane_not_configured(TxMessage)
+        
+            noStampFile = scanPause.stamp_file_not_found(TxMessage)
+            
+        else:
+            noCode = False
+            noStampReq = False
+            noJurisdiction = False
+            laneNotConfigured = False
+            noStampFile = False
+            
+        if noRead or multiRead or noCode or noStampReq or noJurisdiction or laneNotConfigured or noStampFile == True:
+            comm.Write("wxsCigSorterPause", True)
+        else:
+            comm.Write("wxsCigSorterPause", False)
+        
+        
 
         # Write response to PLC and log message            
         comm.Write("CigSorter.RxMessage", str(RxMessage))
@@ -223,6 +254,9 @@ while True:
             comm.Write("CigSorter.TxTrigger", False)
             
             comm.Close()
+            
+    
+        connection.close()
 
 
     time.sleep(0.250)
