@@ -103,7 +103,7 @@ def cig_sorter():
             
             
             if exists == 1:
-                query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + TxMessage + "\"")
+                query = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + str(TxMessage) + "\"")
 
                 cursor.execute(query)
                 extResult = cursor.fetchone()
@@ -133,8 +133,7 @@ def cig_sorter():
 
         
         # Run Jurisdiction API for Lane Assignment
-        RxMessage = ""
-        #print(jurisdictionCode)
+        RxMessage = ""       
         ret = jurisdiction.lookup(auth, domain, str(result))
         httpCode = ret[0]
         if httpCode == "200":
@@ -142,25 +141,27 @@ def cig_sorter():
             RxMessage = result
         else:
             result = "API Error Code " + httpCode
+            RxMessage  = 0
         #print(httpCode)
-        #print(result)
+        print(result)
         
-        # If response is out of range send 9999
-        if int(RxMessage) < 1 or int(RxMessage) > 9999:
-            RxMessage = "9999"
-        
+               
         # Create new Stamper DAT file after carton scanned
-        if RxMessage  == "1" or RxMessage == "2" or RxMessage == "3":
-            ret = datCreate.process(TxMessage)
-            if ret == "Success":
-                print("dat file created")
-                pass
+        if exists == 1:
+            if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+                ret = datCreate.process(TxMessage)
+                if ret == "Success":
+                    print("dat file created")
+                    pass
+                else:
+                    print(ret)
+                    print("dat file create fail")
+                    pass
             else:
-                print(ret)
-                print("dat file create fail")
                 pass
         else:
             pass
+        
         
         # Check for Cig Sorter Pause Request as per Scan Reasons table/page
         
@@ -171,37 +172,75 @@ def cig_sorter():
         if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
             
             noCode = scanPause.code_not_found(TxMessage)
-        
-            noStampReq = scanPause.stamp_not_required(TxMessage)
             
-            noJurisdiction = scanPause.jurisdiction_not_found(TxMessage)
+            if noCode == False:
             
-            laneNotConfigured = scanPause.jurisdiction_lane_not_configured(TxMessage)
+                noStampReq = scanPause.stamp_not_required(TxMessage)
+                
+                noJurisdiction = scanPause.jurisdiction_not_found(TxMessage)
+                
+                if noJurisdiction == False:
+                    
+                    laneNotConfigured = scanPause.jurisdiction_lane_not_configured(TxMessage)
+                    
+                else:
+                    laneNotConfigured = False
+                    
+                
+                noStampFile = scanPause.stamp_file_not_found(TxMessage)
+                
+            else:
+                noStampReq = False
+                noJurisdiction = False                
+                noStampFile = False
         
-            noStampFile = scanPause.stamp_file_not_found(TxMessage)
             
         else:
             noCode = False
-            noStampReq = False
-            noJurisdiction = False
-            laneNotConfigured = False
-            noStampFile = False
+            
             
         if noRead or multiRead or noCode or noStampReq or noJurisdiction or laneNotConfigured or noStampFile == True:
             comm.Write("wxsCigSorterPause", True)
+            if noRead == True:
+                reason = "No Read"
+            elif multiRead == True:
+                reason = "Multi-Read"
+            elif noCode == True:
+                reason = "Container_id Not in Database"
+            elif noStampReq == True:
+                reason = "No Stamp Required"
+            elif noJurisdiction == True:
+                reason = "No Jurisdiction Found"
+            elif laneNotConfigured == True:
+                reason = "No Lane Assigned"
+            elif noStampFile == True:
+                reason = "Stamp File not Created"
         else:
             comm.Write("wxsCigSorterPause", False)
         
-        
+        ret = comm.Read("wxsCigSorterPause", datatype=BOOL)
+        pauseBit = ret.Value
+                
+        print("noRead= " + str(noRead))
+        print("multiRead= " + str(multiRead))
+        print("noCode= " + str(noCode))
+        print("noStampReq= " + str(noStampReq))
+        print("noJurisdiction= " + str(noJurisdiction))
+        print("laneNotConfigured= " + str(laneNotConfigured))
+        print("noStampFile= " + str(noStampFile))
+        print("pauseBit= " + str(pauseBit))
 
         # Write response to PLC and log message            
         comm.Write("CigSorter.RxMessage", str(RxMessage))
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
         
-        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionCode))
+        if pauseBit == False:
+            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionCode))
+        else:
+            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Sorter Paused for: "+ str(reason))
 
-        return "successful"
+        return "process - successful"
         
     else:
         return "ValueError: Out of Range"         
@@ -237,19 +276,12 @@ while True:
     except Exception as e:
         print(e)
         
-        result = 9996
-        ret = jurisdiction.lookup(auth, domain, str(result))
-        httpCode = ret[0]
-        if httpCode == "200":
-            result = ret[1]
-            RxMessage = result
-        else:
-            result = "API Error Code " + httpCode
+        
             
-        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID Exception | httpCode=" + httpCode + " | " + str(e))
+        plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID Exception | " + str(e))
             
         with PLC() as comm:
-            comm.Write("CigSorter.RxMessage", str(RxMessage))
+            comm.Write("CigSorter.RxMessage", "1")
             #comm.Write("CigSorter.RxTriggerID", TxTriggerID)
             comm.Write("CigSorter.TxTrigger", False)
             
