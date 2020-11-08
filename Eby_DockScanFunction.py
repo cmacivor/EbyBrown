@@ -81,10 +81,10 @@ def dock_scan_control(door):
         print(TxMessage)
 
         reason = ""
-        if "NOREAD" in TxMessage:
+        if "NO" in TxMessage.upper():
             TxMessage = "No Read"
             reason = "No Read"
-        elif "MULTIREAD" in TxMessage:
+        elif "MULTI" in TxMessage.upper():
             TxMessage = "Multi-Read"
             reason = "Multi-Read"
         else:
@@ -125,7 +125,7 @@ def dock_scan_control(door):
         else:
             reason = "Not in DB"
         
-        currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'))
 
         
         # Log Scan to dashboard_door_scans regardless of read type
@@ -181,7 +181,9 @@ while True:
             doorScan = dock_scan_control(door)
             print(doorScan)
             
-    
+
+        
+        connection.close()
     
     except Exception as e:
         print(e) 
@@ -194,6 +196,8 @@ while True:
             comm.Write("DockDoorScanner" + str(door) + ".RxMessage", "NACK")            
             comm.Write("DockDoorScanner" + str(door) + ".TxTrigger", False)
             print("Processing Error")
+            
+        connection.close()
    
     time.sleep(0.250)
     
