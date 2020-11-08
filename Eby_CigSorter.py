@@ -147,8 +147,8 @@ def cig_sorter():
         
                
         # Create new Stamper DAT file after carton scanned
-        if exists == 1:
-            if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+            if exists == 1:            
                 ret = datCreate.process(TxMessage)
                 if ret == "Success":
                     print("dat file created")
@@ -167,7 +167,13 @@ def cig_sorter():
         
         noRead = scanPause.no_read(TxMessage)
         
-        multiRead = scanPause.multi_read(TxMessage)        
+        multiRead = scanPause.multi_read(TxMessage)  
+        
+        noCode = False
+        noStampReq = False
+        noJurisdiction = False
+        laneNotConfigured = False
+        noStampFile = False      
          
         if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
             
