@@ -78,13 +78,13 @@ while True:
         function = find_and_replace()
         print(function)
 
-        connection.close()
+        
 
     except Exception as e:
         print(e)
 
-    
-    connection.close()
+    finally:
+        connection.close()
 
 
     time.sleep(5)
