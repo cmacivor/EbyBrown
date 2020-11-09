@@ -109,6 +109,10 @@ def add_routes(door):
         if str(route) not in routes:
             #print(route)
             copied += 1
+
+            # Delete duplicate if exist
+            cursor.execute("DELETE FROM wcs.verify_trailers WHERE route="+route+" AND dock_door_number="+str(door)+" AND trailer_number="+trailer_number+" AND freezer_container="+freezer_container+" AND cooler_container="+cooler_container+" AND dry_container="+pick_qty+" AND priority="+priority+" AND status="+"'"+status+"' AND date='"+date+"'")
+
             # Insert record to verify_trailers table
             cursor.execute("INSERT INTO wcs.verify_trailers (door_id,route,dock_door_number,trailer_number,freezer_container,cooler_container,dry_container,priority,status,date) VALUES ("+str(door)+","+route+","+str(door)+","+trailer_number+","+freezer_container+","+cooler_container+","+pick_qty+","+priority+","+"'"+status+"','"+date+"')")
             connection.commit()
