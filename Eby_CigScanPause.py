@@ -38,75 +38,121 @@ plcIP = "10.22.56.34"
 
 
 
-connection = mysql.connector.connect(
-                        host= host, 
-                        user= user, 
-                        database= database, 
-                        password= password 
-                    )
 
-cursor = connection.cursor()
 
 
 
 def no_read(code):
     #Barcode missing or otherwise unable to be read
+    
+    try:
+        
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
 
-    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='No Read'"
-    cursor.execute(enabled)
-    result = cursor.fetchone()
-    enabled = int(result[0])
-    print("no read enabled= "+str(enabled))
+        cursor = connection.cursor()
+        
+        enabled = ""
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='No Read'"
+        cursor.execute(enabled)
+        result = cursor.fetchone()
+        enabled = int(result[0])
+        print("no read enabled= "+str(enabled))
 
-    if enabled == 1:
-        if "no" in code.lower():
-            return True
+        if enabled == 1:
+            if "no" in code.lower():
+                return True
+            else:
+                return False
         else:
             return False
-    else:
-        return False
+    
+    except Exception as e:
+        print(e)
+        
+    finally:
+        connection.close()
     
 
 def multi_read(code):
     #Two barcodes read at same time
 
-    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Multi Read'"
-    cursor.execute(enabled)
-    result = cursor.fetchone()
-    enabled = int(result[0])
-    #print(enabled)
-    
-    if enabled == 1:
-        if "multi" in code.lower():
-            return True
+    try:
+        
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
+
+        cursor = connection.cursor()
+            
+        
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Multi Read'"
+        cursor.execute(enabled)
+        result = cursor.fetchone()
+        enabled = int(result[0])
+        #print(enabled)
+        
+        if enabled == 1:
+            if "multi" in code.lower():
+                return True
+            else:
+                return False
         else:
             return False
-    else:
-        return False
+        
+    except Exception as e:
+        print(e)
+        
+    finally:
+        connection.close()
     
 
 def code_not_found(code):
     #barcode scanned doesn't exist in database (has to be the approved barcode symbology, containing the dash in the correct spot, correct number of characters, etc.)
     
-    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Barcode Not Found'"
-    cursor.execute(enabled)
-    result = cursor.fetchone()
-    enabled = int(result[0])
-    print(enabled)
-    
-    if enabled == 1:
-        exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "')"
-        cursor.execute(exists)
-        result = cursor.fetchone()
-        exists = result[0]
-        print(exists)
+    try:
         
-        if exists == 0:
-            return True
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
+
+        cursor = connection.cursor()
+        
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Barcode Not Found'"
+        cursor.execute(enabled)
+        result = cursor.fetchone()
+        enabled = int(result[0])
+        print(enabled)
+        
+        if enabled == 1:
+            exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "')"
+            cursor.execute(exists)
+            result = cursor.fetchone()
+            exists = result[0]
+            print(exists)
+            
+            if exists == 0:
+                return True
+            else:
+                return False
         else:
             return False
-    else:
-        return False
+        
+    except Exception as e:
+        print(e)
+        
+    finally:
+        connection.close()
     
     
 def stamp_not_required(code):
@@ -117,77 +163,130 @@ def stamp_not_required(code):
 def jurisdiction_not_found(code):
     #barcode scanned doesn't exist in database (has to be the approved barcode symbology, containing the dash in the correct spot, correct number of characters, etc.)
     
-    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Jurisdiction Not Found'"
-    cursor.execute(enabled)
-    result = cursor.fetchone()
-    enabled = int(result[0])
-    #print(enabled)
     
-    if enabled == 1:
-        exists = "SELECT jurisdiction FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-        cursor.execute(exists)
-        result = cursor.fetchone()
-        exists = result[0]
-        #print(exists)
+    try:
         
-        if exists.isspace() == True:
-            return True
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
+
+        cursor = connection.cursor()
+        
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Jurisdiction Not Found'"
+        cursor.execute(enabled)
+        result = cursor.fetchone()
+        enabled = int(result[0])
+        #print(enabled)
+        
+        if enabled == 1:
+            exists = "SELECT jurisdiction FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+            cursor.execute(exists)
+            result = cursor.fetchone()
+            exists = result[0]
+            #print(exists)
+            
+            if exists.isspace() == True:
+                return True
+            else:
+                return False
         else:
             return False
-    else:
-        return False
+        
+    except Exception as e:
+        print(e)
+        
+    finally:
+        connection.close()
     
 
 def jurisdiction_lane_not_configured(code):
     # Jurisdiction read from file not configured to divert to any lane
     
-    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Jurisdiction Lane Not Configured'"
-    cursor.execute(enabled)
-    result = cursor.fetchone()
-    enabled = int(result[0])
-    #print(enabled)
     
+    try:
         
-    if enabled == 1:
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
+
+        cursor = connection.cursor()
         
-        juris = "SELECT jurisdiction FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-        cursor.execute(juris)
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Jurisdiction Lane Not Configured'"
+        cursor.execute(enabled)
         result = cursor.fetchone()
-        juris = result[0]
-        #print(juris)
+        enabled = int(result[0])
+        #print(enabled)
         
-        ret = jurisdiction.lookup(auth, domain, str(juris))
-        httpCode = ret[0]
-        if httpCode == "200":
-            lane = int(ret[1])
             
-            if lane == 1 or lane == 2 or lane == 3:
-                return False
+        if enabled == 1:
+            
+            juris = "SELECT jurisdiction FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+            cursor.execute(juris)
+            result = cursor.fetchone()
+            juris = result[0]
+            #print(juris)
+            
+            ret = jurisdiction.lookup(auth, domain, str(juris))
+            httpCode = ret[0]
+            if httpCode == "200":
+                lane = int(ret[1])
+                
+                if lane == 1 or lane == 2 or lane == 3:
+                    return False
+                else:
+                    return True
+                
             else:
                 return True
-            
         else:
-            return True
-    else:
-        return False
+            return False
+        
+    except Exception as e:
+        print(e)
+        
+    finally:
+        connection.close()
     
     
 def stamp_file_not_found(code):
     # No file for stamping found on WCS server for United Slicone
     
-    enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Stamp File Not Found'"
-    cursor.execute(enabled)
-    result = cursor.fetchone()
-    enabled = int(result[0])
-    #print(enabled)
-    
-    if enabled == 1:
-        if os.path.exists("D:\\Downloads\\UnitedSilicone\\" + str(code) + ".DAT") == True:
-            return False
+    try:
+        
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
+
+        cursor = connection.cursor()
+        
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Stamp File Not Found'"
+        cursor.execute(enabled)
+        result = cursor.fetchone()
+        enabled = int(result[0])
+        #print(enabled)
+        
+        if enabled == 1:
+            if os.path.exists("D:\\Downloads\\UnitedSilicone\\" + str(code) + ".DAT") == True:
+                return False
+            else:
+                return True
         else:
-            return True
-    else:
-        return False
+            return False
+        
+    except Exception as e:
+        print(e)
+        
+    finally:
+        connection.close()
         
     
     
