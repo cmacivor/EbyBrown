@@ -56,7 +56,7 @@ def no_read(code):
     cursor.execute(enabled)
     result = cursor.fetchone()
     enabled = int(result[0])
-    #print(enabled)
+    print("no read enabled= "+str(enabled))
 
     if enabled == 1:
         if "no" in code.lower():
