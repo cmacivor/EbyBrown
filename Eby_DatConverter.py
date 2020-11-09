@@ -65,9 +65,9 @@ output_path = PureWindowsPath(outputPath).__str__()
 # assign path to save output with dat files folder
 input_processed_path = PureWindowsPath(inputProcessedPath).__str__()
 # assign path for Processed .DAT files
-output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
+#output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
 # amount of time to wait in between next check IN SECONDS
-check_interval = 5  # seconds
+check_interval = 1  # seconds
 #interval in seconds for processing messages
 process_message_interval = 20
 
@@ -299,7 +299,7 @@ def insert_route_status(routeNumber):
 
         today = datetime.now().date().strftime('%Y-%m-%d')
 
-        newRouteStatus = (routeNumber, "", "", 0, "Inactive", "Not Started", today, currentTimeStamp, currentTimeStamp)
+        newRouteStatus = (routeNumber, "", "", 0, "Active", "Not Started", today, currentTimeStamp, currentTimeStamp)
 
         cursor.execute(insertSQL, newRouteStatus)
         connection.commit()
@@ -534,7 +534,7 @@ def do_everything():
 
                 if enabled == "1":
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
-                    hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
+                    #hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
                         #print that data was inserted for file
                 print("moving the file " + orig_dat_file.name + "to " + input_processed_path)
                 orig_dat_file.close()
