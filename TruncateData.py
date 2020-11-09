@@ -22,8 +22,9 @@ def truncateHostLogs():
         )
 
         cursor = connection.cursor(buffered=True)
-        sql = "DELETE FROM host_logs WHERE updated_at < SUBDATE(CURDATE(), 14)"
+        sql = "DELETE FROM wcs.host_logs WHERE updated_at < SUBDATE(CURDATE(), 14)"
         cursor.execute(sql)
+        connection.commit()
         print("Successfully Trancted data")
 
     except Exception as e:
@@ -43,8 +44,9 @@ def truncatePlcLogs():
         )
 
         cursor = connection.cursor(buffered=True)
-        sql = "DELETE FROM plc_logs WHERE updated_at < SUBDATE(CURDATE(), 14)"
+        sql = "DELETE FROM wcs.plc_logs WHERE updated_at < SUBDATE(CURDATE(), 14)"
         cursor.execute(sql)
+        connection.commit()
         print("Successfully Trancted data")
 
     except Exception as e:
