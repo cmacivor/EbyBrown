@@ -30,7 +30,7 @@ password = config.get('password')
 def find_and_replace():
     # find code and replace with text
 
-    idList = "SELECT id FROM assignment.dat_master WHERE pick_area > 0"
+    idList = "SELECT id FROM assignment.dat_master WHERE pick_area IS NULL"
     cursor.execute(idList)
     results = cursor.fetchall()
     idList = []
@@ -39,10 +39,11 @@ def find_and_replace():
     #print(idList)
 
     for i in idList:
-        pickCode = "SELECT pick_area FROM assignment.dat_master WHERE id=" +"'"+ str(i) + "'"
-        cursor.execute(pickCode)
+        fullPickCode = "SELECT pick_area FROM assignment.dat_master WHERE id=" +"'"+ str(i) + "'"
+        cursor.execute(fullPickCode)
         result = cursor.fetchone()
-        pickCode = result[0]
+        fullPickCode = result[0]
+        pickCode = fullPickCode[3:]
         #print(pickCode)
 
         pickArea = "SELECT pick_area FROM wcs.pick_areas WHERE code=" +"'"+ str(pickCode) + "'"
