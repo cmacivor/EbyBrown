@@ -130,7 +130,7 @@ def add_routes(door):
 
 
 
-
+doors = [1, 2]
 
 while True:
 
@@ -144,13 +144,18 @@ while True:
 
         cursor = connection.cursor()
 
-        routes1 = add_routes(1)
-        print(routes1)
+        for door in doors:
+            routes = add_routes(door)
+            print(routes)
     
-        connection.close()
+        
 
     except Exception as e:
         print(e)
+        
+        
+        
+    finally:
         
         connection.close()
 
