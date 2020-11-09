@@ -64,7 +64,7 @@ def process(containerId):
                 query_juris = ("SELECT jurisdiction FROM assignment.dat_master WHERE container_id=\"" + containerId + "\"")
                 cursor.execute(query_juris)
                 extResult = cursor.fetchone()
-                jurisdiction = extResult[0]
+                jurisdiction = extResult[0][:3]
                 #print(jurisdiction)
 
                 query_qty = ("SELECT carton_qty FROM assignment.dat_master WHERE container_id=\"" + containerId + "\"")
@@ -103,12 +103,7 @@ def process(containerId):
         
     except Exception as e:
         print(e)
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        #exceptionMsg = exc_value.msg
-        exceptionDetails = ''.join('!! ' + line for line in lines)
         
-        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
         return "Unknown"
 
 

@@ -32,73 +32,76 @@ password = config.get('password')
 
 
 def update_pick_qty():
-    try:
-        connection = mysql.connector.connect(
-        host= host, 
-        user= user, 
-        database= database, 
-        password= password 
-        )
+    
+    rows = "SELECT id FROM wcs.route_statuses"
+    cursor.execute(rows)
+    result = cursor.fetchall()
+    rows = []
+    for i in result:
+        rows.append(i[0])
+    #print(rows)
+    
+    
+    for row in rows:
+        route = "SELECT route FROM wcs.route_statuses WHERE id=" + str(row)
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+        
+        date = "SELECT date FROM wcs.route_statuses WHERE id=" + str(row)
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+        
+        pick_qty = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'"    
+        cursor.execute(pick_qty)
+        result = cursor.fetchone()
+        pick_qty = result[0]
+        #print(pick_qty)
+        
+        cursor.execute("UPDATE wcs.route_statuses SET pick_qty=" + str(pick_qty) + " WHERE id=" + str(row) + ";")
+        connection.commit()
 
-        cursor = connection.cursor()
     
+
+    return "pick quantites updated for " + str(len(rows)) + " route(s)"
     
-        rows = "SELECT id FROM wcs.route_statuses"
-        cursor.execute(rows)
-        result = cursor.fetchall()
-        rows = []
-        for i in result:
-            rows.append(i[0])
-        #print(rows)
-        
-        
-        for row in rows:
-            route = "SELECT route FROM wcs.route_statuses WHERE id=" + str(row)
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
+
+
             
-            date = "SELECT date FROM wcs.route_statuses WHERE id=" + str(row)
-            cursor.execute(date)
-            result = cursor.fetchone()
-            date = result[0]
-            #print(date)
-            
-            pick_qty = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'"    
-            cursor.execute(pick_qty)
-            result = cursor.fetchone()
-            pick_qty = result[0]
-            #print(pick_qty)
-            
-            cursor.execute("UPDATE wcs.route_statuses SET pick_qty=" + str(pick_qty) + " WHERE id=" + str(row) + ";")
-            connection.commit()
-
-        connection.close()
-    
-        return "pick quantites updated for " + str(len(rows)) + " route(s)"
-    
-
-
-    except Exception as e:
-        print(e)
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        exceptionMsg = exc_value.msg
-        exceptionDetails = ''.join('!! ' + line for line in lines)
-        
-        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
-        
         
 
 while True:
-    updatePickQty = update_pick_qty()
-    print(updatePickQty)
+    
+    try:
+        connection = mysql.connector.connect(
+                            host= host, 
+                            user= user, 
+                            database= database, 
+                            password= password 
+                            )
 
-    time.sleep(5)
+        cursor = connection.cursor()
+        
+        
+        updatePickQty = update_pick_qty()
+        print(updatePickQty)
+        
+        
+        connection.close()
+        
+    except Exception as e:
+        print(e)
+
+        connection.close()
+    
+    
+    time.sleep(1)
 
 
 
-atexit.register(cursor.close)
+
 atexit.register(connection.close())
     

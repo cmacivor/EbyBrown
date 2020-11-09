@@ -218,12 +218,8 @@ while True:
 
     except Exception as e:
             print(e)
-            # exc_type, exc_value, exc_traceback = sys.exc_info()
-            # #lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            # exceptionMsg = exc_value.msg
-            # exceptionDetails = ''.join('!! ' + line for line in lines)
             
-            # #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            connection.close()
 
     
     time.sleep(1)
