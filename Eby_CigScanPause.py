@@ -92,16 +92,16 @@ def code_not_found(code):
     cursor.execute(enabled)
     result = cursor.fetchone()
     enabled = int(result[0])
-    #print(enabled)
+    print(enabled)
     
     if enabled == 1:
         exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "')"
         cursor.execute(exists)
         result = cursor.fetchone()
         exists = result[0]
-        #print(exists)
+        print(exists)
         
-        if exists != 1:
+        if exists == 0:
             return True
         else:
             return False
