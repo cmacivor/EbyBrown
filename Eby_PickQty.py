@@ -90,12 +90,16 @@ while True:
         print(updatePickQty)
         
         
-        connection.close()
+        
         
     except Exception as e:
         print(e)
 
+        
+        
+    finally:
         connection.close()
+        
     
     
     time.sleep(1)
