@@ -116,19 +116,19 @@ class obj_dat:
     stop_num = "    "
     # stop number
     # max length 4    
-    pick_area = "      "
+    pick_code = "      "
     # concotatenation of 3 digit stype and 3 digit pick area 
     # max length of 6
     pick_type = "          "
     # for full cas a description will be sent if no description it will just say full case
     # for split case it will always say split case
     # max length of 10
-    juris = "      "
+    juris = "                              "
     # neede for cig stamping, if not cigs then its spaces, 
-    # max length of 6
-    carton_num = "  "
+    # max length of 30
+    carton_num = "    "
     # number of cigs in container, if not , spaces
-    # max length 2
+    # max length 4
     c_comp = "0"
     # Container Complete 0=>No 1=>Yes
     a_comp = "0"
@@ -169,7 +169,7 @@ def dat_assign(obj_dat):
     obj_dat.stop_num = tem[16:20]
     obj_dat.container_id = tem[21:36]
     obj_dat.assign_id = tem[37:62]
-    obj_dat.pick_area = tem[63:69]
+    obj_dat.pick_code = tem[63:69]
     obj_dat.pick_type = tem[70:80]
     obj_dat.juris = tem[81:111]
     obj_dat.carton_num = tem[112:116]
@@ -185,7 +185,7 @@ def dat_test(obj_dat):
     obj_dat.stop_num + '\n' + 
     obj_dat.container_id + '\n' + 
     obj_dat.assign_id + '\n' + 
-    obj_dat.pick_area + '\n' + 
+    obj_dat.pick_code + '\n' + 
     obj_dat.pick_type + '\n' + 
     obj_dat.juris + '\n' + 
     obj_dat.carton_num)
@@ -200,10 +200,10 @@ def dat_insert(obj_dat, table_name):
         todaysDateString = todaysDate.strftime('%Y-%m-%d')
         
         sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
-        stop_no,container_id,assignment_id,pick_area,pick_type,
+        stop_no,container_id,assignment_id,pick_code,pick_type,
         jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, date, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s, %s)""")
         # setup table insertion
-        val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_area, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
+        val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_code, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
         obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, todaysDateString, currentTimeStamp, currentTimeStamp)
         # setup values for insertion
         mycursor.execute(sql, val)
@@ -451,7 +451,7 @@ def do_everything():
         else:
             exists = False;
             # or it dodsent
-            ### os.remove(working_path, fname);
+            #os.remove(working_path, fname);
             ### print("The file " + fname + " was not a .DAT file, or it is formatted incorrectly it has been deleted from" + working_path);
             # delete non dat files
     # do stuff if a file .true doesn't exist.
@@ -482,7 +482,7 @@ def do_everything():
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
                 if enabled == "1":
-                    hostLog.log(auth, domain, "DAT Converter to WXS", "Nmbr Lines", "Number of lines to be checked " + str(num_lines))
+                    hostLog.log(auth, domain, "DAT Converter to WXS", "No. of Lines", "Number of lines to be checked is " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
                 #dat_table_create(table_name)
@@ -509,6 +509,7 @@ def do_everything():
                         ### dat_insert(temp_dat, table_name)
                         # insert data into mysql database
                         dat_insert(temp_dat, "dat_master")
+                        ins += 1
                         # insert data into master table as well
                         
                         #need to modify the check- only insert new rows to the route_statuses table if the route number AND the date are different. 
@@ -517,7 +518,7 @@ def do_everything():
                             routeNumber = int(temp_dat.route_num.strip())
                             insert_route_status(routeNumber)
 
-                    if (temp_dat.juris == "      ") and  (temp_dat.carton_num == "  "):
+                    if (temp_dat.juris == "                              ") and  (temp_dat.carton_num == "    "):
                         s += 1
                         # increment for number of file skipped
                     else:                       
@@ -536,12 +537,12 @@ def do_everything():
                     hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
                     #hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
                         #print that data was inserted for file
-                print("moving the file " + orig_dat_file.name + "to " + input_processed_path)
-                orig_dat_file.close()
-                shutil.move(orig_file_path, inputProcessedPath)
-                        #os.remove(orig_file_path)
-                        #os.remove(orig_file_path)
-                        #delete original file
+                    print("moving the file " + orig_dat_file.name + " to " + input_processed_path)
+                    orig_dat_file.close()
+                    shutil.move(orig_file_path, inputProcessedPath)
+                    os.remove(orig_file_path)
+                    #os.remove(orig_file_path)
+                    #delete original file
 
     else:
         print("No file present")
