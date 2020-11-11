@@ -32,30 +32,37 @@ def find_and_replace():
                             database= database, 
                             password= password 
                         )
-        wcsconnection = mysql.connector.connect(
-                            host= host, 
-                            user= user, 
-                            database= wcsdatabase, 
-                            password= password 
-                        )
+        # wcsconnection = mysql.connector.connect(
+        #                     host= host, 
+        #                     user= user, 
+        #                     database= wcsdatabase, 
+        #                     password= password 
+        #                 )
 
         cursor = connection.cursor()
-        wcscursor = wcsconnection.cursor()
+        #wcscursor = wcsconnection.cursor()
 
-        sql = "SELECT pick_code FROM assignment.dat_master WHERE pick_area IS NULL AND pick_group IS NULL"
+        sql = "SELECT pick_code FROM assignment.dat_master WHERE pick_area IS NULL OR pick_group IS NULL"
         cursor.execute(sql)
         result = cursor.fetchall()
+        #print(result)
 
         for item in result:
             if item[0] is not None:
                 pickCode = item[0][3:]
-                sql = "SELECT `pick_area`, `group` FROM wcs.pick_areas WHERE code = "+"'"+ pickCode + "'"
-                wcscursor.execute(sql)
-                result = wcscursor.fetchone()
+                #print(pickCode)
+                sql = "SELECT `pick_area`, `group` FROM wcs.pick_areas WHERE code = "+"'"+ str(pickCode) + "'"
+                cursor.execute(sql)
+                result = cursor.fetchone()
+                print(result)
                 if result is not None and result[0] is not None:
-                    sql = "UPDATE assignment.dat_master SET pick_area="+"'"+ result[0] + "', pick_group="+"'"+ result[1] + "' WHERE id="++"'"+ str(item[0]) + "'"
+                    print(result[0])
+                    print(result[1])
+                    sql = "UPDATE assignment.dat_master SET pick_area="+"'"+ result[0] + "', pick_group="+"'"+ result[1] + "' WHERE pick_code="+"'"+ item[0] + "'"
                     cursor.execute(sql)
                     connection.commit()
+                    
+        return "processed"
 
     except Exception as e:
         print(e)
@@ -63,9 +70,17 @@ def find_and_replace():
     finally:
         cursor.close()
         connection.close()
-        wcscursor.close()
-        wcsconnection.close()
+        # wcscursor.close()
+        # wcsconnection.close()
 
 
-find_and_replace()
+
+
+
+while True:
+    function = find_and_replace()
+    print(function)
+    
+    
+    time.sleep(1)
 
