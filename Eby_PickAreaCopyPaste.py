@@ -46,10 +46,11 @@ def find_and_replace():
         cursor.execute(sql)
         result = cursor.fetchall()
         #print(result)
-
+        
+        counter = 0
         for item in result:
             if item[0] is not None:
-                pickCode = item[0][3:]
+                pickCode = item[0]
                 #print(pickCode)
                 sql = "SELECT `pick_area`, `group` FROM wcs.pick_areas WHERE code = "+"'"+ str(pickCode) + "'"
                 cursor.execute(sql)
@@ -61,8 +62,9 @@ def find_and_replace():
                     sql = "UPDATE assignment.dat_master SET pick_area="+"'"+ result[0] + "', pick_group="+"'"+ result[1] + "' WHERE pick_code="+"'"+ item[0] + "'"
                     cursor.execute(sql)
                     connection.commit()
+                    counter += 1
                     
-        return "processed"
+        return "processed with " +str(counter) + " updates"
 
     except Exception as e:
         print(e)
