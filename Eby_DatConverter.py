@@ -139,7 +139,7 @@ class obj_dat:
     # Route Complete 0=>No 1=>Yes
     assign_name = ""
     # Assignment Name from .dat file less the word "Assignment"
-    status = ""
+    status = "Pending"
     # Not sure what this is here for
     priority = 0
 
@@ -204,7 +204,7 @@ def dat_insert(obj_dat, table_name):
         jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, date, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s, %s)""")
         # setup table insertion
         val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_code, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
-        obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, None, todaysDateString, currentTimeStamp, currentTimeStamp)
+        obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, obj_dat.status, todaysDateString, currentTimeStamp, currentTimeStamp)
         # setup values for insertion
         mycursor.execute(sql, val)
         # insert the data into the table
@@ -481,8 +481,8 @@ def do_everything():
 
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
-                if enabled == "1":
-                    hostLog.log(auth, domain, "DAT Converter", "No. of Lines", "Number of lines to be checked is " + str(num_lines))
+                # if enabled == "1":
+                #     hostLog.log(auth, domain, "DAT Converter", "No. of Lines", "Number of lines to be checked is " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
                 #dat_table_create(table_name)
