@@ -467,7 +467,7 @@ def do_everything():
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and moving")
             if enabled == "1":
-                hostLog.log(auth, domain, "DAT Converter to WXS", "Skipping File", "This file has already run through the program, skipping and moving")
+                hostLog.log(auth, domain, "DAT Converter", "Skipping File", "This file has already run through the program, skipping and moving")
             shutil.copyfile(orig_file_path, input_processed_path + "\\" + orig_file_name)
             os.remove(orig_file_path)
             # move original file
@@ -482,7 +482,7 @@ def do_everything():
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
                 if enabled == "1":
-                    hostLog.log(auth, domain, "DAT Converter to WXS", "No. of Lines", "Number of lines to be checked is " + str(num_lines))
+                    hostLog.log(auth, domain, "DAT Converter", "No. of Lines", "Number of lines to be checked is " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
                 #dat_table_create(table_name)
@@ -534,14 +534,13 @@ def do_everything():
 
 
                 if enabled == "1":
-                    hostLog.log(auth, domain, "DAT Converter to WXS", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
+                    hostLog.log(auth, domain, "DAT Converter", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
                     #hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
                         #print that data was inserted for file
                     print("moving the file " + orig_dat_file.name + " to " + input_processed_path)
                     orig_dat_file.close()
                     shutil.move(orig_file_path, inputProcessedPath)
-                    os.remove(orig_file_path)
-                    #os.remove(orig_file_path)
+                    #os.remove(orig_file_path)                    
                     #delete original file
 
     else:
