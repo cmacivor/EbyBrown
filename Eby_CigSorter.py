@@ -241,8 +241,18 @@ def cig_sorter():
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
         
+        jurisdictionText = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" +str(TxMessage) + "'"
+        cursor.execute(jurisdictionText)
+        result = cursor.fetchone()
+        jurisdictionText = result[0]
+        #print(jurisdictionText) 
+        
+        if jurisdictionText is None:
+            jurisdictionText = ""
+        
+            
         if pauseBit == False:
-            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionCode))
+            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionText))
         else:
             plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Sorter Paused for: "+ str(reason))
 
