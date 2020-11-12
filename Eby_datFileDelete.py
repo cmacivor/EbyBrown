@@ -25,6 +25,5 @@ def modification_date(filename):
     return datetime.datetime.fromtimestamp(t)
 
 
-while True:
-    print(delete_dat_files())
-    time.sleep(5)
+
+delete_dat_files()
