@@ -9,41 +9,6 @@ import sys
 import traceback
 from queue import Queue
 
-# def createResponseMessage(message):
-#         loggingConfig = python_config.read_logging_config()
-#         enabled = loggingConfig.get('enabled')
-#         api = loggingConfig.get('api')
-#         auth = loggingConfig.get('auth')
-#         domain = loggingConfig.get('domain')
-
-#         loggingNotEnabledMsg = "logging is not enabled in the config.ini."
-        
-#         messageBase = Eby_Message.MessageBase(message)
-        
-#         response = None  
-            
-#         isKeepAliveMessage = messageBase.CheckIfMessageIsKeepAlive()
-            
-#         if isKeepAliveMessage:
-#             response = messageBase.getFullAcknowledgeKeepAliveMessage()
-               
-#             # if enabled == "1":
-#             #     #log inbound message               
-#             #     hostLog.log(auth, domain, "Host to WXS", "KEEPALIV", message)
-#             #     #log the response from WXS
-#             #     hostLog.log(auth, domain, "WXS to Host", "ACKNOWL", response)
-#             # else:
-#             #     print(loggingNotEnabledMsg)
-#             return response
-#         #if not, then it's a data message
-#         else:
-#             messageBase.getMessageType() #save the message data to the database, log it, etc.
-#             response = messageBase.getFullAcknowledgeKeepAliveMessage()
-#             if enabled == "1":
-#                 hostLog.log(auth, domain, "WXS to Host", "ACKNOWLE", response)
-#             else:
-#                 print(loggingNotEnabledMsg)
-#             return response
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     
@@ -62,21 +27,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((host, port))
     s.listen()
     conn, addr = s.accept()
+    data = b''
     with conn:
         print("Connected by", addr)
         while True:
             try:
 
-                data = conn.recv(1024)
+                chunk = conn.recv(1024)
+                #data = conn.recv(1024)
 
-                if not data:
-                    break
+                # if not data:
+                #     break
+                data += chunk
 
-                printable = data.decode('ascii')
-                print(' wrote ' + printable)
+                decodedData = data.decode('ascii')
+                print(' wrote ' + decodedData)
 
                 #messageBase = Eby_Message.MessageBase(data)
-                messageBase = Eby_MessageTCPServer.MessageBaseTCPServer(data)
+                messageBase = Eby_MessageTCPServer.MessageBaseTCPServer(decodedData)
             
                 response = messageBase.getFullAcknowledgeKeepAliveMessage()
                 #response = createResponseMessage(data)
@@ -88,6 +56,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             
                 if not isKeepAliveMessage:
                     hostLog.log(auth, domain, "Host to WXS", "UNKWN", data)
+                
+                data = b''
 
             except Exception as e:
                 if isinstance(e, ConnectionResetError):
