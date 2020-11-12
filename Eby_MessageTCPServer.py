@@ -21,7 +21,7 @@ class MessageBaseTCPServer:
     #constructor
     def __init__(self, libserver):
         self.libserver = libserver
-        self.AsciiRequestMessage = libserver.decode('ascii')  #libserver.request[:].decode('ascii')
+        self.AsciiRequestMessage = libserver #.decode('ascii')  #libserver.request[:].decode('ascii')
 
     def CheckIfMessageIsKeepAlive(self):
         messageLength = len(self.AsciiRequestMessage) #len(self.libserver.request[:])
