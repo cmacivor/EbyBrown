@@ -12,6 +12,6 @@ def delete_dat_files():
     return 'All DAT files deleted successfully'
 
 
-while True:
-    print(delete_dat_files())
-    time.sleep(5)
+
+    
+delete_dat_files()
