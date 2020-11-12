@@ -1,5 +1,6 @@
 import Mysql_Connection
 import time
+import atexit
 
 connection = Mysql_Connection.get()
 cursor = connection.cursor()
@@ -25,4 +26,7 @@ def update_assignment_status():
         
 while True:
     print(update_assignment_status())
-    time.sleep(5)
+    time.sleep(1)
+    
+    
+atexit.register(connection.close())
