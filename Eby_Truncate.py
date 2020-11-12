@@ -1,5 +1,6 @@
 import Mysql_Connection
 import time
+import atexit
 
 def get_truncate_query(table):
     return "DELETE FROM "+ table +" WHERE updated_at < SUBDATE(CURDATE(), 14)"
@@ -29,34 +30,39 @@ def truncate_dat_master():
     return "Successfully truncated data from assignment.dat_master"
 
 def truncate_scan_log():
-    sql = get_truncate_query("scan_log")
-    plc_cursor.execute(sql)
-    plc_connection.commit()
+    sql = get_truncate_query("plc.scan_log")
+    cursor.execute(sql)
+    connection.commit()
     return "Successfully truncated data from plc.scan_log"
 
-while True:
-    connection = Mysql_Connection.get("wcsDatabase")
-    cursor = connection.cursor()
 
-    assignment_connection = Mysql_Connection.get("database")
-    assignment_cursor = assignment_connection.cursor()
+connection = Mysql_Connection.get("wcsDatabase")
+cursor = connection.cursor()
 
-    plc_connection = Mysql_Connection.get("plcDatabase")
-    plc_cursor = plc_connection.cursor()
+assignment_connection = Mysql_Connection.get("database")
+assignment_cursor = assignment_connection.cursor()
 
-    message = truncate_host_logs()
-    print(message)
+# plc_connection = Mysql_Connection.get("plcDatabase")
+# plc_cursor = plc_connection.cursor()
 
-    message = truncate_plc_logs()
-    print(message)
+message = truncate_host_logs()
+print(message)
 
-    message = truncate_route_statuses()
-    print(message)
+message = truncate_plc_logs()
+print(message)
 
-    message = truncate_dat_master()
-    print(message)
+message = truncate_route_statuses()
+print(message)
 
-    # message = truncate_scan_log()
-    # print(message)
+message = truncate_dat_master()
+print(message)
+
+message = truncate_scan_log()
+print(message)
     
-    time.sleep(5)
+connection.close()
+assignment_connection.close()
+    
+    
+# atexit.register(connection.close())
+# atexit.register(assignment_connection.close())
