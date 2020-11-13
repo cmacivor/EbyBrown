@@ -8,7 +8,8 @@ import sys
 import API_02_HostLog as hostLog
 import traceback
 import GlobalFunctions
-import Eby_Jurisdiction_Processor  
+import Eby_Jurisdiction_Processor
+import Eby_NewContainer  
 
 class ContainerComplete:
     def __init__(self, libserver):
@@ -56,6 +57,51 @@ class ContainerComplete:
     #     #qcflag = self.fields[4].replace('0x3', '')
     #     return numberWithoutETX
 
+   
+    def getDatMasterByContainerId(self, containerId):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
+
+            selectData = (containerId,)
+
+        
+            cursor.execute(getByContainerIdSQL, selectData)
+            
+            result = cursor.fetchone()
+            
+            cursor.close()
+            connection.close()
+            return result
+        except Exception as e:
+            print(e)
+            #connection.rollback()
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+          
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+        finally:
+            cursor.close()
+            connection.close()
+
+
     def updateContainerAsComplete(self, connection):
         config = python_config.read_db_config()
 
@@ -92,10 +138,15 @@ class ContainerComplete:
             rowcount = cursor.rowcount
             print("Rows updated: " + str(rowcount))
             
+            #Web-72
+            datMaster = self.getDatMasterByContainerId(self.ContainerID)
+            pickCode = datMaster[6][:3]
+            if pickCode == "001":
+                Eby_Jurisdiction_Processor.process(self.ContainerID)
+
             cursor.close()
             connection.close()
             if rowcount > 0:
-                Eby_Jurisdiction_Processor.process(self.ContainerID)
                 return True
             else:
                 return False
