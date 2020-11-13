@@ -123,6 +123,7 @@ class ContainerComplete:
             updateContainerSQL = ("UPDATE dat_master SET "
                                 "c_comp = %s, "
                                 "carton_qty = %s, "
+                                "qc_flag = %s, "
                                 "updated_at = %s "
                                 "WHERE container_id = %s "   
 
@@ -130,7 +131,7 @@ class ContainerComplete:
 
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-            updateContainerValues = (self.QCFlag, self.CigaretteQuantity, currentTimeStamp, self.ContainerID)
+            updateContainerValues = (1, self.CigaretteQuantity, int(self.QCFlag), currentTimeStamp, self.ContainerID)
 
         
             cursor.execute(updateContainerSQL , updateContainerValues)
@@ -156,11 +157,11 @@ class ContainerComplete:
 
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-                exceptionMsg = exc_value.msg
+                exceptionMsg = exc_value
                 exceptionDetails = ''.join('!! ' + line for line in lines)
             
-                GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
-                hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
+                #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+                #hostLog.dbLog("Eby_Process_TCP_Messages", "Upd Err", self.AsciiRequestMessage)
                 return False
         
         finally:
