@@ -114,6 +114,7 @@ def cig_sorter():
                     result = extResult[0]
                     print(result)
                     jurisdictionCode = str(result)
+                    result = int(result)
                     
             else:
                 result = 9996
@@ -131,19 +132,40 @@ def cig_sorter():
             else:
                 result = 9999
 
+        if result > 9900:
         
-        # Run Jurisdiction API for Lane Assignment
-        RxMessage = ""       
-        ret = jurisdiction.lookup(auth, domain, str(result))
-        httpCode = ret[0]
-        if httpCode == "200":
-            result = ret[1]
-            RxMessage = result
-        else:
-            result = "API Error Code " + httpCode
-            RxMessage  = 0
-        #print(httpCode)
-        print(result)
+            #Run Jurisdiction API for Lane Assignment
+            RxMessage = ""       
+            ret = jurisdiction.lookup(auth, domain, str(result))
+            httpCode = ret[0]
+            if httpCode == "200":
+                result = ret[1]
+                RxMessage = result
+            else:
+                result = "API Error Code " + httpCode
+                RxMessage  = 0
+            #print(httpCode)
+            
+        else:        
+            pick_area = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" +"'"+ str(TxMessage) +"'"
+            cursor.execute(pick_area)
+            result = cursor.fetchone()
+            pick_area = result[0]
+            print(pick_area)
+            
+            id = "SELECT id FROM wcs.lane_stamp_machines WHERE name=" +"'"+ str(pick_area) +"'"
+            cursor.execute(id)
+            result = cursor.fetchone()
+            id = result[0]
+            print(id)
+            
+            lane = "SELECT code FROM wcs.jurisdictions WHERE FIND_IN_SET("+str(id)+", lane_stamp_machine_ids)"
+            cursor.execute(lane)
+            result = cursor.fetchone()        
+            lane = result[0]
+            print(lane)
+            
+            RxMessage = str(lane)
         
                
         # Create new Stamper DAT file after carton scanned
@@ -252,7 +274,7 @@ def cig_sorter():
         
             
         if pauseBit == False:
-            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionText))
+            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionText))
         else:
             plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Sorter Paused for: "+ str(reason))
 
