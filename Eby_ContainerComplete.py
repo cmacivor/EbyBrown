@@ -7,7 +7,8 @@ import python_config
 import sys
 import API_02_HostLog as hostLog
 import traceback
-import GlobalFunctions  
+import GlobalFunctions
+import Eby_Jurisdiction_Processor  
 
 class ContainerComplete:
     def __init__(self, libserver):
@@ -94,6 +95,7 @@ class ContainerComplete:
             cursor.close()
             connection.close()
             if rowcount > 0:
+                Eby_Jurisdiction_Processor.process(self.ContainerID)
                 return True
             else:
                 return False
