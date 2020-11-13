@@ -96,4 +96,55 @@ class AssignmentComplete:
         finally:
             cursor.close()
             connection.close()
+        
+
+
+    def removeUnneededAssignments(self, connection):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor()
+
+            deleteAssignmentSQL = ("DELETE FROM dat_master "                                    
+                                "WHERE assignment_id = %s "
+                                "AND  c_comp = 0"   
+
+            )
+
+            deleteAssignmentValues = (self.AssignmentID,)
+
+            cursor.execute(deleteAssignmentSQL, deleteAssignmentValues)
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+        except Exception as e:
+            print(e)
+            #connection.rollback()
+            
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value.msg
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
+            return False
+        
+        finally:
+            cursor.close()
+            connection.close()
+
 

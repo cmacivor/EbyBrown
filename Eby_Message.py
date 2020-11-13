@@ -166,6 +166,7 @@ class MessageBase:
             #self.logMessage("Host to WXS", GlobalConstants.AssignmentComplete, self.AsciiRequestMessage)
             assignmentComplete = Eby_AssignmentComplete.AssignmentComplete(self.libserver)
             result = assignmentComplete.updateAssignmentComplete(connection)
+            assignmentComplete.removeUnneededAssignments(connection)
             if result:
                 self.update_host_log_as_processed(hostLog[0] , GlobalConstants.AssignmentComplete)
             else:
