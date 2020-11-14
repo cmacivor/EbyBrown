@@ -97,13 +97,13 @@ def code_not_found(code, door):
     #print(enabled)
     
     if enabled == 1:
-        exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "')"
+        exists = "SELECT COUNT(*) FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
         cursor.execute(exists)
         result = cursor.fetchone()
         exists = result[0]
         #print(exists)
         
-        if exists == 1:
+        if exists == 0:
             return True
         else:
             return False
@@ -146,7 +146,7 @@ def route_not_active(code, door):
     
 
 def door_not_found(code, door):
-    # Dock door input is outside the acceptible dock door options (door 1 and 2, but user input door 4 for example)
+    # Dock door input is outside the acceptable dock door options (door 1 and 2, but user input door 4 for example)
     
     enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Dock Door Not Found'"
     cursor.execute(enabled)
@@ -223,6 +223,9 @@ def stop_not_found(code, door):
         result = cursor.fetchone()
         date = result[0]
         #print(date)
+        
+        availableStops = "SELECT stop_no FROM assignment.dat_master WHERE route=" +"'"+str(route)+"' AND date=" +"'"+str(date)+"'"
+        
         
         return False
     
@@ -323,7 +326,40 @@ def stop_already_loaded(code, door):
     #print(enabled)
 
     if enabled == 1:
-        return False
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+
+        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        cursor.execute(currentRoute)
+        result = cursor.fetchone()
+        currentRoute = result[0]
+        #print(currentRoute)
+        
+        if route == currentRoute:
+            stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+            cursor.execute(stop)
+            result = cursor.fetchone()
+            stop = int(result[0])
+            #print(stop)
+            
+            currentStop = "SELECT number FROM wcs.dashboard_stops"+"'"+str(door)+"' WHERE stop_type='current'"
+            cursor.execute(currentStop)
+            result = cursor.fetchone()
+            currentStop = int(result[0])
+            #print(stop)
+            
+            if stop > currentStop:
+                return True
+            else:
+                return False
+            
+        else:
+            return False
+        
+        
     else:
         return False
 
