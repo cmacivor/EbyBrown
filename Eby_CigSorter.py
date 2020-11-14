@@ -308,7 +308,7 @@ while True:
         cigSorter = cig_sorter()
         print(cigSorter)
 
-        connection.close()
+        
         
         
     except Exception as e:
@@ -326,6 +326,9 @@ while True:
             comm.Close()
             
     
+        
+        
+    finally:
         connection.close()
 
 
