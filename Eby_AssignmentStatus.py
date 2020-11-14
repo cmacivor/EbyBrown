@@ -19,7 +19,7 @@ def update_assignment_status():
         if item[0] == 0 and item[1] == 0:
             change_status(item[2], 'Pending')
         elif item[0] == 1 and item[1] == 0:
-            change_status(item[2], 'Complete')
+            change_status(item[2], 'Pick Complete')
         elif item[0] == 1 and item[1] == 1:
             change_status(item[2], 'Shipped')
     return 'assignment status updated successfully.'
