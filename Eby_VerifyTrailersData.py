@@ -42,6 +42,7 @@ def add_routes(door):
 
     reviewed = 0
     copied = 0
+    deleted = 0
     for record in ids:
         #print(record)
         reviewed += 1
@@ -104,14 +105,15 @@ def add_routes(door):
         for r in results:
             routes.append(r[0])        
         #print(routes)
-
+        
         
         if str(route) not in routes:
             #print(route)
             copied += 1
 
             # Delete duplicate if exist
-            cursor.execute("DELETE FROM wcs.verify_trailers WHERE route="+route+" AND trailer_number="+trailer_number+" AND freezer_container="+freezer_container+" AND cooler_container="+cooler_container+" AND dry_container="+pick_qty+" AND priority="+priority+" AND status="+"'"+status+"' AND date='"+date+"'")
+            cursor.execute("DELETE FROM wcs.verify_trailers WHERE route="+route+" AND date='"+date+"'")
+            deleted += 1
 
             # Insert record to verify_trailers table
             cursor.execute("INSERT INTO wcs.verify_trailers (door_id,route,dock_door_number,trailer_number,freezer_container,cooler_container,dry_container,priority,status,date) VALUES ("+str(door)+","+route+","+str(door)+","+trailer_number+","+freezer_container+","+cooler_container+","+pick_qty+","+priority+","+"'"+status+"','"+date+"')")
@@ -124,7 +126,7 @@ def add_routes(door):
     
 
 
-    return str(reviewed) + " routes reviewed; " + str(copied) + " routes copied"
+    return str(reviewed) + " routes reviewed; " + str(copied) + " routes copied; " + str(deleted) + " routes deleted"
          
 
 
@@ -166,7 +168,7 @@ while True:
 
     
 
-    time.sleep(1)
+    time.sleep(3)
 
 
 
