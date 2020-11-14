@@ -61,7 +61,7 @@ def no_read(code):
         cursor.execute(enabled)
         result = cursor.fetchone()
         enabled = int(result[0])
-        print("no read enabled= "+str(enabled))
+        #print("no read enabled= "+str(enabled))
 
         if enabled == 1:
             if "no" in code.lower():
@@ -132,7 +132,7 @@ def code_not_found(code):
         cursor.execute(enabled)
         result = cursor.fetchone()
         enabled = int(result[0])
-        print(enabled)
+        #print(enabled)
         
         if enabled == 1:
             exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "')"
