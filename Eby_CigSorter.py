@@ -168,21 +168,21 @@ def cig_sorter():
             RxMessage = str(lane)
         
                
-        # Create new Stamper DAT file after carton scanned
-        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
-            if exists == 1:            
-                ret = datCreate.process(TxMessage)
-                if ret == "Success":
-                    print("dat file created")
-                    pass
-                else:
-                    print(ret)
-                    print("dat file create fail")
-                    pass
-            else:
-                pass
-        else:
-            pass
+        # # Create new Stamper DAT file after carton scanned
+        # if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+        #     if exists == 1:            
+        #         ret = datCreate.process(TxMessage)
+        #         if ret == "Success":
+        #             print("dat file created")
+        #             pass
+        #         else:
+        #             print(ret)
+        #             print("dat file create fail")
+        #             pass
+        #     else:
+        #         pass
+        # else:
+        #     pass
         
         
         # Check for Cig Sorter Pause Request as per Scan Reasons table/page
