@@ -262,15 +262,19 @@ def cig_sorter():
         comm.Write("CigSorter.RxMessage", str(RxMessage))
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
+        print("Lane Assignment = " + str(RxMessage))
         
-        jurisdictionText = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" +str(TxMessage) + "'"
-        cursor.execute(jurisdictionText)
-        result = cursor.fetchone()
-        jurisdictionText = result[0]
-        #print(jurisdictionText) 
         
-        if jurisdictionText is None:
-            jurisdictionText = ""
+        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+             
+            jurisdictionText = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" +str(TxMessage) + "'"
+            cursor.execute(jurisdictionText)
+            result = cursor.fetchone()
+            jurisdictionText = result[0]
+            #print(jurisdictionText) 
+        
+        else:
+            jurisdictionText = "--None--"
         
             
         if pauseBit == False:
