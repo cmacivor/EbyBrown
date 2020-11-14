@@ -109,10 +109,10 @@ def cig_sorter():
                 extResult = cursor.fetchone()
                 if extResult == None:
                     result = 9996
-                    print(result)
+                    #print(result)
                 else:
                     result = extResult[0]
-                    print(result)
+                    #print(result)
                     jurisdictionCode = str(result)
                     result = int(result)
                     
@@ -151,19 +151,19 @@ def cig_sorter():
             cursor.execute(pick_area)
             result = cursor.fetchone()
             pick_area = result[0]
-            print(pick_area)
+            #print(pick_area)
             
             id = "SELECT id FROM wcs.lane_stamp_machines WHERE name=" +"'"+ str(pick_area) +"'"
             cursor.execute(id)
             result = cursor.fetchone()
             id = result[0]
-            print(id)
+            #print(id)
             
             lane = "SELECT code FROM wcs.jurisdictions WHERE FIND_IN_SET("+str(id)+", lane_stamp_machine_ids)"
             cursor.execute(lane)
             result = cursor.fetchone()        
             lane = result[0]
-            print(lane)
+            #print(lane)
             
             RxMessage = str(lane)
         
@@ -263,6 +263,10 @@ def cig_sorter():
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
         print("Lane Assignment = " + str(RxMessage))
+        
+        ret = comm.Read("CigSorter.RxMessage", datatype=STRING)
+        laneAssigned = str(ret.Value)
+        print("Lane Actual = " + laneAssigned)
         
         
         if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
