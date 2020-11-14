@@ -30,6 +30,11 @@ database = config.get('wcsdatabase')
 password = config.get('password')
 
 
+
+        
+    
+
+
 def update_pick_qty():
     rows = "SELECT id FROM wcs.route_statuses"
     cursor.execute(rows)
@@ -54,10 +59,10 @@ def update_pick_qty():
 
         ## get the quantities for each pick group type from the dat_master table
         pick_qty = "SELECT COUNT(*), pick_group FROM assignment.dat_master WHERE route_no =" + str(
-            route) + " AND date =" + "'" + str(date) + "' group by pick_group"
-        #print(pick_qty)
+            route) + " AND date =" + "'" + str(date) + "' group by pick_group"        
         cursor.execute(pick_qty)
         result = cursor.fetchall()
+        #print(result)
 
         # declare the quantity placeholders
         freezerQty = 0
