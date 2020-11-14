@@ -129,14 +129,19 @@ class NewContainer:
             cursor = connection.cursor()
 
             addNewContainerSQL = ("INSERT INTO dat_master "
-                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, created_at, updated_at) "
+                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_area, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, date, created_at, updated_at) "
                                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
             
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+            # (rjw 2020-11-14 11:47) -- needed to add in assignment date based on original date of assignment drop in case this ADDCONTA comes after midnight
+            date = "SELECT date FROM assignment.dat_master WHERE assignment_id=" + "'" + str(self.AssignmentID) + "'"
+            cursor.execute(date)
+            date = str(cursor.fetchone()[0])
+            #print(date)
             
             newContainer = (
-                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 0, 0, 0, 0, 'SOCKET', '', currentTimeStamp, currentTimeStamp
+                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 0, 0, 0, 0, 'SOCKET', 'Pending', date, currentTimeStamp, currentTimeStamp
             )
 
             cursor.execute(addNewContainerSQL, newContainer)
