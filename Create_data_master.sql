@@ -6,9 +6,11 @@ CREATE TABLE `dat_master` (
   `assignment_id` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `route_no` varchar(6) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `stop_scan` tinyint(1) NOT NULL DEFAULT '0',
-  `pick_area` varchar(6) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `pick_type` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `jurisdiction` varchar(6) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pick_code` varchar(6) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pick_area` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pick_group` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `pick_type` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jurisdiction` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `carton_qty` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `stop_no` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `c_comp` tinyint(4) DEFAULT '0',
@@ -20,5 +22,7 @@ CREATE TABLE `dat_master` (
   `date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `qc_flag` tinyint(4) DEFAULT '0',
+  `count_flag` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=481 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
