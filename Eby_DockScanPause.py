@@ -224,10 +224,22 @@ def stop_not_found(code, door):
         date = result[0]
         #print(date)
         
-        availableStops = "SELECT stop_no FROM assignment.dat_master WHERE route=" +"'"+str(route)+"' AND date=" +"'"+str(date)+"'"
+        availableStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(date)+"'"
+        cursor.execute(availableStops)
+        results = cursor.fetchall()        
+        #print(availableStops)
+        availableStops = []
+        for idx, r in enumerate(results):
+            if results[idx][0] not in availableStops:
+                availableStops.append(results[idx][0])
+        print(availableStops)
+        
+        if stop not in availableStops:
+            return True
+        else:
+            return False
         
         
-        return False
     
     else:
         return False
