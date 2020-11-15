@@ -65,7 +65,7 @@ def dock_scan_control(door):
         triggerBit = ret.Value
 
     if triggerBit == False:
-        print("Door " + str(door) + " = " + str(triggerBit))
+        return "Door " + str(door) + " = " + str(triggerBit)
 
     elif triggerBit == True:
         
@@ -222,38 +222,46 @@ def dock_scan_control(door):
         if noRead or multiRead or codeNotFound or routeNotActive or doorNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or stopAlreadyLoaded or stopEarly or newStopDockPicks or newStopNoDockPicks:
             
             comm.Write("wxsDoor" + str(door) + "Pause", True)
+            pauseBit = "True"        
         
-        
-        reason = ""
-        
-        if noRead:
-            reason = "No Read"
-        elif multiRead:
-            reason = "Multi-Read"
-        elif codeNotFound:
-            reason = "Code not Found"
-        elif routeNotActive:
-            reason = "Route Not Active"
-        elif doorNotFound:
-            reason = "Door Not Found"
-        elif routeNotFound:
-            reason = "Route Not Found"
-        elif stopNotFound:
-            reason = "Stop Not Found"
-        elif nextRoute:
-            reason = "Next Route"
-        elif wrongRoute:
-            reason = "Wrong Route"
-        elif stopAlreadyLoaded:
-            reason = "Stop Already Loaded"
-        elif stopEarly:
-            reason = "Stop Early"
-        elif newStopDockPicks:
-            reason = "New Stop Dock Picks"
-        elif newStopNoDockPicks:
-            reason = "New Stop No Dock Picks"
+            reason = ""
             
+            if noRead:
+                reason = "No Read"
+            elif multiRead:
+                reason = "Multi-Read"
+            elif codeNotFound:
+                reason = "Code not Found"
+            elif routeNotActive:
+                reason = "Route Not Active"
+            elif doorNotFound:
+                reason = "Door Not Found"
+            elif routeNotFound:
+                reason = "Route Not Found"
+            elif stopNotFound:
+                reason = "Stop Not Found"
+            elif nextRoute:
+                reason = "Next Route"
+            elif wrongRoute:
+                reason = "Wrong Route"
+            elif stopAlreadyLoaded:
+                reason = "Stop Already Loaded"
+            elif stopEarly:
+                reason = "Stop Early"
+            elif newStopDockPicks:
+                reason = "New Stop Dock Picks"
+            elif newStopNoDockPicks:
+                reason = "New Stop No Dock Picks"
+        else:
+            comm.Write("wxsDoor" + str(door) + "Pause", False)
+            pauseBit = "False"
             
+        print("pause bit = "+ pauseBit)
+        
+        
+        return "true and processed"
+            
+         
         
         
         
@@ -289,12 +297,11 @@ while True:
         
         for door in doors:
             
-            doorScan = dock_scan_control(door)
-            print(doorScan)
-            
-
+            print(dock_scan_control(door))
+                      
+        print("")
         
-        connection.close()
+        
     
     except Exception as e:
         print(e) 
@@ -307,6 +314,9 @@ while True:
             comm.Write("DockDoorScanner" + str(door) + ".RxMessage", "NACK")            
             comm.Write("DockDoorScanner" + str(door) + ".TxTrigger", False)
             print("Processing Error")
+            
+    finally:
+        
             
         connection.close()
    
