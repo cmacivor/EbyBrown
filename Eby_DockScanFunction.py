@@ -78,7 +78,7 @@ def dock_scan_control(door):
 
         ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
         TxMessage = ret.Value[5:18]
-        print(TxMessage)
+        #print(TxMessage)
 
         reason = ""
         if "NO" in TxMessage.upper():
@@ -96,10 +96,14 @@ def dock_scan_control(door):
         cursor.execute(exists)
         result = cursor.fetchone()
         exists = result[0]
-        print(exists)
+        if exists == 1:
+            print("exists in DB")
+        else:
+            print("does not exist in DB")
 
         route = ""
         stop = ""
+        reason = "To Dock Door"
         if exists == 1:
             
             if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "":
@@ -128,7 +132,7 @@ def dock_scan_control(door):
         
         
         
-        currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'))
+        currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
 
         
         # Log Scan to dashboard_door_scans regardless of read type
@@ -141,9 +145,9 @@ def dock_scan_control(door):
         comm.Write("DockDoorScanner" + door + ".RxMessage", RxMessage)
         comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
         comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
-        #print("Scan Logged")
+        print("Scan Logged")
         
-        return "Scan Logged"
+        
     
         # Execute Scan Reason Logic
         
@@ -213,7 +217,7 @@ def dock_scan_control(door):
         print("Stop Not Found = " +str(stopNotFound))
         print("Next Route = " +str(nextRoute))
         print("Wrong Route = " +str(wrongRoute))
-        print("Stop Alread Loaded = " +str(stopAlreadyLoaded))
+        print("Stop Already Loaded = " +str(stopAlreadyLoaded))
         print("Stop Early = " +str(stopEarly))
         print("New Stop Dock Picks = " +str(newStopDockPicks))
         print("New Stop No Dock Picks = " +str(newStopNoDockPicks))
