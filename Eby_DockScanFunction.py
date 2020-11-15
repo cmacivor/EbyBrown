@@ -218,6 +218,7 @@ def dock_scan_control(door):
         print("New Stop Dock Picks = " +str(newStopDockPicks))
         print("New Stop No Dock Picks = " +str(newStopNoDockPicks))
         
+        reason = ""
         
         if noRead or multiRead or codeNotFound or routeNotActive or doorNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or stopAlreadyLoaded or stopEarly or newStopDockPicks or newStopNoDockPicks:
             
@@ -257,7 +258,8 @@ def dock_scan_control(door):
             pauseBit = "False"
             
         print("pause bit = "+ pauseBit)
-        
+        if reason != "":
+            print("pause bit is True becasue: " +reason)
         
         return "true and processed"
             
