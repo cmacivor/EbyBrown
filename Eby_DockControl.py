@@ -143,7 +143,7 @@ def door_active(door):
             status = result[0]
             #print(status)
 
-            if pre_verify == 1 and status != "Complete":
+            if pre_verify == 1 and status != "Shipped":
                 doorActive = True
                 break
             else:
