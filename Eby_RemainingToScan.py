@@ -31,7 +31,7 @@ plcIP = "10.22.56.34"
 
 
 
-def remaining_to_scan(route, stop):
+def remaining_to_scan(route, date):
     
     records = "SELECT id FROM assignment.dat_master WHERE status='Pending' AND count_flag <> 1"
     cursor.execute(records)
