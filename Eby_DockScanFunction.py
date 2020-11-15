@@ -20,7 +20,7 @@ import datetime
 from pylogix import PLC
 import sys
 import atexit
-#import Eby_DockScanPause as scanPause
+import Eby_DockScanPause as scanPause
 
 
 config = python_config.read_db_config()
@@ -124,6 +124,9 @@ def dock_scan_control(door):
             reason = "Multi-Read"
         else:
             reason = "Not in DB"
+            
+        
+        
         
         currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'))
 
@@ -143,9 +146,117 @@ def dock_scan_control(door):
         return "Scan Logged"
     
         # Execute Scan Reason Logic
-        # TODO Add Function here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        # pause = scanPause()
-        # print(pause)
+        
+        noRead = scanPause.no_read(TxMessage, door)
+        
+        multiRead = scanPause.multi_read(TxMessage, door)
+        
+        codeNotFound = False
+        routeNotActive = False
+        doorNotFound = False
+        routeNotFound = False
+        stopNotFound = False
+        nextRoute = False
+        wrongRoute = False
+        stopAlreadyLoaded = False
+        stopEarly = False
+        newStopDockPicks = False
+        newStopNoDockPicks = False
+        
+        if not noRead and not multiRead:
+            
+            codeNotFound = scanPause.code_not_found(TxMessage, door)
+            
+            if not codeNotFound:
+                
+                routeNotActive = scanPause.route_not_active(TxMessage, door)
+                
+                doorNotFound = scanPause.door_not_found(TxMessage, door)
+                
+                routeNotFound = scanPause.route_not_found(TxMessage, door)
+                
+                stopNotFound = scanPause.stop_not_found(TxMessage, door)
+                
+                nextRoute = scanPause.next_route(TxMessage, door)
+                
+                wrongRoute = scanPause.wrong_route(TxMessage, door)
+                
+                stopAlreadyLoaded = scanPause.stop_already_loaded(TxMessage, door)
+                
+                stopEarly = scanPause.stop_early(TxMessage, door)
+                
+                newStopDockPicks = scanPause.new_stop_dock_picks(TxMessage, door)
+                
+                newStopNoDockPicks = scanPause.new_stop_no_dock_picks(TxMessage, door)
+                
+            else:
+                routeNotActive = False
+                doorNotFound = False
+                routeNotFound = False
+                stopNotFound = False
+                nextRoute = False
+                wrongRoute = False
+                stopAlreadyLoaded = False
+                stopEarly = False
+                newStopDockPicks = False
+                newStopNoDockPicks = False
+        else:
+            codeNotFound = False
+            
+        
+        print("No Read = " +str(noRead))
+        print("Multi-Read = " +str(multiRead))
+        print("No Code = " +str(codeNotFound))
+        print("Route Not Active = " +str(routeNotActive))
+        print("Door Not Found = " +str(doorNotFound))
+        print("Route Not Found = " +str(routeNotFound))
+        print("Stop Not Found = " +str(stopNotFound))
+        print("Next Route = " +str(nextRoute))
+        print("Wrong Route = " +str(wrongRoute))
+        print("Stop Alread Loaded = " +str(stopAlreadyLoaded))
+        print("Stop Early = " +str(stopEarly))
+        print("New Stop Dock Picks = " +str(newStopDockPicks))
+        print("New Stop No Dock Picks = " +str(newStopNoDockPicks))
+        
+        
+        if noRead or multiRead or codeNotFound or routeNotActive or doorNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or stopAlreadyLoaded or stopEarly or newStopDockPicks or newStopNoDockPicks:
+            
+            comm.Write("wxsDoor" + str(door) + "Pause", True)
+        
+        
+        reason = ""
+        
+        if noRead:
+            reason = "No Read"
+        elif multiRead:
+            reason = "Multi-Read"
+        elif codeNotFound:
+            reason = "Code not Found"
+        elif routeNotActive:
+            reason = "Route Not Active"
+        elif doorNotFound:
+            reason = "Door Not Found"
+        elif routeNotFound:
+            reason = "Route Not Found"
+        elif stopNotFound:
+            reason = "Stop Not Found"
+        elif nextRoute:
+            reason = "Next Route"
+        elif wrongRoute:
+            reason = "Wrong Route"
+        elif stopAlreadyLoaded:
+            reason = "Stop Already Loaded"
+        elif stopEarly:
+            reason = "Stop Early"
+        elif newStopDockPicks:
+            reason = "New Stop Dock Picks"
+        elif newStopNoDockPicks:
+            reason = "New Stop No Dock Picks"
+            
+            
+        
+        
+        
 
         
        
