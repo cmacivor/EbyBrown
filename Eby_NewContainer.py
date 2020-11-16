@@ -132,7 +132,7 @@ class NewContainer:
                                 "(record_id, container_id, assignment_id, route_no, stop_no, pick_code, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, created_at, updated_at) "
                                 "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
             
-            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
             
             newContainer = (
@@ -152,11 +152,11 @@ class NewContainer:
             #connection.rollback()         
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            exceptionMsg = exc_value.msg
+            exceptionMsg = exc_value
             exceptionDetails = ''.join('!! ' + line for line in lines)
-            # print(''.join('!! ' + line for line in lines))
-            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)  
-            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
+        
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            hostLog.dbLog("Eby_NewContainer", "Upd Err", self.AsciiRequestMessage)
             return False
         
         finally:

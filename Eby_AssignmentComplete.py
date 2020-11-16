@@ -65,7 +65,8 @@ class AssignmentComplete:
 
             )
 
-            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            #currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
             updateAssignmentValues = (1, currentTimeStamp, self.AssignmentID)
 
@@ -82,15 +83,14 @@ class AssignmentComplete:
             else:
                 return False
         except Exception as e:
-            print(e)
-            #connection.rollback()
-            
+            print(e)            
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            exceptionMsg = exc_value.msg
+            exceptionMsg = exc_value
             exceptionDetails = ''.join('!! ' + line for line in lines)
-            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
-            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
+        
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            hostLog.dbLog("Eby_AssignmentComplete", "Upd Err", self.AsciiRequestMessage) 
             return False
         
         finally:
@@ -132,15 +132,14 @@ class AssignmentComplete:
             connection.close()
 
         except Exception as e:
-            print(e)
-            #connection.rollback()
-            
+            print(e) 
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            exceptionMsg = exc_value.msg
+            exceptionMsg = exc_value
             exceptionDetails = ''.join('!! ' + line for line in lines)
-            hostLog.dbLog("DatConverter", "Upd Err", self.AsciiRequestMessage)
-            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails) 
+        
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            hostLog.dbLog("Eby_AssignmentComplete", "Upd Err", self.AsciiRequestMessage) 
             return False
         
         finally:
