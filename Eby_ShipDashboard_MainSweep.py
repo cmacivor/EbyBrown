@@ -35,7 +35,7 @@ password = config.get('password')
 def current_route(door):
     
 
-    priority = "SELECT MIN(priority) FROM wcs.route_statuses WHERE status <> \"Complete\" AND dock_door = " + str(door)
+    priority = "SELECT MIN(priority) FROM wcs.route_statuses WHERE status <> \"Shipped\" AND dock_door = " + str(door)
     cursor.execute(priority)
     result = cursor.fetchone()
     priority = result[0]
@@ -136,7 +136,7 @@ def current_route(door):
 def next_route(door):
     
 
-    priorities = "SELECT priority FROM wcs.route_statuses WHERE status <> \"Complete\" AND dock_door = " + str(door)
+    priorities = "SELECT priority FROM wcs.route_statuses WHERE status <> \"Shipped\" AND dock_door = " + str(door)
     cursor.execute(priorities)
     result = cursor.fetchall()
     #print(result)

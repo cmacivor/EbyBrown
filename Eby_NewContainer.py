@@ -134,9 +134,14 @@ class NewContainer:
             
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
+            # (rjw 2020-11-14 11:47) -- needed to add in assignment date based on original date of assignment drop in case this ADDCONTA comes after midnight
+            date = "SELECT date FROM assignment.dat_master WHERE assignment_id=" + "'" + str(self.AssignmentID) + "'"
+            cursor.execute(date)
+            date = str(cursor.fetchone()[0])
+            #print(date)
             
             newContainer = (
-                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 0, 0, 0, 0, 'SOCKET', '', currentTimeStamp, currentTimeStamp
+                self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 0, 0, 0, 0, 'SOCKET', 'Pending', date, currentTimeStamp, currentTimeStamp
             )
 
             cursor.execute(addNewContainerSQL, newContainer)

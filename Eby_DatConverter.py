@@ -83,7 +83,7 @@ db_pass = password #'38qa_r4UUaW2d'
 
 cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host)                                                        
 # establish connection names
-print("Connected to database succesfully")
+#print("Connected to database succesfully")
 mycursor = cnct.cursor()
 # get cursor
 mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db)
@@ -442,7 +442,7 @@ def do_everything():
 
     # init
     for fname in os.listdir('.'):
-        print(fname)        
+        #print(fname)        
         if fname.endswith('.DAT'):
             # do stuff on the file
             exists = True

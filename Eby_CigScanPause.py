@@ -61,7 +61,7 @@ def no_read(code):
         cursor.execute(enabled)
         result = cursor.fetchone()
         enabled = int(result[0])
-        print("no read enabled= "+str(enabled))
+        #print("no read enabled= "+str(enabled))
 
         if enabled == 1:
             if "no" in code.lower():
@@ -132,7 +132,7 @@ def code_not_found(code):
         cursor.execute(enabled)
         result = cursor.fetchone()
         enabled = int(result[0])
-        print(enabled)
+        #print(enabled)
         
         if enabled == 1:
             exists = "SELECT EXISTS (SELECT * FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "')"
@@ -156,8 +156,46 @@ def code_not_found(code):
     
     
 def stamp_not_required(code):
-    #Stuff
-    return False
+    # Prestamp container continues to QC/Sort
+    
+    
+    try:
+        
+        connection = mysql.connector.connect(
+                         host= host, 
+                         user= user, 
+                         database= database, 
+                         password= password 
+                     )
+
+        cursor = connection.cursor()
+        
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Cigarette Module' AND reason='Stamp Not Required'"
+        cursor.execute(enabled)
+        result = cursor.fetchone()
+        enabled = int(result[0])
+        #print(enabled)
+        
+        if enabled == 1:
+            pick_area = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+            cursor.execute(pick_area)
+            result = cursor.fetchone()
+            pick_area = result[0]
+            #print(pick_area)
+            
+            if "pre" in pick_area.lower():
+                return True
+            else:
+                return False
+        else:
+            return False
+        
+    except Exception as e:
+        print(e)
+    
+    finally:
+        connection.close()
+                
     
 
 def jurisdiction_not_found(code):

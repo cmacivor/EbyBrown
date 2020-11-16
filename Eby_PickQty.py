@@ -30,7 +30,12 @@ database = config.get('wcsdatabase')
 password = config.get('password')
 
 
-def update_pick_qty():
+
+        
+    
+
+
+def update_route_pick_qty():
     rows = "SELECT id FROM wcs.route_statuses"
     cursor.execute(rows)
     result = cursor.fetchall()
@@ -54,10 +59,10 @@ def update_pick_qty():
 
         ## get the quantities for each pick group type from the dat_master table
         pick_qty = "SELECT COUNT(*), pick_group FROM assignment.dat_master WHERE route_no =" + str(
-            route) + " AND date =" + "'" + str(date) + "' group by pick_group"
-        #print(pick_qty)
+            route) + " AND date =" + "'" + str(date) + "' group by pick_group"        
         cursor.execute(pick_qty)
         result = cursor.fetchall()
+        #print(result)
 
         # declare the quantity placeholders
         freezerQty = 0
@@ -83,6 +88,55 @@ def update_pick_qty():
     return "pick quantites updated for " + str(len(rows)) + " route(s)"
 
 
+
+def update_verify_trailers_pick_qty():
+    results = "SELECT route, date FROM wcs.verify_trailers WHERE route_complete=0"
+    cursor.execute(results)
+    results = cursor.fetchall()
+    
+       
+    for idx, r in enumerate(results):
+        # print(results[idx][0])
+        # print(results[idx][1])
+        
+        ## get the quantities for each pick group type from the dat_master table
+        pick_qty = "SELECT COUNT(*), pick_group FROM assignment.dat_master WHERE route_no =" + str(
+            results[idx][0]) + " AND date =" + "'" + str(results[idx][1]) + "' group by pick_group"        
+        cursor.execute(pick_qty)
+        result = cursor.fetchall()
+        #print(result)
+
+        # declare the quantity placeholders
+        freezerQty = 0
+        coolerQty = 0
+        dryQty = 0
+        #iterate the resultSet to get individual pick group counts
+        for oneResult in result:
+            (qty, pickGroup) = oneResult
+            if pickGroup is not None:
+                pickGroup = str(pickGroup).lower()
+                if pickGroup == "dry":
+                    dryQty = qty
+                elif pickGroup == "freezer":
+                    freezerQty = qty
+                elif pickGroup == "cooler":
+                    coolerQty = qty
+
+        # Update the quantities , if no quantities are found then those will be 0 initial value
+        cursor.execute("UPDATE wcs.verify_trailers SET dry_container=" + str(dryQty) + ", freezer_container=" + str(
+            freezerQty) + ", cooler_container=" + str(coolerQty) + " WHERE route=" + str(results[idx][0]) + ";")
+        connection.commit()
+        
+        
+        
+    return "pick quantites updated for " + str(len(results)) + " trailer(s)"
+    
+    
+    
+    
+    
+
+
 while True:
 
     try:
@@ -95,10 +149,10 @@ while True:
 
         cursor = connection.cursor()
 
-        updatePickQty = update_pick_qty()
+        updatePickQty = update_route_pick_qty()
         print(updatePickQty)
 
-
+        print(update_verify_trailers_pick_qty())
 
 
     except Exception as e:

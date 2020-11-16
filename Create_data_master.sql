@@ -23,5 +23,7 @@ CREATE TABLE `dat_master` (
   `qc_flag` tinyint(4) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `qc_flag` tinyint(4) DEFAULT '0',
+  `count_flag` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=445 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

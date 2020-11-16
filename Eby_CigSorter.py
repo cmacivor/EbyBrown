@@ -109,11 +109,12 @@ def cig_sorter():
                 extResult = cursor.fetchone()
                 if extResult == None:
                     result = 9996
-                    print(result)
+                    #print(result)
                 else:
                     result = extResult[0]
-                    print(result)
+                    #print(result)
                     jurisdictionCode = str(result)
+                    result = int(result)
                     
             else:
                 result = 9996
@@ -131,36 +132,57 @@ def cig_sorter():
             else:
                 result = 9999
 
+        if result > 9900:
         
-        # Run Jurisdiction API for Lane Assignment
-        RxMessage = ""       
-        ret = jurisdiction.lookup(auth, domain, str(result))
-        httpCode = ret[0]
-        if httpCode == "200":
-            result = ret[1]
-            RxMessage = result
-        else:
-            result = "API Error Code " + httpCode
-            RxMessage  = 0
-        #print(httpCode)
-        print(result)
+            #Run Jurisdiction API for Lane Assignment
+            RxMessage = ""       
+            ret = jurisdiction.lookup(auth, domain, str(result))
+            httpCode = ret[0]
+            if httpCode == "200":
+                result = ret[1]
+                RxMessage = result
+            else:
+                result = "API Error Code " + httpCode
+                RxMessage  = 0
+            #print(httpCode)
+            
+        else:        
+            pick_area = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" +"'"+ str(TxMessage) +"'"
+            cursor.execute(pick_area)
+            result = cursor.fetchone()
+            pick_area = result[0]
+            #print(pick_area)
+            
+            id = "SELECT id FROM wcs.lane_stamp_machines WHERE name=" +"'"+ str(pick_area) +"'"
+            cursor.execute(id)
+            result = cursor.fetchone()
+            id = result[0]
+            #print(id)
+            
+            lane = "SELECT code FROM wcs.jurisdictions WHERE FIND_IN_SET("+str(id)+", lane_stamp_machine_ids)"
+            cursor.execute(lane)
+            result = cursor.fetchone()        
+            lane = result[0]
+            #print(lane)
+            
+            RxMessage = str(lane)
         
                
-        # Create new Stamper DAT file after carton scanned
-        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
-            if exists == 1:            
-                ret = datCreate.process(TxMessage)
-                if ret == "Success":
-                    print("dat file created")
-                    pass
-                else:
-                    print(ret)
-                    print("dat file create fail")
-                    pass
-            else:
-                pass
-        else:
-            pass
+        # # Create new Stamper DAT file after carton scanned
+        # if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+        #     if exists == 1:            
+        #         ret = datCreate.process(TxMessage)
+        #         if ret == "Success":
+        #             print("dat file created")
+        #             pass
+        #         else:
+        #             print(ret)
+        #             print("dat file create fail")
+        #             pass
+        #     else:
+        #         pass
+        # else:
+        #     pass
         
         
         # Check for Cig Sorter Pause Request as per Scan Reasons table/page
@@ -240,19 +262,27 @@ def cig_sorter():
         comm.Write("CigSorter.RxMessage", str(RxMessage))
         comm.Write("CigSorter.RxTriggerID", TxTriggerID)
         comm.Write("CigSorter.TxTrigger", False)
+        print("Lane Assignment = " + str(RxMessage))
         
-        jurisdictionText = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" +str(TxMessage) + "'"
-        cursor.execute(jurisdictionText)
-        result = cursor.fetchone()
-        jurisdictionText = result[0]
-        #print(jurisdictionText) 
+        ret = comm.Read("CigSorter.RxMessage", datatype=STRING)
+        laneAssigned = str(ret.Value)
+        print("Lane Actual = " + laneAssigned)
         
-        if jurisdictionText is None:
-            jurisdictionText = ""
+        
+        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+             
+            jurisdictionText = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" +str(TxMessage) + "'"
+            cursor.execute(jurisdictionText)
+            result = cursor.fetchone()
+            jurisdictionText = result[0]
+            #print(jurisdictionText) 
+        
+        else:
+            jurisdictionText = "--None--"
         
             
         if pauseBit == False:
-            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | httpCode=" + httpCode + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionText))
+            plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Assigned Carton " + str(TxMessage) + " to Lane " + str(RxMessage) + " with Jurisdiction " + str(jurisdictionText))
         else:
             plcLog.dbLog("WXS to PLC", "Lane Assignment", "ReponseID " + str(TxTriggerID) + " | Sorter Paused for: "+ str(reason))
 
@@ -286,7 +316,7 @@ while True:
         cigSorter = cig_sorter()
         print(cigSorter)
 
-        connection.close()
+        
         
         
     except Exception as e:
@@ -304,6 +334,9 @@ while True:
             comm.Close()
             
     
+        
+        
+    finally:
         connection.close()
 
 
