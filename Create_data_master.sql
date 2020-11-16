@@ -13,16 +13,17 @@ CREATE TABLE `dat_master` (
   `jurisdiction` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `carton_qty` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `stop_no` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `c_comp` tinyint(4) DEFAULT '0',
-  `a_comp` tinyint(4) DEFAULT '0',
-  `o_comp` tinyint(4) DEFAULT '0',
-  `r_comp` tinyint(4) DEFAULT '0',
+  `c_comp` tinyint(4) NOT NULL DEFAULT '0',
+  `a_comp` tinyint(4) NOT NULL DEFAULT '0',
+  `o_comp` tinyint(4) NOT NULL DEFAULT '0',
+  `r_comp` tinyint(4) NOT NULL DEFAULT '0',
   `assign_name` varchar(125) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `date` date DEFAULT NULL,
+  `qc_flag` tinyint(4) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `qc_flag` tinyint(4) DEFAULT '0',
   `count_flag` tinyint(4) DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=481 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=445 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
