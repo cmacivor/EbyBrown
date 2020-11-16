@@ -87,10 +87,56 @@ class NewContainer:
             #connection.rollback()
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            exceptionMsg = exc_value.msg
+            exceptionMsg = exc_value
             exceptionDetails = ''.join('!! ' + line for line in lines)
-          
-            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+        
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            hostLog.dbLog("Eby_NewContainer", "Upd Err", self.AsciiRequestMessage)          
+        finally:
+            cursor.close()
+            connection.close()
+        
+
+    def getMasterRecordByAssignmentId(self):
+        config = python_config.read_db_config()
+
+        host = config.get('host')
+        user = config.get('user')
+        database = config.get('database')
+        password = config.get('password')
+
+        try:
+            connection = mysql.connector.connect(
+                host= host, 
+                user= user, 
+                database= database, 
+                password= password 
+            )
+
+            cursor = connection.cursor(buffered=True)
+
+            #getByContainerIdSQL = "SELECT * FROM dat_master WHERE container_id = %s" 
+            sql = "SELECT date FROM assignment.dat_master WHERE assignment_id=" + "'" + str(self.AssignmentID) + "'"
+
+            #selectData = (self.ContainerID,)
+
+            cursor.execute(sql)
+            
+            result = cursor.fetchone()
+            
+            cursor.close()
+            connection.close()
+            return result
+        except Exception as e:
+            print(e)
+            #connection.rollback()
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+            exceptionMsg = exc_value
+            exceptionDetails = ''.join('!! ' + line for line in lines)
+        
+            GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
+            hostLog.dbLog("Eby_NewContainer", "Upd Err", self.AsciiRequestMessage)          
         finally:
             cursor.close()
             connection.close()
@@ -118,6 +164,20 @@ class NewContainer:
         database = config.get('database')
         password = config.get('password')
 
+
+        date = None
+        assignmentRecords = self.getMasterRecordByAssignmentId()
+        if assignmentRecords is not None and len(assignmentRecords) > 0:
+            date = assignmentRecords[0]
+                
+
+            # (rjw 2020-11-14 11:47) -- needed to add in assignment date based on original date of assignment drop in case this ADDCONTA comes after midnight
+            # date = "SELECT date FROM assignment.dat_master WHERE assignment_id=" + "'" + str(self.AssignmentID) + "'"
+            # cursor.execute(date)
+            # date = str(cursor.fetchone()[0])
+
+            #print(date)
+
         try:
             connection = mysql.connector.connect(
                 host= host, 
@@ -129,16 +189,12 @@ class NewContainer:
             cursor = connection.cursor()
 
             addNewContainerSQL = ("INSERT INTO dat_master "
-                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_code, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, created_at, updated_at) "
-                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                                "(record_id, container_id, assignment_id, route_no, stop_no, pick_code, pick_type, jurisdiction, carton_qty, c_comp, a_comp, o_comp, r_comp, assign_name, status, date, created_at, updated_at) "
+                                "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
             
             currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 
-            # (rjw 2020-11-14 11:47) -- needed to add in assignment date based on original date of assignment drop in case this ADDCONTA comes after midnight
-            date = "SELECT date FROM assignment.dat_master WHERE assignment_id=" + "'" + str(self.AssignmentID) + "'"
-            cursor.execute(date)
-            date = str(cursor.fetchone()[0])
-            #print(date)
+          
             
             newContainer = (
                 self.MessageID, self.ContainerID, self.AssignmentID, self.RouteNumber, self.StopNumber, self.PickArea, self.PickType, self.Jurisdiction, self.NumberCartons, 0, 0, 0, 0, 'SOCKET', 'Pending', date, currentTimeStamp, currentTimeStamp
