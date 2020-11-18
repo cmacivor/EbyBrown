@@ -24,8 +24,10 @@ def remaining_to_scan(route, date):
     stops = []
     eligable_counts = {}
     eligable_counts[route] = len(cursor.fetchall())
+    print(stops)
+    print(eligable_counts[route])
 
-    sql = "SELECT stop_no, count(*) as `count` FROM dat_master WHERE route_no = 101 GROUP BY stop_no ORDER BY stop_no DESC"
+    sql = "SELECT stop_no, count(*) as `count` FROM dat_master WHERE route_no="+"'"+str(route)+"' AND date='"+ str(date) +"' AND count_flag=1 GROUP BY stop_no ORDER BY stop_no DESC"
     cursor.execute(sql)
     records = cursor.fetchall()
 
