@@ -99,7 +99,7 @@ def cig_sorter():
             cursor.execute(exists)
             result = cursor.fetchone()
             exists = result[0]
-            print(exists)
+            #print(exists)
             
             
             if exists == 1:
