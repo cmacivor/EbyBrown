@@ -32,7 +32,7 @@ def route_status():
             print("Route "+str(item[0])+" is in Shipping")
         
 
-        return "processed"
+    return "processed"
 
 def get_c_comp_detail(route, date):
     sql = "SELECT c_comp FROM assignment.dat_master WHERE route_no='"+ str(route) +"' AND date='"+ str(date) +"'"
