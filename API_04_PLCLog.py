@@ -73,7 +73,7 @@ def dbLog(source, m_typ, message):
 
         cursor = connection.cursor()
 
-        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S.f')[:-3]
 
         insertLogSql = ("INSERT INTO plc_logs "
                                 "(source, type, message, created_at, updated_at) "
