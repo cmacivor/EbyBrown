@@ -269,13 +269,16 @@ def cig_sorter():
         print("Lane Actual = " + laneAssigned)
         
         
-        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String":
+        if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String" and exists == 1:
              
             jurisdictionText = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" +str(TxMessage) + "'"
             cursor.execute(jurisdictionText)
             result = cursor.fetchone()
             jurisdictionText = result[0]
             #print(jurisdictionText) 
+        
+        elif TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "Empty String" and exists == 0:
+            jurisdictionText = "--Not in DB--"
         
         else:
             jurisdictionText = "--None--"
