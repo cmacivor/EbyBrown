@@ -81,8 +81,14 @@ def current_route(door):
     result = cursor.fetchone()
     dry = result[0]
     #print(dry)
+    
+    toBeScanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND count_flag=1"
+    cursor.execute(toBeScanned)
+    result = cursor.fetchone()
+    toBeScanned = result[0]
+    #print(toBeScanned)
 
-    scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1"
+    scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1 AND count_flag=1"
     cursor.execute(scanned)
     result = cursor.fetchone()
     scanned = result[0]
@@ -107,7 +113,7 @@ def current_route(door):
     cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET late=" + str(0) + " WHERE route_type = 'current';")
     #connection.commit()
 
-    remaining_to_scan = dry - scanned
+    remaining_to_scan = toBeScanned - scanned
     cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET remaining_to_scan=" + str(remaining_to_scan) + " WHERE route_type = 'current';")
     #connection.commit()
 
@@ -192,8 +198,14 @@ def next_route(door):
         result = cursor.fetchone()
         dry = result[0]
         #print(dry)
+        
+        toBeScanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND count_flag=1"
+        cursor.execute(toBeScanned)
+        result = cursor.fetchone()
+        toBeScanned = result[0]
+        #print(toBeScanned)
 
-        scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1"
+        scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_scan=1 AND count_flag=1"
         cursor.execute(scanned)
         result = cursor.fetchone()
         scanned = result[0]
@@ -230,7 +242,7 @@ def next_route(door):
     cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET late=" + str(0) + " WHERE route_type = 'next';")
     #connection.commit()
 
-    remaining_to_scan = dry - scanned
+    remaining_to_scan = toBeScanned - scanned
     cursor.execute("UPDATE wcs.dashboard_routes" + str(door) + " SET remaining_to_scan=" + str(remaining_to_scan) + " WHERE route_type = 'next';")
     #connection.commit()
 
@@ -338,6 +350,12 @@ def current_stop(door):
     result = cursor.fetchone()
     currentStop = result[0]
     #print(currentStop)
+    
+    toBeScanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "' AND stop_no="+"'"+str(currentStop)+"' AND count_flag=1"
+    cursor.execute(toBeScanned)
+    result = cursor.fetchone()
+    toBeScanned = result[0]
+    #print(toBeScanned)
 
 
     allStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'"
@@ -371,12 +389,12 @@ def current_stop(door):
                     cursor.execute(stopCheck)
                     results = cursor.fetchone()
                     stopCheck = int(results[0])
-                    #print(stopCheck)
+                    print(stopCheck)
                     if stopCheck == 0:
                         activeStop = str(i)
-                        #print(activeStop)
+                        print(activeStop)
                         carton_qty = len(resultList)
-                        if currentStop != activeStop:
+                        if currentStop != activeStop and currentStop != max(stopsList):
                             previousStop = previous_stop(int(door))
                             #print(previousStop)                                
                         break                        
@@ -389,7 +407,7 @@ def current_stop(door):
 
     
     # Find picks scanned
-    totalScanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'" + " AND stop_no=" + str(activeStop) + " AND stop_scan=1"
+    totalScanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(date) + "'" + " AND stop_no=" + str(activeStop) + " AND stop_scan=1 AND count_flag=1"
     cursor.execute(totalScanned)
     result = cursor.fetchone()
     totalScanned = result[0]
@@ -418,7 +436,7 @@ def current_stop(door):
     cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET pending_heavy=" + str(0) + " WHERE stop_type = 'current';")
     #connection.commit()
 
-    remaining_to_scan = carton_qty - totalScanned
+    remaining_to_scan = toBeScanned - totalScanned
     cursor.execute("UPDATE wcs.dashboard_stops" + str(door) + " SET remaining_to_scan=" + str(remaining_to_scan) + " WHERE stop_type = 'current';")
     #connection.commit()
 
