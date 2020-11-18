@@ -129,7 +129,28 @@ def dock_scan_control(door):
         else:
             reason = "Not in DB"
             
+        ## Check if Full Verify is needed
         
+        if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read":
+            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)
+            cursor.execute(route)
+            result = cursor.fetchone()
+            route = result[0]
+            #print(result)
+            
+            currentRoute = "SELECT number FROM wcs.dashboard_routes" +"'"+str(door)+"' WHERE route_type='current'"
+            cursor.execute(currentRoute)
+            result = cursor.fetchone()
+            currentRoute = result[0]
+            #print(currentRoute)
+            
+            if route == currentRoute:
+                cursor.execute("UPDATE wcs.trailer_verify SET full_verify=1 WHERE route=" +"'"+str(route)+"' AND pre_verify=1")
+                connection.commit()
+        
+        
+        
+        ## End Full verify Check
         
         
         currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
