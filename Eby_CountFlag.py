@@ -14,6 +14,7 @@ import mysql.connector
 from datetime import datetime
 import sys
 import atexit
+import Mysql_Connection
 
 
 
@@ -31,7 +32,7 @@ plcIP = "10.22.56.34"
 
 
 
-def count_flag(route, date):
+def count_flag():
     
     records = "SELECT id FROM assignment.dat_master WHERE status='Pending' AND count_flag <> 1"
     cursor.execute(records)
@@ -54,4 +55,28 @@ def count_flag(route, date):
     
     connection.commit()
 
-remaining_to_scan()
+
+
+
+while True:
+    
+    try:
+        
+        connection = Mysql_Connection.get()
+        
+        cursor = connection.cursor()
+        
+        print(count_flag())
+        
+        
+    except Exception as e:
+        print(e)
+        
+    finally:
+        
+        connection.close()
+        
+    time.sleep(2)
+    
+    
+atexit.register(connection.close())
