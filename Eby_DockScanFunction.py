@@ -21,6 +21,7 @@ from pylogix import PLC
 import sys
 import atexit
 import Eby_DockScanPause as scanPause
+#import Eby_ShipDashboard_MainSweep as dashboard
 
 
 config = python_config.read_db_config()
@@ -108,7 +109,7 @@ def dock_scan_control(door):
             
             if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "":
                 # Mark in dat_master table as stop_scan
-                cursor.execute("UPDATE assignment.dat_master SET stop_scan=1 WHERE container_id=" + "'" + str(TxMessage) + "'")
+                cursor.execute("UPDATE assignment.dat_master SET stop_scan=1, dashboard_map=1 WHERE container_id=" + "'" + str(TxMessage) + "'")
                 connection.commit()
 
                 info = "SELECT route_no, stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(TxMessage)+ "'"
@@ -129,8 +130,22 @@ def dock_scan_control(door):
         else:
             reason = "Not in DB"
             
+        ## if No Read then increase No Read by 1    
+        if TxMessage == "No Read":
+            currentNoRead = "SELECT door_no_read FROM wcs.dashboard_routes"+str(door)+ " WHERE route_type='current'"  
+            print(currentNoRead)          
+            cursor.execute(currentNoRead)
+            result = cursor.fetchone()
+            currentNoRead = result[0]
+            print(currentNoRead)
+            
+            updatedNoRead = currentNoRead + 1
+            cursor.execute("UPDATE wcs.dashboard_routes" +str(door)+" SET door_no_read='" +str(updatedNoRead)+ "' WHERE route_type='current';")
+            cursor.execute("UPDATE wcs.dashboard_stops" +str(door)+" SET door_no_read='" +str(updatedNoRead)+ "' WHERE stop_type='current';")
+            connection.commit()
+            
         ## Check if Full Verify is needed
-        
+                
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read":
             route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)
             cursor.execute(route)
@@ -151,6 +166,73 @@ def dock_scan_control(door):
         
         
         ## End Full verify Check
+        
+        
+        ## Begin Previous Stop Check
+        
+        stop_switch = False
+        
+        if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read":
+            
+            scan_stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)+"'"
+            cursor.execute(scan_stop)
+            result = cursor.fetchone()
+            scan_stop = result[0]
+            #print(scan_stop)
+            
+            scan_date = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)+"'"
+            cursor.execute(scan_date)
+            result = cursor.fetchone()
+            scan_date = result[0]
+            #print(scan_date)
+            
+            allStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(scan_date) + "'"
+            cursor.execute(allStops)
+            result = cursor.fetchall()
+            resultList = []
+            stopsList = []
+            for i in result:
+                if int(i[0]) not in resultList:
+                    resultList.append(int(i[0]))
+                    stopsList = sorted(resultList, reverse=True)
+            #print(stopsList)
+            
+            currentStop = "SELECT number FROM wcs.dashboard_stops" + str(door) + " WHERE stop_type = 'current'"
+            cursor.execute(currentStop)
+            result = cursor.fetchone()
+            currentStop = result[0]
+            #print(currentStop)
+            
+            currentStop_index = allStops.index(currentStop)
+            
+            # Make sure this is not the last stop on a route
+            if currentStop_index != (len(allStops)-1):
+                next_stop = allStops[currentStop_index+1]               
+                
+                # Check if the scanned stop is equal to the next stop; if so, copy current_stop to previous_stop and mark remaining unscanned as late
+                if scan_stop == next_stop:
+                    #dashboard.previous_stop(door)
+                    
+                    cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(scan_stop)
+                                   +"' AND stop_scan=0")
+                    connection.commit()
+                    
+                    stop_switch = True
+                    
+            else:
+                pass
+            
+             
+        
+        ## End Previous Stop Check
+        
+        ## Check for current stop having lates and switch to next stop
+        
+        # if stop_switch == True:
+            
+        #     if currentStop_index != (len(allStops)-1):
+                
+                
         
         
         currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
