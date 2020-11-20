@@ -18,13 +18,14 @@ import time
 # Deployment Variables
 
 domain = "http://10.22.56.11/"
-api = "api/popup-notifications/store"
+create_api = "api/popup-notifications/store"
+delete_api = "api/popup-notifications/delete/"
 auth = "Basic YWE6YQ=="
 
 
 def pop_up(a_message, a_color, a_backgroud_color, a_expire, a_screen_number):
     
-    url = domain + api
+    url = domain + create_api
     
     json = {"message" : a_message,
             "color" : a_color,
@@ -40,8 +41,24 @@ def pop_up(a_message, a_color, a_backgroud_color, a_expire, a_screen_number):
     
     data = request.json()
     
-    print(data)
+    #print(data)
     
     return data["id"]
 
-#print(pop_up("100 - 951<br>NO DOCK<br>PICS", "#E9EDF5", "#4287F5", "20", "1"))
+
+
+def delete(id):
+    
+    url = domain + delete_api
+    
+    request = requests.post(url + str(id))
+    
+    data = request.json()
+    
+    #print(data)
+    
+    return "Done"
+
+#print(pop_up("100 - 951<br>NO DOCK<br>PICS", "#E9EDF5", "#4287F5", "3600", "1"))
+
+#print(delete(18))
