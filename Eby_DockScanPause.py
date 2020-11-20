@@ -34,14 +34,7 @@ auth = logging.get('auth')
 domain = logging.get('domain')
 plcIP = "10.22.56.34"
 
-connection = mysql.connector.connect(
-                        host= host, 
-                        user= user, 
-                        database= database, 
-                        password= password 
-                    )
 
-cursor = connection.cursor()
 
 
 display_time = "30"
@@ -115,11 +108,18 @@ def multi_read(code, door):
         
         if enabled == 1:
             if "multi" in code.lower():
-                return True
+                id = modal.pop_up("<br>MULTI-READ<br><br>", "#000000", " #E67E22", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
+                return True                
             else:
                 return False
         else:
-            return False
+            if "multi" in code.lower():                
+                id = modal.pop_up("<br>MULTI-READ<br><br>", "#000000", " #E67E22", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
+                return False
     
     except Exception as e:
         print(e)
@@ -150,18 +150,27 @@ def code_not_found(code, door):
         enabled = int(result[0])
         #print(enabled)
         
-        if enabled == 1:
-            exists = "SELECT COUNT(*) FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(exists)
-            result = cursor.fetchone()
-            exists = result[0]
-            #print(exists)
+        exists = "SELECT COUNT(*) FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(exists)
+        result = cursor.fetchone()
+        exists = result[0]
+        #print(exists)
+        
+        if enabled == 1:          
             
             if exists == 0:
+                id = modal.pop_up("<br>BARCODE<br>NOT<br>FOUND<br><br>", "#000000", " #85C1E9", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
+                
                 return True
             else:
                 return False
         else:
+            if exists == 0:
+                id = modal.pop_up("<br>BARCODE<br>NOT<br>FOUND<br><br>", "#000000", " #85C1E9", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
             return False
     
     except Exception as e:
@@ -195,26 +204,34 @@ def route_not_found(code, door):
         enabled = int(result[0])
         #print(enabled)
         
-        if enabled == 1:
-            route = "SELECT route_no FROM assignement.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
-            
-            activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE dock_door_number=" + "'" + str(door) + "'"
-            cursor.execute(activeRoutes)
-            results = cursor.fetchall()
-            activeRoutes = []        
-            for idx, r in enumerate(results):
-                activeRoutes.append(results[idx][0])
-            #print(activeRoutes)
+        route = "SELECT route_no FROM assignement.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+        
+        activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE dock_door_number=" + "'" + str(door) + "'"
+        cursor.execute(activeRoutes)
+        results = cursor.fetchall()
+        activeRoutes = []        
+        for idx, r in enumerate(results):
+            activeRoutes.append(results[idx][0])
+        #print(activeRoutes)
+        
+        if enabled == 1:            
             
             if route not in activeRoutes:
+                id = modal.pop_up("<br>ROUTE<br>NOT<br>FOUND<br><br>", "#F4D03F", " #21618C", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
                 return True
             else:
                 return False
         else:
+            if route not in activeRoutes:
+                id = modal.pop_up("<br>ROUTE<br>NOT<br>FOUND<br><br>", "#F4D03F", " #21618C", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
             return False
         
     except Exception as e:
@@ -246,36 +263,40 @@ def stop_not_found(code, door):
         enabled = int(result[0])
         #print(enabled)
         
-        if enabled == 1:
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
-            
-            stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(stop)
-            result = cursor.fetchone()
-            stop = result[0]
-            #print(stop)
-            
-            date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(date)
-            result = cursor.fetchone()
-            date = result[0]
-            #print(date)
-            
-            availableStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(date)+"'"
-            cursor.execute(availableStops)
-            results = cursor.fetchall()        
-            #print(availableStops)
-            availableStops = []
-            for idx, r in enumerate(results):
-                if results[idx][0] not in availableStops:
-                    availableStops.append(results[idx][0])
-            #print(availableStops)
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+        
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = result[0]
+        #print(stop)
+        
+        date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+        
+        availableStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(date)+"'"
+        cursor.execute(availableStops)
+        results = cursor.fetchall()        
+        #print(availableStops)
+        availableStops = []
+        for idx, r in enumerate(results):
+            if results[idx][0] not in availableStops:
+                availableStops.append(results[idx][0])
+        #print(availableStops)
+        
+        if enabled == 1:            
             
             if stop not in availableStops:
+                id = modal.pop_up("<br>STOP<br>NOT<br>FOUND<br><br>", "#201281", " #C0392B", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
                 return True
             else:
                 return False
@@ -283,6 +304,10 @@ def stop_not_found(code, door):
         
     
         else:
+            if stop not in availableStops:
+                id = modal.pop_up("<br>STOP<br>NOT<br>FOUND<br><br>", "#201281", " #C0392B", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
             return False
         
     except Exception as e:
@@ -314,34 +339,42 @@ def next_route(code, door):
         enabled = int(result[0])
         #print(enabled)
         
-        if enabled == 1:
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
 
-            currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
-            cursor.execute(currentRoute)
-            result = cursor.fetchone()
-            currentRoute = result[0]
-            #print(currentRoute)
+        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        cursor.execute(currentRoute)
+        result = cursor.fetchone()
+        currentRoute = result[0]
+        #print(currentRoute)
+        
+        trailer_pre_verify = "SELECT pre_verify FROM wcs.verify_trailers WHERE route=" +"'"+str(route)+"'"
+        cursor.execute(trailer_pre_verify)
+        result = cursor.fetchone()
+        trailer_pre_verify = result[0]
+        #print(trailer_pre_verify)
+        
+        if enabled == 1:            
 
-            if route == currentRoute:
-                trailer_pre_verify = "SELECT pre_verify FROM wcs.verify_trailers WHERE route=" +"'"+str(route)+"'"
-                cursor.execute(trailer_pre_verify)
-                result = cursor.fetchone()
-                trailer_pre_verify = result[0]
-                #print(trailer_pre_verify)
-
-                if trailer_pre_verify == 0:
-                    return True
-                else:
-                    return False
+            if route == currentRoute and trailer_pre_verify == 0:   
+                             
+                id = modal.pop_up("<br>NEXT<br>ROUTE<br>"+str(currentRoute)+"<br><br>", "#0781E6", " #F0F706", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
+                return True
+                
                 
             else:
                 return False
         else:
+            if route == currentRoute and trailer_pre_verify == 0:
+                id = modal.pop_up("<br>NEXT<br>ROUTE<br>"+str(currentRoute)+"<br><br>", "#0781E6", " #F0F706", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
+                
             return False
         
     except Exception as e:
@@ -372,32 +405,40 @@ def wrong_route(code, door):
         result = cursor.fetchone()
         enabled = int(result[0])
         #print(enabled)
+        
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
 
-        if enabled == 1:
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
+        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        cursor.execute(currentRoute)
+        result = cursor.fetchone()
+        currentRoute = result[0]
+        #print(currentRoute)
 
-            currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
-            cursor.execute(currentRoute)
-            result = cursor.fetchone()
-            currentRoute = result[0]
-            #print(currentRoute)
+        nextRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='next'"
+        cursor.execute(nextRoute)
+        result = cursor.fetchone()
+        nextRoute = result[0]
+        #print(nextRoute)
 
-            nextRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='next'"
-            cursor.execute(nextRoute)
-            result = cursor.fetchone()
-            nextRoute = result[0]
-            #print(nextRoute)
+        if enabled == 1:            
 
             if route != currentRoute and route != nextRoute:
+                id = modal.pop_up("<br>WRONG<br>ROUTE<br><br>", "#DBFD04", " #954F27", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
                 return True
             else:
                 return False
 
         else:
+            if route != currentRoute and route != nextRoute:
+                id = modal.pop_up("<br>WRONG<br>ROUTE<br><br>", "#DBFD04", " #954F27", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
             return False
         
     except Exception as e:
@@ -428,43 +469,52 @@ def late_container(code, door):
         result = cursor.fetchone()
         enabled = int(result[0])
         #print(enabled)
+        
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
 
-        if enabled == 1:
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
+        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        cursor.execute(currentRoute)
+        result = cursor.fetchone()
+        currentRoute = result[0]
+        #print(currentRoute)
+        
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = int(result[0])
+        #print(stop)
+        
+        currentStop = "SELECT number FROM wcs.dashboard_stops"+"'"+str(door)+"' WHERE stop_type='current'"
+        cursor.execute(currentStop)
+        result = cursor.fetchone()
+        currentStop = int(result[0])
+        #print(stop)
 
-            currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
-            cursor.execute(currentRoute)
-            result = cursor.fetchone()
-            currentRoute = result[0]
-            #print(currentRoute)
+        if enabled == 1:            
             
-            if route == currentRoute:
-                stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-                cursor.execute(stop)
-                result = cursor.fetchone()
-                stop = int(result[0])
-                #print(stop)
+            if route == currentRoute and stop > currentStop:                            
+                id = modal.pop_up("<br>LATE<br>CONTAINER<br><br>", "#000000", " #FE0800", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                cursor.execute("UPDATE assignment.dat_master SET late=1 WHERE container_id="+"'"+str(code)+"';")
+                connection.commit()
                 
-                currentStop = "SELECT number FROM wcs.dashboard_stops"+"'"+str(door)+"' WHERE stop_type='current'"
-                cursor.execute(currentStop)
-                result = cursor.fetchone()
-                currentStop = int(result[0])
-                #print(stop)
-                
-                if stop > currentStop:
-                    return True
-                else:
-                    return False
-                
+                return True
             else:
-                return False
+                return False             
+            
             
             
         else:
+            if route == currentRoute and stop > currentStop:                            
+                id = modal.pop_up("<br>LATE<br>CONTAINER<br><br>", "#000000", " #FE0800", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                cursor.execute("UPDATE assignment.dat_master SET late=1 WHERE container_id="+"'"+str(code)+"';")
+                connection.commit()
+                
             return False
         
     except Exception as e:
@@ -495,38 +545,49 @@ def stop_early(code, door):
         result = cursor.fetchone()
         enabled = int(result[0])
         #print(enabled)
+        
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
 
-        if enabled == 1:
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = result[0]
+        #print(stop)
 
-            stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(stop)
-            result = cursor.fetchone()
-            stop = result[0]
-            #print(stop)
+        activeRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type=current"
+        cursor.execute(activeRoute)
+        result = cursor.fetchone()
+        activeRoute = result[0]
+        #print(activeRoute)
 
-            activeRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type=current"
-            cursor.execute(activeRoute)
-            result = cursor.fetchone()
-            activeRoute = result[0]
-            #print(activeRoute)
+        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        cursor.execute(activeStop)
+        result = cursor.fetchone()
+        activeStop = result[0]
+        #print(activeStop)
 
-            activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
-            cursor.execute(activeStop)
-            result = cursor.fetchone()
-            activeStop = result[0]
-            #print(activeStop)
+        if enabled == 1:            
 
             if route == activeRoute and int(stop) < int(activeStop):
+                id = modal.pop_up("<br>STOP<br>EARLY<br><br>", "#000000", " #0096FE", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                cursor.execute("UPDATE assignment.dat_master SET early=1 WHERE container_id="+"'"+str(code)+"';")
+                connection.commit()
+                
                 return True
             else:
                 return False
             
         else:
+            if route == activeRoute and int(stop) < int(activeStop):
+                id = modal.pop_up("<br>STOP<br>EARLY<br><br>", "#000000", " #0096FE", display_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                cursor.execute("UPDATE assignment.dat_master SET early=1 WHERE container_id="+"'"+str(code)+"';")
+                connection.commit()
             return False
         
     except Exception as e:
@@ -557,51 +618,56 @@ def new_stop_dock_picks(code, door):
         result = cursor.fetchone()
         enabled = int(result[0])
         #print(enabled)
+        
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+        
+        date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+        
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = result[0]
+        #print(stop)
+        
+        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        cursor.execute(activeStop)
+        result = cursor.fetchone()
+        activeStop = result[0]
+        #print(activeStop)
+        
+        stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        cursor.execute(stopScanned)
+        result = cursor.fetchone()
+        stopScanned = result[0]
+        #print(activeStop)
+        
+        dockPicks = "SELECT pick_area FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND stop_no=" +"'"+str(stop)+"' AND date=" +"'"+str(date)+"'"            
+        cursor.execute(dockPicks)
+        results = cursor.fetchall()            
+        dockPicks = []
+        for idx, r in enumerate(results):
+            if results[idx][0] not in dockPicks:
+                dockPicks.append(results[idx][0])
+        picks = len(dockPicks)
+        #print(dockPicks)
 
-        if enabled == 1:
+        if enabled == 1:          
             
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
-            
-            date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(date)
-            result = cursor.fetchone()
-            date = result[0]
-            #print(date)
-            
-            stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(stop)
-            result = cursor.fetchone()
-            stop = result[0]
-            #print(stop)
-            
-            activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
-            cursor.execute(activeStop)
-            result = cursor.fetchone()
-            activeStop = result[0]
-            #print(activeStop)
-            
-            stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
-            cursor.execute(stopScanned)
-            result = cursor.fetchone()
-            stopScanned = result[0]
-            #print(activeStop)
-            
-            if stop == activeStop and stopScanned == 0:
-                dockPicks = "SELECT pick_area FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND stop_no=" +"'"+str(stop)+"' AND date=" +"'"+str(date)+"'"            
-                cursor.execute(dockPicks)
-                results = cursor.fetchall()            
-                dockPicks = []
-                for idx, r in enumerate(results):
-                    if results[idx][0] not in dockPicks:
-                        dockPicks.append(results[idx][0])
-                #print(dockPicks)
+            if stop == activeStop and stopScanned == 0:                
                 
                 for i in dockPicks:
                     if "dock" in i.lower():
+                        id = modal.pop_up("<br>"+str(route)+"-"+str(stop)+"<br>"+str(picks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+                        cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                        connection.commit()
                         return True
                     else:
                         pass
@@ -609,6 +675,13 @@ def new_stop_dock_picks(code, door):
             
             return False
         else:
+            if stop == activeStop and stopScanned == 0:                
+                
+                for i in dockPicks:
+                    if "dock" in i.lower():
+                        id = modal.pop_up("<br>"+str(route)+"-"+str(stop)+"<br>"+str(picks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
+                        cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                        connection.commit()
             return False
         
     except Exception as e:
@@ -639,58 +712,69 @@ def new_stop_no_dock_picks(code, door):
         result = cursor.fetchone()
         enabled = int(result[0])
         #print(enabled)
+        
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(route)
+        result = cursor.fetchone()
+        route = result[0]
+        #print(route)
+        
+        date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(date)
+        result = cursor.fetchone()
+        date = result[0]
+        #print(date)
+        
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = result[0]
+        #print(stop)
+        
+        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        cursor.execute(activeStop)
+        result = cursor.fetchone()
+        activeStop = result[0]
+        #print(activeStop)
+        
+        stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        cursor.execute(stopScanned)
+        result = cursor.fetchone()
+        stopScanned = result[0]
+        #print(activeStop)
+        
+        dockPicks = "SELECT pick_area FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND stop_no=" +"'"+str(stop)+"' AND date=" +"'"+str(date)+"'"            
+        cursor.execute(dockPicks)
+        results = cursor.fetchall()            
+        dockPicks = []
+        for idx, r in enumerate(results):
+            if results[idx][0] not in dockPicks:
+                dockPicks.append(results[idx][0])
+        #print(dockPicks)
 
-        if enabled == 1:
+        if enabled == 1:            
             
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(route)
-            result = cursor.fetchone()
-            route = result[0]
-            #print(route)
-            
-            date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(date)
-            result = cursor.fetchone()
-            date = result[0]
-            #print(date)
-            
-            stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
-            cursor.execute(stop)
-            result = cursor.fetchone()
-            stop = result[0]
-            #print(stop)
-            
-            activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
-            cursor.execute(activeStop)
-            result = cursor.fetchone()
-            activeStop = result[0]
-            #print(activeStop)
-            
-            stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
-            cursor.execute(stopScanned)
-            result = cursor.fetchone()
-            stopScanned = result[0]
-            #print(activeStop)
-            
-            if stop == activeStop and stopScanned == 0:
-                dockPicks = "SELECT pick_area FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND stop_no=" +"'"+str(stop)+"' AND date=" +"'"+str(date)+"'"            
-                cursor.execute(dockPicks)
-                results = cursor.fetchall()            
-                dockPicks = []
-                for idx, r in enumerate(results):
-                    if results[idx][0] not in dockPicks:
-                        dockPicks.append(results[idx][0])
-                #print(dockPicks)
+            if stop == activeStop and stopScanned == 0:                
                 
                 for i in dockPicks:
-                    if "dock" in i.lower():
-                        return False
+                    if not "dock" in i.lower():
+                        id = modal.pop_up("<br>"+str(route)+"-"+str(stop)+"<br>NO DOCK<br>PICKS<br><br>", "#000000", " #FAFE00", latch_time, str(door))
+                        cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                        connection.commit()
+                        return True
                     else:
                         pass
-                return True
+                return False
             
             return False
         else:
+            if stop == activeStop and stopScanned == 0:                
+                
+                for i in dockPicks:
+                    if not "dock" in i.lower():
+                        id = modal.pop_up("<br>"+str(route)+"-"+str(stop)+"<br>NO DOCK<br>PICKS<br><br>", "#000000", " #FAFE00", display_time, str(door))
+                        cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+                        connection.commit()
             return False
         
     except Exception as e:
