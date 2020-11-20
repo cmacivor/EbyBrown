@@ -21,7 +21,7 @@ from pylogix import PLC
 import sys
 import atexit
 import Eby_DockScanPause as scanPause
-#import Eby_ShipDashboard_MainSweep as dashboard
+import Eby_02_DashboardModal as modal
 
 
 config = python_config.read_db_config()
@@ -133,7 +133,7 @@ def dock_scan_control(door):
         ## if No Read then increase No Read by 1    
         if TxMessage == "No Read":
             currentNoRead = "SELECT door_no_read FROM wcs.dashboard_routes"+str(door)+ " WHERE route_type='current'"  
-            print(currentNoRead)          
+            #print(currentNoRead)          
             cursor.execute(currentNoRead)
             result = cursor.fetchone()
             currentNoRead = result[0]
@@ -258,14 +258,12 @@ def dock_scan_control(door):
         
         multiRead = scanPause.multi_read(TxMessage, door)
         
-        codeNotFound = False
-        routeNotActive = False
-        doorNotFound = False
+        codeNotFound = False        
         routeNotFound = False
         stopNotFound = False
         nextRoute = False
         wrongRoute = False
-        stopAlreadyLoaded = False
+        lateContainer = False
         stopEarly = False
         newStopDockPicks = False
         newStopNoDockPicks = False
@@ -274,11 +272,7 @@ def dock_scan_control(door):
             
             codeNotFound = scanPause.code_not_found(TxMessage, door)
             
-            if not codeNotFound:
-                
-                routeNotActive = scanPause.route_not_active(TxMessage, door)
-                
-                doorNotFound = scanPause.door_not_found(TxMessage, door)
+            if not codeNotFound:               
                 
                 routeNotFound = scanPause.route_not_found(TxMessage, door)
                 
@@ -288,7 +282,7 @@ def dock_scan_control(door):
                 
                 wrongRoute = scanPause.wrong_route(TxMessage, door)
                 
-                stopAlreadyLoaded = scanPause.stop_already_loaded(TxMessage, door)
+                lateContainer = scanPause.late_container(TxMessage, door)
                 
                 stopEarly = scanPause.stop_early(TxMessage, door)
                 
@@ -297,13 +291,12 @@ def dock_scan_control(door):
                 newStopNoDockPicks = scanPause.new_stop_no_dock_picks(TxMessage, door)
                 
             else:
-                routeNotActive = False
-                doorNotFound = False
+                
                 routeNotFound = False
                 stopNotFound = False
                 nextRoute = False
                 wrongRoute = False
-                stopAlreadyLoaded = False
+                lateContainer = False
                 stopEarly = False
                 newStopDockPicks = False
                 newStopNoDockPicks = False
@@ -314,20 +307,18 @@ def dock_scan_control(door):
         print("No Read = " +str(noRead))
         print("Multi-Read = " +str(multiRead))
         print("No Code = " +str(codeNotFound))
-        print("Route Not Active = " +str(routeNotActive))
-        print("Door Not Found = " +str(doorNotFound))
         print("Route Not Found = " +str(routeNotFound))
         print("Stop Not Found = " +str(stopNotFound))
         print("Next Route = " +str(nextRoute))
         print("Wrong Route = " +str(wrongRoute))
-        print("Stop Already Loaded = " +str(stopAlreadyLoaded))
+        print("Late Container = " +str(lateContainer))
         print("Stop Early = " +str(stopEarly))
         print("New Stop Dock Picks = " +str(newStopDockPicks))
         print("New Stop No Dock Picks = " +str(newStopNoDockPicks))
         
         reason = ""
         
-        if noRead or multiRead or codeNotFound or routeNotActive or doorNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or stopAlreadyLoaded or stopEarly or newStopDockPicks or newStopNoDockPicks:
+        if noRead or multiRead or codeNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or lateContainer or stopEarly or newStopDockPicks or newStopNoDockPicks:
             
             comm.Write("wxsDoor" + str(door) + "Pause", True)
             pauseBit = "True"        
@@ -340,10 +331,6 @@ def dock_scan_control(door):
                 reason = "Multi-Read"
             elif codeNotFound:
                 reason = "Code not Found"
-            elif routeNotActive:
-                reason = "Route Not Active"
-            elif doorNotFound:
-                reason = "Door Not Found"
             elif routeNotFound:
                 reason = "Route Not Found"
             elif stopNotFound:
@@ -352,8 +339,8 @@ def dock_scan_control(door):
                 reason = "Next Route"
             elif wrongRoute:
                 reason = "Wrong Route"
-            elif stopAlreadyLoaded:
-                reason = "Stop Already Loaded"
+            elif lateContainer:
+                reason = "Late Container"
             elif stopEarly:
                 reason = "Stop Early"
             elif newStopDockPicks:
@@ -383,6 +370,24 @@ def dock_scan_control(door):
         return "ValueError: Out of Range"
 
 
+def poll_ribbon_switch(door):
+    with PLC() as comm:
+        comm.IPAddress = plcIP
+        ret = comm.Read("wxsDoor1RibbonSwitch", datatype=BOOL)
+        switch = ret.Value
+        
+        if switch == True:
+            id = "SELECT last_id FROM wcs.pop_up_id WHERE door_no=" +"'"+str(door)+"'"
+            cursor.execute(id)
+            result = cursor.fetchone()
+            id = result[0]
+            
+            delete = modal.delete(id)
+            
+            if delete == "Done":
+                comm.Write("wxsDoor1RibbonSwitch", False)
+                
+    
 
 
 
@@ -407,6 +412,8 @@ while True:
         for door in doors:
             
             print(dock_scan_control(door))
+            
+            print(poll_ribbon_switch(door))
                       
         print("")
         
