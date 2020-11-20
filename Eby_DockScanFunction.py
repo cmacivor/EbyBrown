@@ -228,9 +228,29 @@ def dock_scan_control(door):
         
         ## Check for current stop having lates and switch to next stop
         
-        # if stop_switch == True:
+        if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read":
             
-        #     if currentStop_index != (len(allStops)-1):
+            scanRoute = "SELECT route_no FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
+            cursor.execute(scanRoute)
+            result = cursor.fetchone()
+            scanRoute = result[0]
+            #print(scanRoute)
+            
+            scanDate = "SELECT date FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
+            cursor.execute(scanDate)
+            result = cursor.fetchone()
+            scanDate = result[0]
+            #print(scanDate)
+            
+            nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
+            cursor.execute(nextRoute)
+            result = cursor.fetchone()
+            nextRoute = result[0]
+            #print(nextRoute)
+            
+            if scanRoute == nextRoute:
+                cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(scanRoute)+"' date=" +"'"+str(scanDate)+"' AND stop_scan=0")
+                connection.commit()
                 
                 
         
