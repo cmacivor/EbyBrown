@@ -107,6 +107,7 @@ def multi_read(code, door):
         #print(enabled)
         
         if enabled == 1:
+            print("this is the mulit-read code = "+str(code))
             if "multi" in code.lower():
                 id = modal.pop_up("<br>MULTI-READ<br><br>", "#000000", " #E67E22", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
@@ -204,10 +205,10 @@ def route_not_found(code, door):
         enabled = int(result[0])
         #print(enabled)
         
-        route = "SELECT route_no FROM assignement.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
+        route = int(result[0])
         #print(route)
         
         activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE dock_door_number=" + "'" + str(door) + "'"
@@ -215,7 +216,7 @@ def route_not_found(code, door):
         results = cursor.fetchall()
         activeRoutes = []        
         for idx, r in enumerate(results):
-            activeRoutes.append(results[idx][0])
+            activeRoutes.append(int(results[idx][0]))
         #print(activeRoutes)
         
         if enabled == 1:            
@@ -345,7 +346,7 @@ def next_route(code, door):
         route = result[0]
         #print(route)
 
-        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
         currentRoute = result[0]
@@ -409,19 +410,19 @@ def wrong_route(code, door):
         route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
+        route = int(result[0])
         #print(route)
 
-        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
-        currentRoute = result[0]
+        currentRoute = int(result[0])
         #print(currentRoute)
 
-        nextRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='next'"
+        nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
         cursor.execute(nextRoute)
         result = cursor.fetchone()
-        nextRoute = result[0]
+        nextRoute = int(result[0])
         #print(nextRoute)
 
         if enabled == 1:            
@@ -476,7 +477,7 @@ def late_container(code, door):
         route = result[0]
         #print(route)
 
-        currentRoute = "SELECT route FROM wcs.dashboard_routes"+"'"+str(door)+"' WHERE route_type='current'"
+        currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
         currentRoute = result[0]
@@ -488,7 +489,7 @@ def late_container(code, door):
         stop = int(result[0])
         #print(stop)
         
-        currentStop = "SELECT number FROM wcs.dashboard_stops"+"'"+str(door)+"' WHERE stop_type='current'"
+        currentStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(currentStop)
         result = cursor.fetchone()
         currentStop = int(result[0])
@@ -558,13 +559,13 @@ def stop_early(code, door):
         stop = result[0]
         #print(stop)
 
-        activeRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type=current"
+        activeRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(activeRoute)
         result = cursor.fetchone()
         activeRoute = result[0]
         #print(activeRoute)
 
-        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(activeStop)
         result = cursor.fetchone()
         activeStop = result[0]
@@ -637,13 +638,13 @@ def new_stop_dock_picks(code, door):
         stop = result[0]
         #print(stop)
         
-        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(activeStop)
         result = cursor.fetchone()
         activeStop = result[0]
         #print(activeStop)
         
-        stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(stopScanned)
         result = cursor.fetchone()
         stopScanned = result[0]
@@ -731,13 +732,13 @@ def new_stop_no_dock_picks(code, door):
         stop = result[0]
         #print(stop)
         
-        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(activeStop)
         result = cursor.fetchone()
         activeStop = result[0]
         #print(activeStop)
         
-        stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type=current"
+        stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(stopScanned)
         result = cursor.fetchone()
         stopScanned = result[0]
