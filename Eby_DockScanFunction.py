@@ -137,7 +137,7 @@ def dock_scan_control(door):
             cursor.execute(currentNoRead)
             result = cursor.fetchone()
             currentNoRead = result[0]
-            print(currentNoRead)
+            #print(currentNoRead)
             
             updatedNoRead = currentNoRead + 1
             cursor.execute("UPDATE wcs.dashboard_routes" +str(door)+" SET door_no_read='" +str(updatedNoRead)+ "' WHERE route_type='current';")
@@ -147,13 +147,13 @@ def dock_scan_control(door):
         ## Check if Full Verify is needed
                 
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read":
-            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)
+            route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)+"'"
             cursor.execute(route)
             result = cursor.fetchone()
             route = result[0]
             #print(result)
             
-            currentRoute = "SELECT number FROM wcs.dashboard_routes" +"'"+str(door)+"' WHERE route_type='current'"
+            currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
             cursor.execute(currentRoute)
             result = cursor.fetchone()
             currentRoute = result[0]
@@ -169,7 +169,7 @@ def dock_scan_control(door):
         
         
         ## Begin Previous Stop Check
-        
+        print("begin")
         stop_switch = False
         
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read":
@@ -178,42 +178,47 @@ def dock_scan_control(door):
             cursor.execute(scan_stop)
             result = cursor.fetchone()
             scan_stop = result[0]
-            #print(scan_stop)
+            #print("1= "+ str(scan_stop))
             
-            scan_date = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)+"'"
+            scan_date = "SELECT date FROM assignment.dat_master WHERE container_id=" +"'"+str(TxMessage)+"'"
             cursor.execute(scan_date)
             result = cursor.fetchone()
             scan_date = result[0]
-            #print(scan_date)
+            #print("2= "+str(scan_date))
             
             allStops = "SELECT stop_no FROM assignment.dat_master WHERE route_no=" + str(route) + " AND date=" + "'" + str(scan_date) + "'"
             cursor.execute(allStops)
             result = cursor.fetchall()
+            #print(result)
             resultList = []
             stopsList = []
             for i in result:
                 if int(i[0]) not in resultList:
                     resultList.append(int(i[0]))
                     stopsList = sorted(resultList, reverse=True)
-            #print(stopsList)
+            print(stopsList)
             
             currentStop = "SELECT number FROM wcs.dashboard_stops" + str(door) + " WHERE stop_type = 'current'"
             cursor.execute(currentStop)
             result = cursor.fetchone()
-            currentStop = result[0]
-            #print(currentStop)
+            currentStop = int(result[0])
+            print(currentStop)
             
-            currentStop_index = allStops.index(currentStop)
-            
+            currentStop_index = stopsList.index(int(currentStop))
+            print(currentStop_index)
             # Make sure this is not the last stop on a route
-            if currentStop_index != (len(allStops)-1):
-                next_stop = allStops[currentStop_index+1]               
+            if currentStop_index != (len(allStops))-1:
+                next_stop = (stopsList[currentStop_index+1]) 
+                print(next_stop)             
                 
                 # Check if the scanned stop is equal to the next stop; if so, copy current_stop to previous_stop and mark remaining unscanned as late
-                if scan_stop == next_stop:
+                print(int(scan_stop))
+                print(int(next_stop))
+                print(currentStop)
+                if int(scan_stop) == int(next_stop):
                     #dashboard.previous_stop(door)
-                    
-                    cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(scan_stop)
+                    print("here")
+                    cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(currentStop)
                                    +"' AND stop_scan=0")
                     connection.commit()
                     
@@ -223,7 +228,7 @@ def dock_scan_control(door):
                 pass
             
              
-        
+        print("stop")
         ## End Previous Stop Check
         
         ## Check for current stop having lates and switch to next stop
@@ -233,23 +238,30 @@ def dock_scan_control(door):
             scanRoute = "SELECT route_no FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanRoute)
             result = cursor.fetchone()
-            scanRoute = result[0]
-            #print(scanRoute)
+            scanRoute = int(result[0])
+            print(scanRoute)
             
             scanDate = "SELECT date FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanDate)
             result = cursor.fetchone()
             scanDate = result[0]
-            #print(scanDate)
+            print(scanDate)
+            
+            currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
+            cursor.execute(currentRoute)
+            result = cursor.fetchone()
+            currentRoute = int(result[0])
+            print(currentRoute)
             
             nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
             cursor.execute(nextRoute)
             result = cursor.fetchone()
-            nextRoute = result[0]
-            #print(nextRoute)
+            nextRoute = int(result[0])
+            print(nextRoute)
             
             if scanRoute == nextRoute:
-                cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(scanRoute)+"' date=" +"'"+str(scanDate)+"' AND stop_scan=0")
+                print("Shouldn't be here")                
+                cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
                 connection.commit()
                 
                 
@@ -288,26 +300,36 @@ def dock_scan_control(door):
         newStopDockPicks = False
         newStopNoDockPicks = False
         
-        if not noRead and not multiRead:
+        if TxMessage != "No Read" and TxMessage != "Multi-Read":
             
             codeNotFound = scanPause.code_not_found(TxMessage, door)
+            
+            print("1")
             
             if not codeNotFound:               
                 
                 routeNotFound = scanPause.route_not_found(TxMessage, door)
+                 
+                print("2")
                 
                 stopNotFound = scanPause.stop_not_found(TxMessage, door)
-                
+                 
+                print("3")
                 nextRoute = scanPause.next_route(TxMessage, door)
-                
+                 
+                print("4")
                 wrongRoute = scanPause.wrong_route(TxMessage, door)
-                
+                 
+                print("5")
                 lateContainer = scanPause.late_container(TxMessage, door)
-                
+                 
+                print("6")
                 stopEarly = scanPause.stop_early(TxMessage, door)
-                
+                 
+                print("7")
                 newStopDockPicks = scanPause.new_stop_dock_picks(TxMessage, door)
-                
+                 
+                print("8")
                 newStopNoDockPicks = scanPause.new_stop_no_dock_picks(TxMessage, door)
                 
             else:
