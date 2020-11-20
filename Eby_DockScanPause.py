@@ -20,6 +20,7 @@ from datetime import datetime
 from pylogix import PLC
 import sys
 import atexit
+import Eby_02_DashboardModal as modal
 
 
 config = python_config.read_db_config()
@@ -43,7 +44,8 @@ connection = mysql.connector.connect(
 cursor = connection.cursor()
 
 
-
+display_time = "30"
+latch_time = "3600"
 
 
 
@@ -69,10 +71,17 @@ def no_read(code, door):
 
         if enabled == 1:
             if "no" in code.lower():
+                id = modal.pop_up("<br>NO READ<br><br>", "#000000", " #ED971A", latch_time, str(door))
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
                 return True
-            else:
+            else:                
                 return False
         else:
+            if "no" in code.lower():
+                id = modal.pop_up("<br>NO READ<br><br>", "#000000", " #ED971A", display_time, str(door))                
+                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
+                connection.commit()
             return False
     
     except Exception as e:
@@ -160,91 +169,10 @@ def code_not_found(code, door):
         
     finally:
         connection.close()
-        
 
-
-
-def route_not_active(code, door):
-    # Not an active route for the barcode scanned
-    
-    try:
-        
-        connection = mysql.connector.connect(
-                         host= host, 
-                         user= user, 
-                         database= database, 
-                         password= password 
-                     )
-
-        cursor = connection.cursor()
-    
-        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Route Not Active'"
-        cursor.execute(enabled)
-        result = cursor.fetchone()
-        enabled = int(result[0])
-        #print(enabled)
-        
-        if enabled == 1:
-            currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+ " WHERE route_type=current"
-            cursor.execute(currentRoute)
-            result = cursor.fetchone()
-            currentRoute = result[0]
-            #print(currentRoute)
-            
-            codeRoute = "SELECT route_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
-            cursor.execute(codeRoute)
-            result = cursor.fetchone()
-            codeRoute = result[0]
-            #print(codeRoute)
-            
-            if codeRoute != currentRoute:
-                return True
-            else:
-                return False
-        else:
-            return False
-        
-    except Exception as e:
-        print(e)
-        
-    finally:
-        connection.close()
     
     
-    
-
-def door_not_found(code, door):
-    # Dock door input is outside the acceptable dock door options (door 1 and 2, but user input door 4 for example)
-    
-    try:
-        
-        connection = mysql.connector.connect(
-                         host= host, 
-                         user= user, 
-                         database= database, 
-                         password= password 
-                     )
-
-        cursor = connection.cursor()
-    
-        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Dock Door Not Found'"
-        cursor.execute(enabled)
-        result = cursor.fetchone()
-        enabled = int(result[0])
-        #print(enabled)
-        
-        if enabled == 1:
-            return False
-        else:
-            return False
-        
-    except Exception as e:
-        print(e)
-        
-    finally:
-        connection.close()
-    
-
+ 
 
     
 def route_not_found(code, door):
@@ -272,7 +200,7 @@ def route_not_found(code, door):
             cursor.execute(route)
             result = cursor.fetchone()
             route = result[0]
-            print(route)
+            #print(route)
             
             activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE dock_door_number=" + "'" + str(door) + "'"
             cursor.execute(activeRoutes)
@@ -345,7 +273,7 @@ def stop_not_found(code, door):
             for idx, r in enumerate(results):
                 if results[idx][0] not in availableStops:
                     availableStops.append(results[idx][0])
-            print(availableStops)
+            #print(availableStops)
             
             if stop not in availableStops:
                 return True
@@ -481,8 +409,8 @@ def wrong_route(code, door):
 
 
 
-def stop_already_loaded(code, door):
-    # Container for the stop that has already been complete is scanned (late container for the stop but belongs to the current route)
+def late_container(code, door):
+    # Container belongs to route, but the stop it's for is already loaded
     
     try:
         
@@ -495,7 +423,7 @@ def stop_already_loaded(code, door):
 
         cursor = connection.cursor()
 
-        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Stop Already Loaded'"
+        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Late Container'"
         cursor.execute(enabled)
         result = cursor.fetchone()
         enabled = int(result[0])
