@@ -132,10 +132,55 @@ def update_verify_trailers_pick_qty():
     return "pick quantites updated for " + str(len(results)) + " trailer(s)"
     
     
+def update_early_late(door):
+      currentRoute = "SELECT number, date FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
+      cursor.execute(currentRoute)
+      result = cursor.fetchall()      
+      currentRoute = result[0][0]
+      currentDate = result[0][1]
+      #print(currentRoute)
+      
+      nextRoute = "SELECT number, date FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
+      cursor.execute(nextRoute)
+      result = cursor.fetchall()      
+      nextRoute = result[0][0]
+      nextDate = result[0][1]
+      #print(nextRoute) 
+      
+      currentEarly = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no="+"'"+str(currentRoute)+"' AND date="+"'"+str(currentDate)+"' AND early=1"
+      cursor.execute(currentEarly)
+      result = cursor.fetchone()      
+      currentEarly = result[0]
+      #print(currentEarly)
+      
+      currentLate = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no="+"'"+str(currentRoute)+"' AND date="+"'"+str(currentDate)+"' AND late=1"
+      cursor.execute(currentLate)
+      result = cursor.fetchone()
+      currentLate = result[0]
+      #print(currentLate)
+      
+      nextEarly = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"' AND date="+"'"+str(nextDate)+"' AND early=1"
+      cursor.execute(nextEarly)
+      result = cursor.fetchone()
+      nextEarly = result[0]
+      #print(nextEarly)
+      
+      nextLate = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"' AND date="+"'"+str(nextDate)+"' AND late=1"
+      cursor.execute(nextLate)
+      result = cursor.fetchone()
+      nextLate = result[0]
+      #print(nextLate)
+      
+      cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET early="+"'"+str(currentEarly)+"',late="+"'"+str(currentLate)+"' WHERE route_type='current';")
+      cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET early="+"'"+str(nextEarly)+"',late="+"'"+str(nextLate)+"' WHERE route_type='next';")
+      connection.commit()
+      
+      return "Door " + str(door) + ": Early/Late - has been updated"
+      
+      
     
     
-    
-
+doors = [1, 2]
 
 while True:
 
@@ -153,6 +198,9 @@ while True:
         print(updatePickQty)
 
         print(update_verify_trailers_pick_qty())
+        
+        for door in doors:
+            print(update_early_late(door))
 
 
     except Exception as e:
