@@ -121,6 +121,7 @@ def multi_read(code, door):
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return False
+            return False
     
     except Exception as e:
         print(e)
@@ -179,10 +180,8 @@ def code_not_found(code, door):
         
     finally:
         connection.close()
-
-    
-    
  
+     
 
     
 def route_not_found(code, door):
@@ -197,7 +196,7 @@ def route_not_found(code, door):
                          password= password 
                      )
 
-        cursor = connection.cursor()
+        cursor = connection.cursor(buffered=True)
     
         enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Route Not Found'"
         cursor.execute(enabled)
@@ -211,9 +210,21 @@ def route_not_found(code, door):
         route = int(result[0])
         #print(route)
         
-        activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE dock_door_number=" + "'" + str(door) + "'"
+        scanDate = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
+        cursor.execute(scanDate)
+        result = cursor.fetchone()
+        scanDate = result[0]
+        #print(scanDate)
+        
+        routeDate = "SELECT date FROM wcs.verify_trailers"
+        cursor.execute(routeDate)
+        result = cursor.fetchone()
+        routeDate = result[0]
+        #print(routeDate)
+        
+        activeRoutes = "SELECT route FROM wcs.verify_trailers WHERE door_id="+str(door)
         cursor.execute(activeRoutes)
-        results = cursor.fetchall()
+        results = cursor.fetchall()        
         activeRoutes = []        
         for idx, r in enumerate(results):
             activeRoutes.append(int(results[idx][0]))
@@ -221,7 +232,7 @@ def route_not_found(code, door):
         
         if enabled == 1:            
             
-            if route not in activeRoutes:
+            if route not in activeRoutes or scanDate != routeDate:
                 id = modal.pop_up("<br>ROUTE<br>NOT<br>FOUND<br><br>", "#F4D03F", " #21618C", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
@@ -229,7 +240,7 @@ def route_not_found(code, door):
             else:
                 return False
         else:
-            if route not in activeRoutes:
+            if route not in activeRoutes or scanDate != routeDate:
                 id = modal.pop_up("<br>ROUTE<br>NOT<br>FOUND<br><br>", "#F4D03F", " #21618C", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
@@ -343,20 +354,20 @@ def next_route(code, door):
         route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
-        #print(route)
+        route = int(result[0])
+        #print("Scanned Route= "+str(route))
 
         currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
-        currentRoute = result[0]
-        #print(currentRoute)
+        currentRoute = int(result[0])
+        #print("Current Route= "+str(currentRoute))
         
         trailer_pre_verify = "SELECT pre_verify FROM wcs.verify_trailers WHERE route=" +"'"+str(route)+"'"
         cursor.execute(trailer_pre_verify)
         result = cursor.fetchone()
-        trailer_pre_verify = result[0]
-        #print(trailer_pre_verify)
+        trailer_pre_verify = int(result[0])
+        #print("pre_verify= "+str(trailer_pre_verify))
         
         if enabled == 1:            
 
@@ -474,13 +485,13 @@ def late_container(code, door):
         route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
+        route = int(result[0])
         #print(route)
 
         currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
-        currentRoute = result[0]
+        currentRoute = int(result[0])
         #print(currentRoute)
         
         stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
@@ -527,7 +538,7 @@ def late_container(code, door):
 
 
     
-def stop_early(code, door):
+def stop_early(code, door, next_stop):
     # Container for current route but for a later stop than is being loaded currently
     
     try:
@@ -550,30 +561,31 @@ def stop_early(code, door):
         route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
+        route = int(result[0])
         #print(route)
 
         stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(stop)
         result = cursor.fetchone()
-        stop = result[0]
+        stop = int(result[0])
         #print(stop)
 
         activeRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(activeRoute)
         result = cursor.fetchone()
-        activeRoute = result[0]
+        activeRoute = int(result[0])
         #print(activeRoute)
 
         activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(activeStop)
         result = cursor.fetchone()
-        activeStop = result[0]
-        #print(activeStop)
+        activeStop = int(result[0])
+        #print(activeStop)        
+        
 
         if enabled == 1:            
 
-            if route == activeRoute and int(stop) < int(activeStop):
+            if route == activeRoute and stop != next_stop and stop < activeStop:
                 id = modal.pop_up("<br>STOP<br>EARLY<br><br>", "#000000", " #0096FE", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
                 cursor.execute("UPDATE assignment.dat_master SET early=1 WHERE container_id="+"'"+str(code)+"';")
@@ -584,7 +596,7 @@ def stop_early(code, door):
                 return False
             
         else:
-            if route == activeRoute and int(stop) < int(activeStop):
+            if route == activeRoute and stop != next_stop and stop < activeStop:
                 id = modal.pop_up("<br>STOP<br>EARLY<br><br>", "#000000", " #0096FE", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
                 cursor.execute("UPDATE assignment.dat_master SET early=1 WHERE container_id="+"'"+str(code)+"';")
@@ -623,7 +635,7 @@ def new_stop_dock_picks(code, door):
         route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
+        route = int(result[0])
         #print(route)
         
         date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
@@ -635,19 +647,19 @@ def new_stop_dock_picks(code, door):
         stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(stop)
         result = cursor.fetchone()
-        stop = result[0]
+        stop = int(result[0])
         #print(stop)
         
-        activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
-        cursor.execute(activeStop)
+        currentStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
+        cursor.execute(currentStop)
         result = cursor.fetchone()
-        activeStop = result[0]
-        #print(activeStop)
+        currentStop = int(result[0])
+        #print(currentStop)
         
         stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(stopScanned)
         result = cursor.fetchone()
-        stopScanned = result[0]
+        stopScanned = int(result[0])
         #print(activeStop)
         
         dockPicks = "SELECT pick_area FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND stop_no=" +"'"+str(stop)+"' AND date=" +"'"+str(date)+"'"            
@@ -657,12 +669,12 @@ def new_stop_dock_picks(code, door):
         for idx, r in enumerate(results):
             if results[idx][0] not in dockPicks:
                 dockPicks.append(results[idx][0])
-        picks = len(dockPicks)
+        picks = int(len(dockPicks))
         #print(dockPicks)
 
         if enabled == 1:          
             
-            if stop == activeStop and stopScanned == 0:                
+            if stopScanned == 0 and picks > 0 and stop != currentStop:                
                 
                 for i in dockPicks:
                     if "dock" in i.lower():
@@ -676,7 +688,7 @@ def new_stop_dock_picks(code, door):
             
             return False
         else:
-            if stop == activeStop and stopScanned == 0:                
+            if stopScanned == 0 and picks > 0 and stop != currentStop:                
                 
                 for i in dockPicks:
                     if "dock" in i.lower():
@@ -717,7 +729,7 @@ def new_stop_no_dock_picks(code, door):
         route = "SELECT route_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(route)
         result = cursor.fetchone()
-        route = result[0]
+        route = int(result[0])
         #print(route)
         
         date = "SELECT date FROM assignment.dat_master WHERE container_id=" + "'" + str(code) + "'"
@@ -729,19 +741,19 @@ def new_stop_no_dock_picks(code, door):
         stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
         cursor.execute(stop)
         result = cursor.fetchone()
-        stop = result[0]
+        stop = int(result[0])
         #print(stop)
         
         activeStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(activeStop)
         result = cursor.fetchone()
-        activeStop = result[0]
+        activeStop = int(result[0])
         #print(activeStop)
         
         stopScanned = "SELECT door_scanned FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
         cursor.execute(stopScanned)
         result = cursor.fetchone()
-        stopScanned = result[0]
+        stopScanned = int(result[0])
         #print(activeStop)
         
         dockPicks = "SELECT pick_area FROM assignment.dat_master WHERE route_no=" +"'"+str(route)+"' AND stop_no=" +"'"+str(stop)+"' AND date=" +"'"+str(date)+"'"            
