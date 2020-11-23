@@ -130,6 +130,50 @@ def add_routes(door):
          
 
 
+def freezer_cooler_picks():
+    routes = "SELECT route FROM wcs.verify_trailers WHERE status<>'Shipped'"
+    cursor.execute(routes)
+    results = cursor.fetchall()
+    routes = []
+    for idx, r in enumerate(results):
+        routes.append(results[idx][0])
+    #print(routes)
+    
+    date = "SELECT date FROM wcs.verify_trailers WHERE route="+"'"+str(routes[0])+"'"
+    cursor.execute(date)
+    result = cursor.fetchone()
+    date = result[0]
+    #print(date)
+    
+    for r in routes:
+        
+        pickGroup = ["Freezer", "Cooler"]
+        for p in pickGroup:
+            count = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no="+"'"+str(r)+"' AND date="+"'"+str(date)+"' AND pick_group="+"'"+str(p)+"'"
+            cursor.execute(count)
+            result = cursor.fetchone()
+            count = int(result[0])
+            #print(count)
+            
+            if count > 0:
+                count_scanned = "SELECT COUNT(*) FROM assignment.dat_master WHERE route_no="+"'"+str(r)+"' AND date="+"'"+str(date)+"' AND pick_group="+"'"+str(p)+"' AND stop_scan=1"
+                cursor.execute(count_scanned)
+                result = cursor.fetchone()
+                count_scanned = int(result[0])
+                #print(count_scanned)
+                
+                if count_scanned > 0:
+                    cursor.execute("UPDATE wcs.verify_trailers SET "+str(p)+"=1 WHERE route="+"'"+str(r)+"'")
+                    cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(r)+"' AND date="+"'"+str(date)+"' AND pick_group="+"'"+str(p)+"'")
+                    connection.commit()
+                else:
+                    pass
+            else:
+                pass
+    
+    return "freezer/cooler picks processed"
+            
+        
 
 
 
@@ -153,6 +197,8 @@ while True:
         for door in doors:
             routes = add_routes(door)
             print(routes)
+            
+        print(freezer_cooler_picks())
     
         
 
