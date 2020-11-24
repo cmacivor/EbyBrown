@@ -300,7 +300,7 @@ def dock_scan_control(door):
             nextRoute = int(result[0])
             #print(nextRoute)
 
-            nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route="+"'"+str(nextRoute)+"'"
+            nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
             cursor.execute(nextRoute_firstStop)
             result = cursor.fetchone()
             nextRoute_firstStop = int(result[0])
@@ -314,21 +314,9 @@ def dock_scan_control(door):
                 
         
         
-        currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
         
-        
-        
-        # Log Scan to dashboard_door_scans regardless of read type
-        cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) ValueS ("+str(door)+",'"+str(TxMessage)+"','"+str(route)+"','"+str(stop)+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
-        connection.commit()
 
-        RxMessage = "Scan Logged"
-
-        # After scan is logged, write received and reset bit
-        comm.Write("DockDoorScanner" + door + ".RxMessage", RxMessage)
-        comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
-        comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
-        print("Scan Logged")
+        
         
         
     
@@ -337,6 +325,7 @@ def dock_scan_control(door):
         noRead = scanPause.no_read(TxMessage, door)
         
         multiRead = scanPause.multi_read(TxMessage, door)
+        #print(multiRead)
         
         codeNotFound = False        
         routeNotFound = False
@@ -399,7 +388,7 @@ def dock_scan_control(door):
         print("Stop Early = " +str(stopEarly))
         
         
-        reason = ""
+        
         
         if noRead or multiRead or codeNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or lateContainer or stopEarly:
             
@@ -432,8 +421,24 @@ def dock_scan_control(door):
             pauseBit = "False"
             
         print("pause bit = "+ pauseBit)
-        if reason != "":
-            print("pause bit is True becasue: " +reason)
+        
+            
+            
+            
+        currentTimeStamp = str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3])
+               
+        
+        # Log Scan to dashboard_door_scans regardless of read type
+        cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+str(door)+",'"+str(TxMessage)+"','"+str(route)+"','"+str(stop)+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
+        connection.commit()
+
+        RxMessage = "Scan Logged"
+        
+        # After scan is logged, write received and reset bit
+        comm.Write("DockDoorScanner" + door + ".RxMessage", RxMessage)
+        comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
+        comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
+        print("Scan Logged")
         
         return "true and processed"
             
