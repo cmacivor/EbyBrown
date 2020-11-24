@@ -107,7 +107,7 @@ def multi_read(code, door):
         #print(enabled)
         
         if enabled == 1:
-            print("this is the mulit-read code = "+str(code))
+            
             if "multi" in code.lower():
                 id = modal.pop_up("<br>MULTI-READ<br><br>", "#000000", " #E67E22", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
@@ -441,18 +441,22 @@ def wrong_route(code, door):
         result = cursor.fetchone()
         nextRoute = int(result[0])
         #print(nextRoute)
-
+        
         currentRoute_lastStop = "SELECT MIN(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(currentRoute)+"'"
         cursor.execute(currentRoute_lastStop)
         result = cursor.fetchone()
         currentRoute_lastStop = int(result[0])
         #print(currentRoute_lastStop)
-
-        nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
-        cursor.execute(nextRoute_firstStop)
-        result = cursor.fetchone()
-        nextRoute_firstStop = int(result[0])
-        #print(nextRoute_firstStop)
+        
+        if nextRoute != 0:
+            
+            nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
+            cursor.execute(nextRoute_firstStop)
+            result = cursor.fetchone()
+            nextRoute_firstStop = int(result[0])
+            #print(nextRoute_firstStop)
+        else:
+            nextRoute_firstStop = 0
 
         if route != currentRoute and (route == nextRoute and stop != nextRoute_firstStop):
             wrongRoute = True
