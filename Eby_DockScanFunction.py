@@ -262,10 +262,10 @@ def dock_scan_control(door):
             else:
                 pass
             
-             
+          
         
         ## End Previous Stop Check
-        
+        print("in here")
         ## Check for current stop having lates and switch to next stop
         
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read" and TxMessage != "xxxxxxxxx-xxx":
@@ -274,42 +274,44 @@ def dock_scan_control(door):
             cursor.execute(scanRoute)
             result = cursor.fetchone()
             scanRoute = int(result[0])
-            #print(scanRoute)
+            print(scanRoute)
 
             scanStop = "SELECT stop_no FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanStop)
             result = cursor.fetchone()
             scanStop = int(result[0])
-            #print(scanStop)
+            print(scanStop)
             
             scanDate = "SELECT date FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanDate)
             result = cursor.fetchone()
             scanDate = result[0]
-            #print(scanDate)
+            print(scanDate)
             
             currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
             cursor.execute(currentRoute)
             result = cursor.fetchone()
             currentRoute = int(result[0])
-            #print(currentRoute)
+            print(currentRoute)
             
             nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
             cursor.execute(nextRoute)
             result = cursor.fetchone()
             nextRoute = int(result[0])
-            #print(nextRoute)
+            print(nextRoute)
 
-            nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
-            cursor.execute(nextRoute_firstStop)
-            result = cursor.fetchone()
-            nextRoute_firstStop = int(result[0])
-            #print(nextRoute_firstStop)
+            if nextRoute != 0:
+                nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
+                cursor.execute(nextRoute_firstStop)
+                result = cursor.fetchone()
+                nextRoute_firstStop = int(result[0])
+                print(nextRoute_firstStop)
             
-            if scanRoute == nextRoute and scanStop == nextRoute_firstStop:
-                               
-                cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
-                connection.commit()
+            
+                if scanRoute == nextRoute and scanStop == nextRoute_firstStop:
+                                
+                    cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
+                    connection.commit()
                 
                 
         
@@ -318,6 +320,7 @@ def dock_scan_control(door):
 
         
         
+        print("here")
         
     
         # Execute Scan Reason Logic
@@ -402,7 +405,7 @@ def dock_scan_control(door):
             elif multiRead:
                 reason = "Multi-Read"
             elif codeNotFound:
-                reason = "Code not Found"
+                reason = "Code Not Found"
             elif routeNotFound:
                 reason = "Route Not Found"
             elif stopNotFound:
