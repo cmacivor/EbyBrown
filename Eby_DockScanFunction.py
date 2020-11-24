@@ -63,7 +63,7 @@ def dock_scan_control(door):
     with PLC() as comm:
         comm.IPAddress = plcIP
         ret = comm.Read("DockDoorScanner" + door + ".TxTrigger", datatype=BOOL)        
-        triggerBit = ret.value
+        triggerBit = ret.Value
 
     if triggerBit == False:
         return "Door " + str(door) + " = " + str(triggerBit)
@@ -74,11 +74,11 @@ def dock_scan_control(door):
         print("Door " + str(door) + " Trigger = " + str(triggerBit))
 
         ret = comm.Read("DockDoorScanner" + door + ".TxTriggerID", datatype=INT)
-        TxTriggerID = ret.value
+        TxTriggerID = ret.Value
         print("TriggerID = " +str(TxTriggerID))
 
         ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
-        TxMessage = ret.value[5:18]
+        TxMessage = ret.Value[5:18]
         #print(TxMessage)
 
         
@@ -307,7 +307,7 @@ def dock_scan_control(door):
         
         
         # Log Scan to dashboard_door_scans regardless of read type
-        cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) valueS ("+str(door)+",'"+str(TxMessage)+"','"+str(route)+"','"+str(stop)+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
+        cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) ValueS ("+str(door)+",'"+str(TxMessage)+"','"+str(route)+"','"+str(stop)+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
         connection.commit()
 
         RxMessage = "Scan Logged"
@@ -435,14 +435,14 @@ def dock_scan_control(door):
 
 
     else:
-        return "valueError: Out of Range"
+        return "ValueError: Out of Range"
 
 
 def poll_ribbon_switch(door):
     with PLC() as comm:
         comm.IPAddress = plcIP
         ret = comm.Read("wxsDoor1RibbonSwitch", datatype=BOOL)
-        switch = ret.value
+        switch = ret.Value
         
         if switch == True:            
             
