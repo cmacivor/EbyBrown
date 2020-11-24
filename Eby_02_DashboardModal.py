@@ -19,7 +19,7 @@ import time
 
 domain = "http://10.22.56.11/"
 create_api = "api/popup-notifications/store"
-delete_api = "api/popup-notifications/delete/"
+delete_api = "api/popup-notifications/delete/screen/"
 auth = "Basic YWE6YQ=="
 
 
@@ -47,11 +47,11 @@ def pop_up(a_message, a_color, a_backgroud_color, a_expire, a_screen_number):
 
 
 
-def delete(id):
+def delete(screen):
     
     url = domain + delete_api
     
-    request = requests.post(url + str(id))
+    request = requests.post(url + str(screen))
     
     data = request.json()
     
