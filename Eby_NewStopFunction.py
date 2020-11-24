@@ -239,7 +239,8 @@ while True:
             if newStop_withPicks == True or newStop_noPicks == True:
                 comm.Write("wxsDoor" + str(d) + "Pause", True)
             else:
-                comm.Write("wxsDoor" + str(d) + "Pause", False)
+                #comm.Write("wxsDoor" + str(d) + "Pause", False)
+                pass
 
         
     except Exception as e:
