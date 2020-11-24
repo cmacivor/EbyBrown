@@ -444,13 +444,9 @@ def poll_ribbon_switch(door):
         ret = comm.Read("wxsDoor1RibbonSwitch", datatype=BOOL)
         switch = ret.value
         
-        if switch == True:
-            id = "SELECT last_id FROM wcs.pop_up_id WHERE door_no=" +"'"+str(door)+"'"
-            cursor.execute(id)
-            result = cursor.fetchone()
-            id = result[0]
+        if switch == True:            
             
-            delete = modal.delete(id)
+            delete = modal.delete(door)
             
             if delete == "Done":
                 comm.Write("wxsDoor1RibbonSwitch", False)
