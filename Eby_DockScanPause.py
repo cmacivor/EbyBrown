@@ -424,6 +424,12 @@ def wrong_route(code, door):
         route = int(result[0])
         #print(route)
 
+        stop = "SELECT stop_no FROM assignment.dat_master WHERE container_id=" +"'"+ str(code) +"'"
+        cursor.execute(stop)
+        result = cursor.fetchone()
+        stop = int(result[0])
+        #print(stop)
+
         currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
@@ -436,9 +442,26 @@ def wrong_route(code, door):
         nextRoute = int(result[0])
         #print(nextRoute)
 
+        currentRoute_lastStop = "SELECT MIN(stop_no) FROM assignment.dat_master WHERE route="+"'"+str(currentRoute)+"'"
+        cursor.execute(currentRoute_lastStop)
+        result = cursor.fetchone()
+        currentRoute_lastStop = int(result[0])
+        #print(currentRoute_lastStop)
+
+        nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route="+"'"+str(nextRoute)+"'"
+        cursor.execute(nextRoute_firstStop)
+        result = cursor.fetchone()
+        nextRoute_firstStop = int(result[0])
+        #print(nextRoute_firstStop)
+
+        if route != currentRoute and (route == nextRoute and stop != nextRoute_firstStop):
+            wrongRoute = True
+        else:        
+            wrongRoute = False
+
         if enabled == 1:            
 
-            if route != currentRoute and route != nextRoute:
+            if wrongRoute == True:
                 id = modal.pop_up("<br>WRONG<br>ROUTE<br><br>", "#DBFD04", " #954F27", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
@@ -447,7 +470,7 @@ def wrong_route(code, door):
                 return False
 
         else:
-            if route != currentRoute and route != nextRoute:
+            if wrongRoute == True:
                 id = modal.pop_up("<br>WRONG<br>ROUTE<br><br>", "#DBFD04", " #954F27", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
