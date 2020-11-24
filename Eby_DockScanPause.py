@@ -442,13 +442,13 @@ def wrong_route(code, door):
         nextRoute = int(result[0])
         #print(nextRoute)
 
-        currentRoute_lastStop = "SELECT MIN(stop_no) FROM assignment.dat_master WHERE route="+"'"+str(currentRoute)+"'"
+        currentRoute_lastStop = "SELECT MIN(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(currentRoute)+"'"
         cursor.execute(currentRoute_lastStop)
         result = cursor.fetchone()
         currentRoute_lastStop = int(result[0])
         #print(currentRoute_lastStop)
 
-        nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route="+"'"+str(nextRoute)+"'"
+        nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
         cursor.execute(nextRoute_firstStop)
         result = cursor.fetchone()
         nextRoute_firstStop = int(result[0])
