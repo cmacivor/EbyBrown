@@ -63,7 +63,7 @@ def dock_scan_control(door):
     with PLC() as comm:
         comm.IPAddress = plcIP
         ret = comm.Read("DockDoorScanner" + door + ".TxTrigger", datatype=BOOL)        
-        triggerBit = ret.Value
+        triggerBit = ret.value
 
     if triggerBit == False:
         return "Door " + str(door) + " = " + str(triggerBit)
@@ -74,13 +74,14 @@ def dock_scan_control(door):
         print("Door " + str(door) + " Trigger = " + str(triggerBit))
 
         ret = comm.Read("DockDoorScanner" + door + ".TxTriggerID", datatype=INT)
-        TxTriggerID = ret.Value
+        TxTriggerID = ret.value
         print("TriggerID = " +str(TxTriggerID))
 
         ret = comm.Read("DockDoorScanner" + door + ".TxMessage", datatype=STRING)
-        TxMessage = ret.Value[5:18]
+        TxMessage = ret.value[5:18]
         #print(TxMessage)
 
+        
         reason = ""
         if "NO" in TxMessage.upper():
             TxMessage = "No Read"
@@ -89,7 +90,23 @@ def dock_scan_control(door):
             TxMessage = "Multi-Read"
             reason = "Multi-Read"
         elif not TxMessage[:5].isalnum():
-            TxMessage = "xxxxxxxxx-xxx"        
+            TxMessage = "xxxxxxxxx-xxx"
+        elif TxMessage[:12] == "000000000000":
+            TxMessage = TxMessage[12:]
+            cursor.execute("UPDATE wcs.verify_trailers SET door_verify="+"'"+str(TxMessage)+"'")
+            connection.commit()
+            comm.Write("DockDoorScanner" + door + ".RxMessage", "Door Scan ACK")
+            comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
+            comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
+            return "Door Scan Verify"
+        elif TxMessage[:8] == "00000000":
+            TxMessage = TxMessage[8:]
+            cursor.execute("UPDATE wcs.verify_trailers SET trailer_verify="+"'"+str(TxMessage)+"'")
+            connection.commit()
+            comm.Write("DockDoorScanner" + door + ".RxMessage", "Trailer Scan ACK")
+            comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
+            comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
+            return "Trailer Scan Verify"
         else:
             pass
 
@@ -146,7 +163,9 @@ def dock_scan_control(door):
             cursor.execute("UPDATE wcs.dashboard_routes" +str(door)+" SET door_no_read='" +str(updatedNoRead)+ "' WHERE route_type='current';")
             cursor.execute("UPDATE wcs.dashboard_stops" +str(door)+" SET door_no_read='" +str(updatedNoRead)+ "' WHERE stop_type='current';")
             connection.commit()
-            
+
+
+
         ## Check if Full Verify is needed
                 
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read" and TxMessage != "xxxxxxxxx-xxx":
@@ -155,15 +174,29 @@ def dock_scan_control(door):
             result = cursor.fetchone()
             route = int(result[0])
             #print(result)
+
+            date = "SELECT date FROM assignment.dat_master WHERE  container_id=" +"'"+str(TxMessage)+"'"
+            cursor.execute(date)
+            result = cursor.fetchone()
+            date = result[0]
+            #print(date)
             
             currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
             cursor.execute(currentRoute)
             result = cursor.fetchone()
             currentRoute = int(result[0])
             #print(currentRoute)
+
+            currentStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
+            cursor.execute(currentStop)
+            result = cursor.fetchone()
+            currentStop = int(result[0])
+            #print(currentStop)
             
             if route == currentRoute:
                 cursor.execute("UPDATE wcs.verify_trailers SET full_verify=1 WHERE route=" +"'"+str(route)+"' AND pre_verify=1")
+                cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(route)+"' AND stop_no="+"'"+
+                                str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_group LIKE '%dock%'")           
                 connection.commit()
         
         
@@ -173,7 +206,7 @@ def dock_scan_control(door):
         
         ## Begin Previous Stop Check
         
-        stop_switch = False
+        
         
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read" and TxMessage != "xxxxxxxxx-xxx":
             
@@ -220,11 +253,11 @@ def dock_scan_control(door):
                 if int(scan_stop) == int(next_stop):
                     #dashboard.previous_stop(door)
                     
-                    cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(currentStop)
+                    cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(currentStop)
                                    +"' AND stop_scan=0")
                     connection.commit()
                     
-                    stop_switch = True
+                    
                     
             else:
                 pass
@@ -263,7 +296,7 @@ def dock_scan_control(door):
             
             if scanRoute == nextRoute:
                                
-                cursor.execute("UPDATE assignment.dat_master SET late=1, dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
+                cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
                 connection.commit()
                 
                 
@@ -274,7 +307,7 @@ def dock_scan_control(door):
         
         
         # Log Scan to dashboard_door_scans regardless of read type
-        cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) VALUES ("+str(door)+",'"+str(TxMessage)+"','"+str(route)+"','"+str(stop)+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
+        cursor.execute("INSERT INTO wcs.dashboard_door_scans (door_id,barcode,route,stop,reason,created_at,updated_at) valueS ("+str(door)+",'"+str(TxMessage)+"','"+str(route)+"','"+str(stop)+"','"+reason+"','"+currentTimeStamp+"','"+currentTimeStamp+"')")
         connection.commit()
 
         RxMessage = "Scan Logged"
@@ -300,8 +333,7 @@ def dock_scan_control(door):
         wrongRoute = False
         lateContainer = False
         stopEarly = False
-        newStopDockPicks = False
-        newStopNoDockPicks = False
+        
         
         if TxMessage != "No Read" and TxMessage != "Multi-Read" and TxMessage != "xxxxxxxxx-xxx":
             
@@ -329,11 +361,7 @@ def dock_scan_control(door):
                 print("entering --stop early--")
                 stopEarly = scanPause.stop_early(TxMessage, door, next_stop)
                  
-                print("entering --new stop dock picks--")
-                newStopDockPicks = scanPause.new_stop_dock_picks(TxMessage, door)
-                 
-                print("entering --new stop no dock picks--")
-                newStopNoDockPicks = scanPause.new_stop_no_dock_picks(TxMessage, door)
+                
                 
             else:
                 
@@ -343,8 +371,7 @@ def dock_scan_control(door):
                 wrongRoute = False
                 lateContainer = False
                 stopEarly = False
-                newStopDockPicks = False
-                newStopNoDockPicks = False
+                
         else:
             codeNotFound = False
             
@@ -358,12 +385,11 @@ def dock_scan_control(door):
         print("Wrong Route = " +str(wrongRoute))
         print("Late Container = " +str(lateContainer))
         print("Stop Early = " +str(stopEarly))
-        print("New Stop Dock Picks = " +str(newStopDockPicks))
-        print("New Stop No Dock Picks = " +str(newStopNoDockPicks))
+        
         
         reason = ""
         
-        if noRead or multiRead or codeNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or lateContainer or stopEarly or newStopDockPicks or newStopNoDockPicks:
+        if noRead or multiRead or codeNotFound or routeNotFound or stopNotFound or nextRoute or wrongRoute or lateContainer or stopEarly:
             
             comm.Write("wxsDoor" + str(door) + "Pause", True)
             pauseBit = "True"        
@@ -388,10 +414,7 @@ def dock_scan_control(door):
                 reason = "Late Container"
             elif stopEarly:
                 reason = "Stop Early"
-            elif newStopDockPicks:
-                reason = "New Stop Dock Picks"
-            elif newStopNoDockPicks:
-                reason = "New Stop No Dock Picks"
+            
         else:
             comm.Write("wxsDoor" + str(door) + "Pause", False)
             pauseBit = "False"
@@ -412,14 +435,14 @@ def dock_scan_control(door):
 
 
     else:
-        return "ValueError: Out of Range"
+        return "valueError: Out of Range"
 
 
 def poll_ribbon_switch(door):
     with PLC() as comm:
         comm.IPAddress = plcIP
         ret = comm.Read("wxsDoor1RibbonSwitch", datatype=BOOL)
-        switch = ret.Value
+        switch = ret.value
         
         if switch == True:
             id = "SELECT last_id FROM wcs.pop_up_id WHERE door_no=" +"'"+str(door)+"'"
