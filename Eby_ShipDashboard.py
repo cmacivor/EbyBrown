@@ -249,14 +249,9 @@ def next_route(door):
         return "Awwwww Snap " + str(door)
 
 
-    
 
-    
-
-
-    
-
-
+  
+  
 
 def previous_stop(door):
     
