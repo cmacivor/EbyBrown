@@ -275,6 +275,12 @@ def dock_scan_control(door):
             result = cursor.fetchone()
             scanRoute = int(result[0])
             #print(scanRoute)
+
+            scanStop = "SELECT stop_no FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
+            cursor.execute(scanStop)
+            result = cursor.fetchone()
+            scanStop = int(result[0])
+            #print(scanStop)
             
             scanDate = "SELECT date FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanDate)
@@ -293,8 +299,14 @@ def dock_scan_control(door):
             result = cursor.fetchone()
             nextRoute = int(result[0])
             #print(nextRoute)
+
+            nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route="+"'"+str(nextRoute)+"'"
+            cursor.execute(nextRoute_firstStop)
+            result = cursor.fetchone()
+            nextRoute_firstStop = int(result[0])
+            #print(nextRoute_firstStop)
             
-            if scanRoute == nextRoute:
+            if scanRoute == nextRoute and scanStop == nextRoute_firstStop:
                                
                 cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
                 connection.commit()
@@ -416,7 +428,7 @@ def dock_scan_control(door):
                 reason = "Stop Early"
             
         else:
-            comm.Write("wxsDoor" + str(door) + "Pause", False)
+            #comm.Write("wxsDoor" + str(door) + "Pause", False)
             pauseBit = "False"
             
         print("pause bit = "+ pauseBit)
