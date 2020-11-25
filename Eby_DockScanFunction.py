@@ -164,7 +164,7 @@ def dock_scan_control(door):
             cursor.execute("UPDATE wcs.dashboard_stops" +str(door)+" SET door_no_read='" +str(updatedNoRead)+ "' WHERE stop_type='current';")
             connection.commit()
 
-
+        
 
         ## Check if Full Verify is needed
                 
@@ -232,33 +232,37 @@ def dock_scan_control(door):
                 if int(i[0]) not in resultList:
                     resultList.append(int(i[0]))
                     stopsList = sorted(resultList, reverse=True)
-            #print(stopsList)
+            #print("stops list = "+str(stopsList))
             
             currentStop = "SELECT number FROM wcs.dashboard_stops" + str(door) + " WHERE stop_type='current'"
             cursor.execute(currentStop)
             result = cursor.fetchone()
             currentStop = int(result[0])
-            #print(currentStop)
-            
-            currentStop_index = stopsList.index(int(currentStop))
+            #print("Current Stop = "+str(currentStop))
             
             next_stop = 0
-            # Make sure this is not the last stop on a route
-            if currentStop_index != (len(stopsList))-1:                
-                next_stop = (stopsList[currentStop_index+1]) 
-                             
+            if currentStop in stopsList:
+            
+                currentStop_index = stopsList.index(int(currentStop))
                 
-                # Check if the scanned stop is equal to the next stop; if so, copy current_stop to previous_stop and mark remaining unscanned as late
-                
-                if int(scan_stop) == int(next_stop):
-                    #dashboard.previous_stop(door)
+                next_stop = 0
+                # Make sure this is not the last stop on a route
+                if currentStop_index != (len(stopsList))-1:                
+                    next_stop = (stopsList[currentStop_index+1]) 
+                                
                     
-                    cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(currentStop)
-                                   +"' AND stop_scan=0")
-                    connection.commit()
+                    # Check if the scanned stop is equal to the next stop; if so, copy current_stop to previous_stop and mark remaining unscanned as late
                     
-                    
-                    
+                    if int(scan_stop) == int(next_stop):
+                        #dashboard.previous_stop(door)
+                        
+                        cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(route)+"' AND date=" +"'"+str(scan_date)+"' AND stop_no=" +"'"+str(currentStop)
+                                    +"' AND stop_scan=0")
+                        connection.commit()                       
+                        
+                        
+                else:
+                    pass
             else:
                 pass
             
@@ -274,44 +278,44 @@ def dock_scan_control(door):
             cursor.execute(scanRoute)
             result = cursor.fetchone()
             scanRoute = int(result[0])
-            print(scanRoute)
+            #print(scanRoute)
 
             scanStop = "SELECT stop_no FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanStop)
             result = cursor.fetchone()
             scanStop = int(result[0])
-            print(scanStop)
+            #print(scanStop)
             
             scanDate = "SELECT date FROM assignment.dat_master WHERE container_id="+"'"+str(TxMessage)+"'"
             cursor.execute(scanDate)
             result = cursor.fetchone()
             scanDate = result[0]
-            print(scanDate)
+            #print(scanDate)
             
             currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
             cursor.execute(currentRoute)
             result = cursor.fetchone()
             currentRoute = int(result[0])
-            print(currentRoute)
+            #print(currentRoute)
             
             currentStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
             cursor.execute(currentStop)
             result = cursor.fetchone()
             currentStop = int(result[0])
-            print(currentStop)
+            #print(currentStop)
             
             nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
             cursor.execute(nextRoute)
             result = cursor.fetchone()
             nextRoute = int(result[0])
-            print(nextRoute)
+            #print(nextRoute)
 
             if nextRoute != 0:
                 nextRoute_firstStop = "SELECT MAX(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(nextRoute)+"'"
                 cursor.execute(nextRoute_firstStop)
                 result = cursor.fetchone()
                 nextRoute_firstStop = int(result[0])
-                print(nextRoute_firstStop)
+                #print(nextRoute_firstStop)
                 
                 currentRoute_lastStop = "SELECT MIN(stop_no) FROM assignment.dat_master WHERE route_no="+"'"+str(currentRoute)+"'"
                 cursor.execute(currentRoute_lastStop)
