@@ -63,17 +63,29 @@ def new_stop_dock_picks(door):
 
         cursor = connection.cursor()
 
-        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='New Stop Dock Picks'"
-        cursor.execute(enabled)
+        newStop_enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='New Stop Dock Picks'"
+        cursor.execute(newStop_enabled)
         result = cursor.fetchone()
-        enabled = int(result[0])
-        #print(enabled)
+        newStop_enabled = int(result[0])
+        #print(newStop_enabled)
+        
+        nextRoute_enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Next Route'"
+        cursor.execute(nextRoute_enabled)
+        result = cursor.fetchone()
+        nextRoute_enabled = int(result[0])
+        #print(nextRoute_enabled)
         
         currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
         currentRoute = int(result[0])
         #print(currentRoute)
+        
+        lastRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='last'"
+        cursor.execute(lastRoute)
+        result = cursor.fetchone()
+        lastRoute = int(result[0])
+        #print(lastRoute)
         
         date = "SELECT date FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(date)
@@ -101,32 +113,52 @@ def new_stop_dock_picks(door):
         dockPicks = int(results[0])
         #print(dockPicks)
 
-        if enabled == 1:          
+                 
             
-            if currentStop != lastStop and dockPicks > 0:                
-                
-                id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
-                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
-                cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last'")
-                cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
-                                str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%'")  
-                connection.commit()
-                return True
-            else:
-                return False
-                    
+        if currentRoute != lastRoute and dockPicks > 0 and nextRoute_enabled == 1:                
             
+            id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
+            return True
+        
+        elif currentRoute == lastRoute and currentStop != lastStop and dockPicks > 0 and newStop_enabled == 1:
             
-        else:
-            if currentStop != lastStop and dockPicks > 0:          
-                
-                id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
-                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
-                cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last'")
-                cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
-                                str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%'") 
-                connection.commit()
+            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
+            return True        
+        
+         
+        elif currentRoute != lastRoute and dockPicks > 0 and nextRoute_enabled == 0:                
+            
+            id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
             return False
+        
+        elif currentRoute == lastRoute and currentStop != lastStop and dockPicks > 0 and newStop_enabled == 0:
+            
+            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
+            return False
+        
+        else:
+            return False
+            
         
     except Exception as e:
         print(e)
@@ -151,17 +183,29 @@ def new_stop_no_dock_picks(door):
 
         cursor = connection.cursor()
 
-        enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='New Stop No Dock Picks'"
-        cursor.execute(enabled)
+        newStop_enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='New Stop Dock Picks'"
+        cursor.execute(newStop_enabled)
         result = cursor.fetchone()
-        enabled = int(result[0])
-        #print(enabled)
+        newStop_enabled = int(result[0])
+        print(newStop_enabled)
+        
+        nextRoute_enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='Next Route'"
+        cursor.execute(nextRoute_enabled)
+        result = cursor.fetchone()
+        nextRoute_enabled = int(result[0])
+        print(nextRoute_enabled)
         
         currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(currentRoute)
         result = cursor.fetchone()
         currentRoute = int(result[0])
         #print(currentRoute)
+        
+        lastRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='last'"
+        cursor.execute(lastRoute)
+        result = cursor.fetchone()
+        lastRoute = int(result[0])
+        #print(lastRoute)
         
         date = "SELECT date FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
         cursor.execute(date)
@@ -189,27 +233,52 @@ def new_stop_no_dock_picks(door):
         dockPicks = int(results[0])
         #print(dockPicks)
 
-        if enabled == 1:          
+                  
             
-            if currentStop != lastStop and dockPicks == 0:                
-                
-                id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#000000", " #FAFE00", latch_time, str(door))
-                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
-                cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last'")                
-                connection.commit()
-                return True
-            else:
-                return False                
+        if currentRoute != lastRoute and dockPicks == 0 and nextRoute_enabled == 1:                
             
+            id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
+            return True
+        
+        elif currentRoute == lastRoute and currentStop != lastStop and dockPicks == 0 and newStop_enabled == 1:
             
-        else:
-            if currentStop != lastStop and dockPicks == 0:                 
-                
-                id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#000000", " #FAFE00", display_time, str(door))
-                cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
-                cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last'")                
-                connection.commit()
+            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
+            return True
+        
+        elif currentRoute != lastRoute and dockPicks == 0 and nextRoute_enabled == 0:                
+            
+            id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
             return False
+        
+        elif currentRoute == lastRoute and currentStop != lastStop and dockPicks == 0 and newStop_enabled == 0:
+            
+            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
+            cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
+            cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
+                            str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
+            connection.commit()
+            return False
+        
+        else:
+            return False
+        
+        
         
     except Exception as e:
         print(e)
