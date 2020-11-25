@@ -294,6 +294,12 @@ def dock_scan_control(door):
             currentRoute = int(result[0])
             print(currentRoute)
             
+            currentStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
+            cursor.execute(currentStop)
+            result = cursor.fetchone()
+            currentStop = int(result[0])
+            print(currentStop)
+            
             nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
             cursor.execute(nextRoute)
             result = cursor.fetchone()
@@ -314,7 +320,7 @@ def dock_scan_control(door):
                 #print(currentRoute_lastStop)
             
             
-                if scanRoute == nextRoute and (scanStop == nextRoute_firstStop or scanStop == currentRoute_lastStop):
+                if scanRoute == nextRoute and (scanStop == nextRoute_firstStop and currentStop == currentRoute_lastStop):
                                 
                     cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1 WHERE route_no=" +"'"+str(currentRoute)+"' AND date=" +"'"+str(scanDate)+"' AND stop_scan=0")
                     connection.commit()
