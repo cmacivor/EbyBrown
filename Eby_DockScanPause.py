@@ -435,6 +435,12 @@ def wrong_route(code, door):
         result = cursor.fetchone()
         currentRoute = int(result[0])
         #print(currentRoute)
+        
+        currentStop = "SELECT number FROM wcs.dashboard_stops"+str(door)+" WHERE stop_type='current'"
+        cursor.execute(currentStop)
+        result = cursor.fetchone()
+        currentStop = int(result[0])
+        #print(currentStop)
 
         nextRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='next'"
         cursor.execute(nextRoute)
@@ -458,10 +464,21 @@ def wrong_route(code, door):
         else:
             nextRoute_firstStop = 0
 
-        if route != currentRoute and (route == nextRoute and stop != nextRoute_firstStop):
+        if route != currentRoute and route != nextRoute:
+                        
             wrongRoute = True
+        elif route == nextRoute and stop != nextRoute_firstStop:
+            
+            wrongRoute = True
+            
+        elif route == nextRoute and currentStop != currentRoute_lastStop:
+            
+            wrongRoute = True
+            
         else:        
             wrongRoute = False
+            
+        print("wrong route= " +str(wrongRoute))
 
         if enabled == 1:            
 
