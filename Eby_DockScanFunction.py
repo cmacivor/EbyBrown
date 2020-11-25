@@ -265,7 +265,7 @@ def dock_scan_control(door):
           
         
         ## End Previous Stop Check
-        print("in here")
+        
         ## Check for current stop having lates and switch to next stop
         
         if exists == 1 and TxMessage != "No-Read" and TxMessage != "Multi-Read" and TxMessage != "xxxxxxxxx-xxx":
@@ -320,7 +320,7 @@ def dock_scan_control(door):
 
         
         
-        print("here")
+        
         
     
         # Execute Scan Reason Logic
@@ -353,8 +353,8 @@ def dock_scan_control(door):
                 print("entering --stop not found--")                
                 stopNotFound = scanPause.stop_not_found(TxMessage, door)
                  
-                print("entering --next route--")
-                nextRoute = scanPause.next_route(TxMessage, door)
+                # print("entering --next route--")
+                # nextRoute = scanPause.next_route(TxMessage, door)
                  
                 print("entering --wrong route--")
                 wrongRoute = scanPause.wrong_route(TxMessage, door)
@@ -385,7 +385,7 @@ def dock_scan_control(door):
         print("No Code = " +str(codeNotFound))
         print("Route Not Found = " +str(routeNotFound))
         print("Stop Not Found = " +str(stopNotFound))
-        print("Next Route = " +str(nextRoute))
+        # print("Next Route = " +str(nextRoute))
         print("Wrong Route = " +str(wrongRoute))
         print("Late Container = " +str(lateContainer))
         print("Stop Early = " +str(stopEarly))
@@ -410,8 +410,8 @@ def dock_scan_control(door):
                 reason = "Route Not Found"
             elif stopNotFound:
                 reason = "Stop Not Found"
-            elif nextRoute:
-                reason = "Next Route"
+            # elif nextRoute:
+            #     reason = "Next Route"
             elif wrongRoute:
                 reason = "Wrong Route"
             elif lateContainer:
