@@ -35,6 +35,12 @@ def truncate_scan_log():
     connection.commit()
     return "Successfully truncated data from plc.scan_log"
 
+def truncate_dashboard_scans():
+    sql = get_truncate_query("wcs.dashboard_scans")
+    cursor.execute(sql)
+    connection.commit()
+    return "Successfully truncated data from wcs.dashboard_scans"
+
 
 connection = Mysql_Connection.get("wcsDatabase")
 cursor = connection.cursor()
@@ -55,6 +61,9 @@ message = truncate_route_statuses()
 print(message)
 
 message = truncate_dat_master()
+print(message)
+
+message = truncate_dashboard_scans()
 print(message)
 
 message = truncate_scan_log()
