@@ -120,6 +120,7 @@ def new_stop_dock_picks(door):
             id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
             cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
                             str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
             connection.commit()
@@ -141,6 +142,7 @@ def new_stop_dock_picks(door):
             id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>DOCK PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
             cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
                             str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
             connection.commit()
@@ -240,6 +242,7 @@ def new_stop_no_dock_picks(door):
             id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
             cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
                             str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
             connection.commit()
@@ -260,6 +263,7 @@ def new_stop_no_dock_picks(door):
             id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
+            cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
             cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
                             str(currentStop)+"' AND date="+"'"+str(date)+"' AND pick_area LIKE '%dock%';")  
             connection.commit()
