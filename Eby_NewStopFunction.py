@@ -185,7 +185,7 @@ def new_stop_no_dock_picks(door):
 
         cursor = connection.cursor()
 
-        newStop_enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='New Stop Dock Picks'"
+        newStop_enabled = "SELECT status FROM wcs.scan_reasons WHERE location='Shipping Dock' AND reason='New Stop No Dock Picks'"
         cursor.execute(newStop_enabled)
         result = cursor.fetchone()
         newStop_enabled = int(result[0])
@@ -239,7 +239,7 @@ def new_stop_no_dock_picks(door):
             
         if currentRoute != lastRoute and dockPicks == 0 and nextRoute_enabled == 1:                
             
-            id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+            id = modal.pop_up("<br>NEXT ROUTE<br><br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_routes"+str(door)+" SET number="+"'"+str(currentRoute)+"' WHERE route_type='last';")
             cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
@@ -250,7 +250,7 @@ def new_stop_no_dock_picks(door):
         
         elif currentRoute == lastRoute and currentStop != lastStop and dockPicks == 0 and newStop_enabled == 1:
             
-            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
+            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", latch_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
             cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
@@ -271,7 +271,7 @@ def new_stop_no_dock_picks(door):
         
         elif currentRoute == lastRoute and currentStop != lastStop and dockPicks == 0 and newStop_enabled == 0:
             
-            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>"+str(dockPicks)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
+            id = modal.pop_up("<br>"+str(currentRoute)+"-"+str(currentStop)+"<br>NO DOCK<br>PICKS<br><br>", "#FE0400", " #FAFE00", display_time, str(door))
             cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
             cursor.execute("UPDATE wcs.dashboard_stops"+str(door)+" SET number="+"'"+str(currentStop)+"' WHERE stop_type='last';")
             cursor.execute("UPDATE assignment.dat_master SET dashboard_map=1, stop_scan=1 WHERE route_no="+"'"+str(currentRoute)+"' AND stop_no="+"'"+
