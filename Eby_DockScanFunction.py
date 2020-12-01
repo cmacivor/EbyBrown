@@ -86,27 +86,46 @@ def dock_scan_control(door):
         if "NO" in TxMessage.upper():
             TxMessage = "No Read"
             reason = "No Read"
+            
         elif "MULTI" in TxMessage.upper():
             TxMessage = "Multi-Read"
             reason = "Multi-Read"
+            
         elif not TxMessage[:5].isalnum():
             TxMessage = "xxxxxxxxx-xxx"
+            
         elif TxMessage[:12] == "000000000000":
             TxMessage = TxMessage[12:]
-            cursor.execute("UPDATE wcs.verify_trailers SET door_verify="+"'"+str(TxMessage)+"'")
+            
+            currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
+            cursor.execute(currentRoute)
+            result = cursor.fetchone()
+            currentRoute = int(result[0])
+            
+            cursor.execute("UPDATE wcs.verify_trailers SET door_verify="+"'"+str(TxMessage)+"' WHERE route="+"'"+str(currentRoute)+"'")
             connection.commit()
+            
             comm.Write("DockDoorScanner" + door + ".RxMessage", "Door Scan ACK")
             comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
             comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
             return "Door Scan Verify"
+        
         elif TxMessage[:8] == "00000000":
             TxMessage = TxMessage[8:]
-            cursor.execute("UPDATE wcs.verify_trailers SET trailer_verify="+"'"+str(TxMessage)+"'")
+            
+            currentRoute = "SELECT number FROM wcs.dashboard_routes"+str(door)+" WHERE route_type='current'"
+            cursor.execute(currentRoute)
+            result = cursor.fetchone()
+            currentRoute = int(result[0])
+            
+            cursor.execute("UPDATE wcs.verify_trailers SET trailer_verify="+"'"+str(TxMessage)+"' WHERE route="+"'"+str(currentRoute)+"'")
             connection.commit()
+            
             comm.Write("DockDoorScanner" + door + ".RxMessage", "Trailer Scan ACK")
             comm.Write("DockDoorScanner" + door + ".RxTriggerID", TxTriggerID)
             comm.Write("DockDoorScanner" + door + ".TxTrigger", False)
             return "Trailer Scan Verify"
+        
         else:
             pass
 
