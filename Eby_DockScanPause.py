@@ -64,7 +64,7 @@ def no_read(code, door):
 
         if enabled == 1:
             if "no" in code.lower():
-                id = modal.pop_up("<br>NO READ<br><br>", "#000000", " #ED971A", latch_time, str(door))
+                id = modal.pop_up("<br><br><br><br>NO READ<br><br><br><br><br>", "#000000", " #ED971A", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return True
@@ -72,7 +72,7 @@ def no_read(code, door):
                 return False
         else:
             if "no" in code.lower():
-                id = modal.pop_up("<br>NO READ<br><br>", "#000000", " #ED971A", display_time, str(door))                
+                id = modal.pop_up("<br><br><br><br>NO READ<br><br><br><br><br>", "#000000", " #ED971A", display_time, str(door))                
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
             return False
@@ -109,7 +109,7 @@ def multi_read(code, door):
         if enabled == 1:
             
             if "multi" in code.lower():
-                id = modal.pop_up("<br>MULTI-READ<br><br>", "#000000", " #E67E22", latch_time, str(door))
+                id = modal.pop_up("<br><br><br><br>MULTI-READ<br><br><br><br><br>", "#000000", " #E67E22", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return True                
@@ -117,7 +117,7 @@ def multi_read(code, door):
                 return False
         else:
             if "multi" in code.lower():                
-                id = modal.pop_up("<br>MULTI-READ<br><br>", "#000000", " #E67E22", display_time, str(door))
+                id = modal.pop_up("<br><br><br><br>MULTI-READ<br><br><br><br><br>", "#000000", " #E67E22", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return False
@@ -161,7 +161,7 @@ def code_not_found(code, door):
         if enabled == 1:          
             
             if exists == 0:
-                id = modal.pop_up("<br>BARCODE<br>NOT<br>FOUND<br><br>", "#000000", " #85C1E9", latch_time, str(door))
+                id = modal.pop_up("<br><br>BARCODE<br>NOT<br>FOUND<br><br><br>", "#000000", " #85C1E9", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 
@@ -170,7 +170,7 @@ def code_not_found(code, door):
                 return False
         else:
             if exists == 0:
-                id = modal.pop_up("<br>BARCODE<br>NOT<br>FOUND<br><br>", "#000000", " #85C1E9", display_time, str(door))
+                id = modal.pop_up("<br><br>BARCODE<br>NOT<br>FOUND<br><br><br>", "#000000", " #85C1E9", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
             return False
@@ -233,7 +233,7 @@ def route_not_found(code, door):
         if enabled == 1:            
             
             if route not in activeRoutes or scanDate != routeDate:
-                id = modal.pop_up("<br>ROUTE<br>NOT<br>FOUND<br><br>", "#F4D03F", " #21618C", latch_time, str(door))
+                id = modal.pop_up("<br><br>ROUTE<br>NOT<br>FOUND<br><br><br>", "#F4D03F", " #21618C", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return True
@@ -241,7 +241,7 @@ def route_not_found(code, door):
                 return False
         else:
             if route not in activeRoutes or scanDate != routeDate:
-                id = modal.pop_up("<br>ROUTE<br>NOT<br>FOUND<br><br>", "#F4D03F", " #21618C", display_time, str(door))
+                id = modal.pop_up("<br><br>ROUTE<br>NOT<br>FOUND<br><br><br>", "#F4D03F", " #21618C", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
             return False
@@ -306,7 +306,7 @@ def stop_not_found(code, door):
         if enabled == 1:            
             
             if stop not in availableStops:
-                id = modal.pop_up("<br>STOP<br>NOT<br>FOUND<br><br>", "#201281", " #C0392B", latch_time, str(door))
+                id = modal.pop_up("<br><br>STOP<br>NOT<br>FOUND<br><br><br>", "#201281", " #C0392B", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return True
@@ -317,7 +317,7 @@ def stop_not_found(code, door):
     
         else:
             if stop not in availableStops:
-                id = modal.pop_up("<br>STOP<br>NOT<br>FOUND<br><br>", "#201281", " #C0392B", display_time, str(door))
+                id = modal.pop_up("<br><br>STOP<br>NOT<br>FOUND<br><br><br>", "#201281", " #C0392B", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
             return False
@@ -483,7 +483,7 @@ def wrong_route(code, door):
         if enabled == 1:            
 
             if wrongRoute == True:
-                id = modal.pop_up("<br>WRONG<br>ROUTE<br><br>", "#DBFD04", " #954F27", latch_time, str(door))
+                id = modal.pop_up("<br><br><br>WRONG<br>ROUTE<br><br><br><br>", "#DBFD04", " #954F27", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
                 return True
@@ -492,7 +492,7 @@ def wrong_route(code, door):
 
         else:
             if wrongRoute == True:
-                id = modal.pop_up("<br>WRONG<br>ROUTE<br><br>", "#DBFD04", " #954F27", display_time, str(door))
+                id = modal.pop_up("<br><br><br>WRONG<br>ROUTE<br><br><br><br>", "#DBFD04", " #954F27", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 connection.commit()
             return False
@@ -553,7 +553,7 @@ def late_container(code, door):
         if enabled == 1:            
             
             if route == currentRoute and stop > currentStop:                            
-                id = modal.pop_up("<br>LATE<br>CONTAINER<br><br>", "#000000", " #FE0800", latch_time, str(door))
+                id = modal.pop_up("<br><br><br>LATE<br>CONTAINER<br><br><br><br>", "#000000", " #FE0800", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
                 cursor.execute("UPDATE assignment.dat_master SET late=1 WHERE container_id="+"'"+str(code)+"';")
                 connection.commit()
@@ -566,7 +566,7 @@ def late_container(code, door):
             
         else:
             if route == currentRoute and stop > currentStop:                            
-                id = modal.pop_up("<br>LATE<br>CONTAINER<br><br>", "#000000", " #FE0800", display_time, str(door))
+                id = modal.pop_up("<br><br><br>LATE<br>CONTAINER<br><br><br><br>", "#000000", " #FE0800", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"'")
                 cursor.execute("UPDATE assignment.dat_master SET late=1 WHERE container_id="+"'"+str(code)+"';")
                 connection.commit()
@@ -630,7 +630,7 @@ def stop_early(code, door, next_stop):
         if enabled == 1:            
 
             if route == activeRoute and stop != next_stop and stop < activeStop:
-                id = modal.pop_up("<br>STOP<br>EARLY<br><br>", "#000000", " #0096FE", latch_time, str(door))
+                id = modal.pop_up("<br><br><br>STOP<br>EARLY<br><br><br><br>", "#000000", " #0096FE", latch_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
                 cursor.execute("UPDATE assignment.dat_master SET early=1 WHERE container_id="+"'"+str(code)+"';")
                 connection.commit()
@@ -641,7 +641,7 @@ def stop_early(code, door, next_stop):
             
         else:
             if route == activeRoute and stop != next_stop and stop < activeStop:
-                id = modal.pop_up("<br>STOP<br>EARLY<br><br>", "#000000", " #0096FE", display_time, str(door))
+                id = modal.pop_up("<br><br><br>STOP<br>EARLY<br><br><br><br>", "#000000", " #0096FE", display_time, str(door))
                 cursor.execute("UPDATE wcs.pop_up_id SET last_id="+"'"+str(id)+"' WHERE door_no="+"'"+str(door)+"';")
                 cursor.execute("UPDATE assignment.dat_master SET early=1 WHERE container_id="+"'"+str(code)+"';")
                 connection.commit()
