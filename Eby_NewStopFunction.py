@@ -38,7 +38,7 @@ plcIP = "10.22.56.34"
 
 
 display_time = "30"
-latch_time = "3600"
+latch_time = "36000"
 
 
 
