@@ -4,7 +4,7 @@
 
 # Monitor if server scheduled task is running
 ## Takethe parameters
-$taskNames = $args
+$taskNames = @("DatConverter","TCP Server")
 while(1){ ## Run always
     foreach ($taskName in $taskNames)
     {
