@@ -71,6 +71,8 @@ def process(containerId):
                 cursor.execute(query_qty)
                 extResult = cursor.fetchone()
                 carton_qty = extResult[0]
+                if len(str(carton_qty)) == 1:
+                    carton_qty = str(carton_qty).zfill(2)
                 #print(carton_qty)
                        
                            
