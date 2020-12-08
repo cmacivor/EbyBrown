@@ -3,6 +3,11 @@ Author: Robert J. Ward
 Changelog:
 -- Version: 1.0 Robert J. Ward
     --- Initial Release
+-- Version: 1.1 Yogini Marathe 2020-11-18
+    --- Updates with reference to Jira Ticket https://pendant.atlassian.net/browse/WEB-105.
+    --- Added new function getNextCodeForPickArea to get the codes in round robin fashion.
+    --- Created new table in database wcs.lane_assignments_roundrobin to store last lane assignment code.
+    --- Added new function isLaneFull to check if lane to be assigned is full while doing Round Robin (2020-11-20)
 
 """
 
@@ -39,8 +44,6 @@ REAL = 202
 LREAL = 203
 DWORD = 211
 STRING = 218
-
-
 
 config = python_config.read_db_config()
 host = config.get('host')
@@ -147,25 +150,8 @@ def cig_sorter():
             #print(httpCode)
             
         else:        
-            pick_area = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" +"'"+ str(TxMessage) +"'"
-            cursor.execute(pick_area)
-            result = cursor.fetchone()
-            pick_area = result[0]
-            #print(pick_area)
-            
-            id = "SELECT id FROM wcs.lane_stamp_machines WHERE name=" +"'"+ str(pick_area) +"'"
-            cursor.execute(id)
-            result = cursor.fetchone()
-            id = result[0]
-            #print(id)
-            
-            lane = "SELECT code FROM wcs.jurisdictions WHERE FIND_IN_SET("+str(id)+", lane_stamp_machine_ids)"
-            cursor.execute(lane)
-            result = cursor.fetchone()        
-            lane = result[0]
-            #print(lane)
-            
-            RxMessage = str(lane)
+            # updated this part to get code in Round Robin fashion.
+            RxMessage = getNextCodeForPickArea(str(TxMessage))
         
                
         # # Create new Stamper DAT file after carton scanned
@@ -296,13 +282,105 @@ def cig_sorter():
         
     
     comm.Close()
-    
-
-    
-    
-    
 
 
+def getNextCodeForPickArea(TxMessage):
+
+    pick_area = "SELECT pick_area FROM assignment.dat_master WHERE container_id=" + "'" + str(TxMessage) + "'"
+    cursor.execute(pick_area)
+    result = cursor.fetchone()
+    pick_area = result[0]
+    print(pick_area)
+
+    id = "SELECT id FROM wcs.lane_stamp_machines WHERE name=" + "'" + str(pick_area) + "'"
+    cursor.execute(id)
+    result = cursor.fetchone()
+    id = result[0]
+    #print(id)
+
+    ## Get all the codes order by code
+    lane = "SELECT code FROM wcs.jurisdictions WHERE FIND_IN_SET(" + str(id) + ", lane_stamp_machine_ids) ORDER BY code"
+    cursor.execute(lane)
+    result = cursor.fetchall()
+    lanes = []
+    for oneResult in result:
+        lanes.append(int(oneResult[0]))
+
+    laneFullCheckRequired = False
+    if len(lanes) > 1:
+        laneFullCheckRequired = True ## check is required only if there are more than one lanes to be assigned
+    lastIndexofLanes = len(lanes) - 1
+    #print(lanes)
+    # Query the last assigned lane from the database
+    lastAssignedLane = "SELECT last_assigned_code FROM wcs.lane_assignments_roundrobin WHERE pick_area = " \
+                       + "'" + str(pick_area) + "' AND pick_area_id = " + str(id)
+    cursor.execute(lastAssignedLane)
+    lastAssignedLane = cursor.fetchone()
+
+    if lastAssignedLane is not None: ## record exists in the database
+        lastLane = lastAssignedLane[0]
+        if lastLane in lanes:
+            #get the index in list and now we need to return next element. The list we get from DB is always in sorted order
+            currentAssignedLaneIndex = lanes.index(lastLane)
+            #print("last assigned lane : " , lastLane)
+            if currentAssignedLaneIndex == lastIndexofLanes: # 0 based index we are at the end of list
+                indexToBeAssigned = 0
+            else:
+                indexToBeAssigned = currentAssignedLaneIndex + 1
+            RxMessage = lanes[indexToBeAssigned]
+        else:
+            RxMessage = lanes[0]
+
+        if laneFullCheckRequired:
+            ## check if lane to be assigned is not full.
+            if(isLaneFull(RxMessage)):
+                print("Lane ", RxMessage, " is full")
+                ## cannnot assign the seleted lane hence get next lane
+                if indexToBeAssigned == lastIndexofLanes:  # 0 based index we are at the end of list, so pck first one
+                    RxMessage = lanes[0]
+                else:
+                    RxMessage = lanes[indexToBeAssigned + 1]
+                print("So assigning ", RxMessage)
+        #create update statement to update record in database
+        insertUpdateCurrentAssignedLane = "UPDATE wcs.lane_assignments_roundrobin SET last_assigned_code = " + str(RxMessage) + " WHERE" \
+                                    + " pick_area = " + "'" + str(pick_area) + "' AND pick_area_id = " + str(id)
+    else: #no record exists in the database so return first value and insert record in database
+        RxMessage = lanes[0]
+        if laneFullCheckRequired:
+            ## check if lane to be assigned is not full.
+            if(isLaneFull(RxMessage)):
+                RxMessage = lanes[1]
+        insertUpdateCurrentAssignedLane = "INSERT INTO wcs.lane_assignments_roundrobin (last_assigned_code, pick_area, pick_area_id) " \
+                                          "VALUES  (" + str(RxMessage) + " , '" + str(pick_area) + "' ," + str(id) + ")"
+
+    #Write current assigned lane value to the database
+    cursor.execute(insertUpdateCurrentAssignedLane)
+    connection.commit()
+    # Return the current lane value for assignment
+    #print("lane to be assigned now : " , str(RxMessage))
+    return str(RxMessage)
+
+def isLaneFull(laneNo): # function to read a bit from PLC to ckeck if Lane is Full
+    laneFull = False
+    if laneNo == 1:
+        laneFullBit = "bit04118Lane1Full"
+    elif laneNo == 2:
+        laneFullBit = "bit04118Lane2Full"
+    elif laneNo == 3:
+        laneFullBit = "bit04118Lane3Full"
+    else:
+        pass
+
+    with PLC() as comm:
+        comm.IPAddress = plcIP
+        ret = comm.Read(laneFullBit, datatype=BOOL)
+        laneFull = ret.Value
+        comm.Close()
+
+    return laneFull
+    
+
+#print("Program started at :  " , datetime.now())
 while True:
     
     try:
@@ -318,8 +396,10 @@ while True:
         
         cigSorter = cig_sorter()
         print(cigSorter)
-
-        
+        ## for testing the individual function - remove following code after end to end testing
+        #getNextCodeForPickArea("FZ7006706-003") ## Baldwin
+        ##getNextCodeForPickArea("FZ1006696-001") ## different pick area florida
+        #getNextCodeForPickArea("FZ4006705-002") ## TX
         
         
     except Exception as e:
@@ -345,7 +425,6 @@ while True:
 
     time.sleep(0.250)
 
-    
-    
+
 atexit.register(comm.Close())
 atexit.register(connection.close())
