@@ -17,6 +17,7 @@ import time
 
 # Deployment Variables
 
+
 domain = "http://10.22.56.10:88/"
 create_api = "api/popup-notifications/store"
 delete_api = "api/popup-notifications/delete/screen/"
