@@ -83,7 +83,7 @@ db_pass = password #'38qa_r4UUaW2d'
 
 cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host)                                                        
 # establish connection names
-#print("Connected to database succesfully")
+print("Connected to database succesfully")
 mycursor = cnct.cursor()
 # get cursor
 mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db)
@@ -442,7 +442,7 @@ def do_everything():
 
     # init
     for fname in os.listdir('.'):
-        #print(fname)        
+        print(fname)        
         if fname.endswith('.DAT'):
             # do stuff on the file
             exists = True
@@ -468,7 +468,8 @@ def do_everything():
             print("This file has already run through the program, skipping and moving")
             if enabled == "1":
                 hostLog.log(auth, domain, "DAT Converter", "Skipping File", "This file has already run through the program, skipping and moving")
-            shutil.copyfile(orig_file_path, input_processed_path + "\\" + orig_file_name)
+            #shutil.move(orig_file_path, input_processed_path + "\\" + orig_file_name)
+            orig_file_path.close()
             os.remove(orig_file_path)
             # move original file
         else:
@@ -561,10 +562,20 @@ schedule.every(check_interval).seconds.do(do_everything)
 
 schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 # schedule checking and deleting of tables
+
+
 while 1:
-    schedule.run_pending()
-    time.sleep(1)
+    
+    try:
+        print(do_everything())
+        #schedule.run_pending()
+    except Exception as e:
+        print(e)
+        
+    time.sleep(2)
     # don't run it 50 times over
+
+    
     
 atexit.register(os.chdir(input_path))
 # return home at termination of script just in case
