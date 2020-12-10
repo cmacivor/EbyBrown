@@ -8,6 +8,7 @@ import time
 import sys
 import traceback
 from queue import Queue
+import atexit
 
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -22,6 +23,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     host = serverParams.get('host')
     port = int(serverParams.get('port'))
     print('Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
+    hostLog.log(auth, domain, "WXS Info", "Socket Listen", 'Listening on HOST: ' + str(host) + ' and PORT: ' + str(port))
 
 
     s.bind((host, port))
@@ -30,6 +32,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     data = b''
     with conn:
         print("Connected by", addr)
+        hostLog.log(auth, domain, "WXS Info", "Socket Conn", "Connected from "+str(addr))
         while True:
             try:
 
@@ -64,12 +67,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     pass
                 print(sys.exc_info()[0])
                 print(traceback.format_exc())
+                eMessage = "".join(e)
+                hostLog.log(auth, domain, "WXS Info", "Socket Loss", "Exception | "+str(eMessage)+" | Restart TCP_SocketServer")
                 print("press enter to continue...")
                 input()
 
 
 
-        
-
-
- 
+atexit.register(hostLog.log(auth, domain, "WXS Info", "Socket Info", "TCP_SocketServer Stopped in Task Scheduler"))
