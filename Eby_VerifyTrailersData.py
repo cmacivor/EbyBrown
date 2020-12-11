@@ -5,6 +5,8 @@ Changelog:
     --- Initial Release
 -- Version: 1.1 Robert J. Ward
     --- Add dynamic Verify Trailers Priority mapping
+-- Version: 1.2 Robert J. Ward
+    --- Add dynamic Verify Trailers Trailers mapping
 
 """
 
@@ -176,7 +178,7 @@ def freezer_cooler_picks():
     return "freezer/cooler picks processed"
             
         
-# v1.1
+# v1.1, v1.2
 def priority_update():
 
     currentRoutes = "SELECT route FROM wcs.verify_trailers"
@@ -197,11 +199,16 @@ def priority_update():
         result = cursor.fetchone()
         priority = result[0]
 
-        cursor.execute("UPDATE wcs.verify_trailers SET priority="+"'"+str(priority)+"' WHERE route="+"'"+str(route)+"'")
+        trailer = "SELECT trailer_number FROM wcs.route_statuses WHERE route="+"'"+str(route)+"' AND date="+"'"+str(date)+"'"
+        cursor.execute(priority)
+        result = cursor.fetchone()
+        trailer = result[0]
+
+        cursor.execute("UPDATE wcs.verify_trailers SET priority="+"'"+str(priority)+"',trailer_number="+"'"+str(trailer)+"' WHERE route="+"'"+str(route)+"'")
 
     connection.commit()
 
-    return "priority update - complete"
+    return "priority/trailer update - complete"
 
 
 
