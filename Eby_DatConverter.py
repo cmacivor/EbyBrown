@@ -294,9 +294,13 @@ def insert_route_status(routeNumber):
         highPriority = "SELECT MAX(priority) FROM wcs.route_statuses"
         cursor.execute(highPriority)
         result = cursor.fetchone()
-        highPriority = int(result[0])
+        highPriority = result[0]
 
-        priority = highPriority + 1
+        if highPriority == None:
+            priority = 1
+        else:
+            priority = int(highPriority) + 1
+        print(priority)
 
         insertSQL = ("INSERT INTO route_statuses "
                      "(route, dock_door, trailer_number, priority, enable, status, date, created_at, updated_at) "
