@@ -8,11 +8,15 @@ Created:8/11/20
 Last Updated:8/14/20
 Changes:Resolved all issues, removed temp variables from header
 Issues:All issues resolved
+
+-- v1.2 Robert J Ward
+    --- Altered Route Add to add new Route to bottom priority rather than top
 '''
 
 
 # /home/jeremy/Documents/Pendant_automation/Lucas_Docs
-import os, sys
+import os
+import sys
 # get get os stuff and file mod functions
 import mysql.connector
 from mysql.connector import (connection)
@@ -31,9 +35,9 @@ import Eby_Message
 import threading
 import traceback
 import GlobalFunctions
-import RouteStatus 
+import RouteStatus
 
-#get db credentials
+# get db credentials
 config = python_config.read_db_config()
 host = config.get('host')
 user = config.get('user')
@@ -41,14 +45,14 @@ database = config.get('database')
 wcsDatabase = config.get('wcsdatabase')
 password = config.get('password')
 
-#get logging parameters
+# get logging parameters
 loggingConfig = python_config.read_logging_config()
 enabled = loggingConfig.get('enabled')
 auth = loggingConfig.get('auth')
 domain = loggingConfig.get('domain')
 
 
-#get file paths
+# get file paths
 datFileConverterConfig = python_config.read_fileconverter_config()
 inputPath = datFileConverterConfig.get('input_path')
 outputPath = datFileConverterConfig.get('output_path')
@@ -56,10 +60,10 @@ inputProcessedPath = datFileConverterConfig.get('input_processed_path')
 outputProcessedPath = datFileConverterConfig.get('output_processed_path')
 fileDeleteInterval = datFileConverterConfig.get('file_delete_interval')
 
-#TODO put these file paths into the config.ini
+# TODO put these file paths into the config.ini
 # deployment variables
 input_path = PureWindowsPath(inputPath).__str__()
-                     
+
 # assign path of folder where the dat files are supposed to be
 output_path = PureWindowsPath(outputPath).__str__()
 # assign path to save output with dat files folder
@@ -68,7 +72,7 @@ input_processed_path = PureWindowsPath(inputProcessedPath).__str__()
 #output_processed_path = PureWindowsPath(outputProcessedPath).__str__()
 # amount of time to wait in between next check IN SECONDS
 check_interval = 1  # seconds
-#interval in seconds for processing messages
+# interval in seconds for processing messages
 process_message_interval = 20
 
 delete_interval = 24  # hours
@@ -76,12 +80,12 @@ delete_interval = 24  # hours
 deploy_db = "assignment"
 
 # database file located dat_converter/database file
-db_host = host #'10.22.56.11'
-db_user = user #'wcs'
-db_pass = password #'38qa_r4UUaW2d'
+db_host = host  # '10.22.56.11'
+db_user = user  # 'wcs'
+db_pass = password  # '38qa_r4UUaW2d'
 # insert database infromation
 
-cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host)                                                        
+cnct = connection.MySQLConnection(user=db_user, password=db_pass, host=db_host)
 # establish connection names
 print("Connected to database succesfully")
 mycursor = cnct.cursor()
@@ -90,10 +94,6 @@ mycursor.execute("CREATE DATABASE IF NOT EXISTS " + deploy_db)
 # create if it isnt there
 mycursor.execute("USE " + deploy_db + ";")
 # switch to right database
-
-
-    
-
 
 
 class obj_dat:
@@ -105,7 +105,7 @@ class obj_dat:
     # record identifier
     # max length 8
     container_id = "               "
-    # specific container for this pick 
+    # specific container for this pick
     # max length 15
     assign_id = "                         "
     # assignment id for container
@@ -115,16 +115,16 @@ class obj_dat:
     # max length 6
     stop_num = "    "
     # stop number
-    # max length 4    
+    # max length 4
     pick_code = "      "
-    # concotatenation of 3 digit stype and 3 digit pick area 
+    # concotatenation of 3 digit stype and 3 digit pick area
     # max length of 6
     pick_type = "          "
     # for full cas a description will be sent if no description it will just say full case
     # for split case it will always say split case
     # max length of 10
     juris = "                              "
-    # neede for cig stamping, if not cigs then its spaces, 
+    # neede for cig stamping, if not cigs then its spaces,
     # max length of 30
     carton_num = "    "
     # number of cigs in container, if not , spaces
@@ -180,15 +180,15 @@ def dat_assign(obj_dat):
 def dat_test(obj_dat):
     # test values by printing them for debugging purposes
     print(obj_dat.line_dump)
-    print(obj_dat.rec_id + '\n' + 
-    obj_dat.route_num + '\n' + 
-    obj_dat.stop_num + '\n' + 
-    obj_dat.container_id + '\n' + 
-    obj_dat.assign_id + '\n' + 
-    obj_dat.pick_code + '\n' + 
-    obj_dat.pick_type + '\n' + 
-    obj_dat.juris + '\n' + 
-    obj_dat.carton_num)
+    print(obj_dat.rec_id + '\n' +
+          obj_dat.route_num + '\n' +
+          obj_dat.stop_num + '\n' +
+          obj_dat.container_id + '\n' +
+          obj_dat.assign_id + '\n' +
+          obj_dat.pick_code + '\n' +
+          obj_dat.pick_type + '\n' +
+          obj_dat.juris + '\n' +
+          obj_dat.carton_num)
 
 
 def dat_insert(obj_dat, table_name):
@@ -198,13 +198,13 @@ def dat_insert(obj_dat, table_name):
         now = datetime.now()
         todaysDate = now.date()
         todaysDateString = todaysDate.strftime('%Y-%m-%d')
-        
+
         sql = ("INSERT INTO " + table_name + """ (record_id,route_no,
         stop_no,container_id,assignment_id,pick_code,pick_type,
         jurisdiction,carton_qty,c_comp,a_comp,o_comp,r_comp,assign_name, status, date, created_at, updated_at) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s, %s, %s, %s, %s)""")
         # setup table insertion
-        val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_code, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num, 
-        obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, obj_dat.status, todaysDateString, currentTimeStamp, currentTimeStamp)
+        val = (obj_dat.rec_id, obj_dat.route_num, obj_dat.stop_num, obj_dat.container_id, obj_dat.assign_id, obj_dat.pick_code, obj_dat.pick_type, obj_dat.juris, obj_dat.carton_num,
+               obj_dat.c_comp, obj_dat.a_comp, obj_dat.o_comp, obj_dat.r_comp, obj_dat.assign_name, obj_dat.status, todaysDateString, currentTimeStamp, currentTimeStamp)
         # setup values for insertion
         mycursor.execute(sql, val)
         # insert the data into the table
@@ -212,11 +212,6 @@ def dat_insert(obj_dat, table_name):
         # commit to database
     else:
         print('blank space found')
-
- 
-
-    
-    
 
 
 def stamp_data(obj_dat):
@@ -227,7 +222,7 @@ def stamp_data(obj_dat):
     return data
     # give it back
 
-    
+
 def dat_truncate(database_name):
     # deletes data older than 30 days and updates the id columns
     tables = []
@@ -244,16 +239,20 @@ def dat_truncate(database_name):
         tables.append(table_name)
         # inc
         i += 1
-       
+
     for j in range(len(tables)):
         # does queries
         if tables[j] == "dat_master":
             # make sure not to delete the master table
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL " +
+                             fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
+            mycursor.execute(
+                "DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
         else:
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL + " + fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
-            mycursor.execute("DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
+            mycursor.execute("DELETE FROM " + tables[j] + " WHERE created_at < NOW() - INTERVAL + " +
+                             fileDeleteInterval + " DAY AND updated_at IS null LIMIT 1000;")
+            mycursor.execute(
+                "DELETE FROM " + tables[j] + " WHERE updated_at IS NOT null and updated_at < NOW() - INTERVAL " + fileDeleteInterval + " DAY LIMIT 1000;")
             mycursor.execute("select * from " + tables[j])
             mycursor.fetchall()
             # fetch all so we can get rows
@@ -266,7 +265,8 @@ def dat_truncate(database_name):
                 print(tables[j] + " was deleted")
                 # drop the table
         # executing queries
-        print(tables[j] + " is being cleaned of data older than + " + fileDeleteInterval + " days")
+        print(tables[j] + " is being cleaned of data older than + " +
+              fileDeleteInterval + " days")
         # make sure loop runs
         j += 1
         # inc
@@ -278,10 +278,10 @@ def insert_route_status(routeNumber):
     try:
 
         connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= wcsDatabase, 
-            password= password 
+            host=host,
+            user=user,
+            database=wcsDatabase,
+            password=password
         )
 
         cursor = connection.cursor()
@@ -291,19 +291,27 @@ def insert_route_status(routeNumber):
             print('this route number has already been saved for this day')
             return
 
+        highPriority = "SELECT MAX(priority) FROM wcs.route_statuses"
+        cursor.execute(highPriority)
+        result = cursor.fetchone()
+        highPriority = int(result[0])
+
+        priority = highPriority + 1
+
         insertSQL = ("INSERT INTO route_statuses "
-                    "(route, dock_door, trailer_number, priority, enable, status, date, created_at, updated_at) " 
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                     "(route, dock_door, trailer_number, priority, enable, status, date, created_at, updated_at) "
+                     "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
         currentTimeStamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         today = datetime.now().date().strftime('%Y-%m-%d')
 
-        newRouteStatus = (routeNumber, "", "", 0, "Active", "Not Started", today, currentTimeStamp, currentTimeStamp)
+        newRouteStatus = (routeNumber, "", "", str(
+            priority), "Active", "Not Started", today, currentTimeStamp, currentTimeStamp)
 
         cursor.execute(insertSQL, newRouteStatus)
         connection.commit()
-        
+
     except Exception as e:
         print(e)
     finally:
@@ -314,23 +322,23 @@ def insert_route_status(routeNumber):
 def get_existing_route_numbers(routeNo):
     try:
         connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= wcsDatabase, 
-            password= password 
+            host=host,
+            user=user,
+            database=wcsDatabase,
+            password=password
         )
 
         cursor = connection.cursor()
 
         today = datetime.now().date().strftime('%Y-%m-%d')
 
-        #getRouteStatusesSQL = "select distinct route from route_statuses where date = %s" 
+        #getRouteStatusesSQL = "select distinct route from route_statuses where date = %s"
         getRouteStatusesSQL = "select route from route_statuses where date = %s && route = %s"
-        
+
         queryData = (today, routeNo)
 
         cursor.execute(getRouteStatusesSQL, queryData)
-        
+
         processedResult = []
         result = cursor.fetchall()
         for row in result:
@@ -341,98 +349,99 @@ def get_existing_route_numbers(routeNo):
         return processedResult
     except Exception as e:
         print(e)
-        #connection.rollback()
+        # connection.rollback()
         # exc_type, exc_value, exc_traceback = sys.exc_info()
         # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
         # exceptionMsg = exc_value.msg
         # exceptionDetails = ''.join('!! ' + line for line in lines)
-        
-        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
     finally:
         cursor.close()
         connection.close()
+
 
 def get_route_statuses(numberLines):
     try:
         connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= wcsDatabase, 
-            password= password 
+            host=host,
+            user=user,
+            database=wcsDatabase,
+            password=password
         )
 
         cursor = connection.cursor()
 
-        #getRouteStatusesSQL = "select distinct route from route_statuses" 
+        #getRouteStatusesSQL = "select distinct route from route_statuses"
         getRouteStatusesSQL = "select * from route_statuses order by created_at desc"
 
         cursor.execute(getRouteStatusesSQL)
-        
+
         result = cursor.fetchall()
         existingRecordCount = len(result)
         routeStatuses = []
         for row in result:
-            routeStatus = RouteStatus.route_status(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines, existingRecordCount)
+            routeStatus = RouteStatus.route_status(
+                row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], numberLines, existingRecordCount)
             routeStatuses.append(routeStatus)
-        
+
         cursor.close()
         connection.close()
-        return routeStatuses #result
+        return routeStatuses  # result
     except Exception as e:
         print(e)
-        #connection.rollback()
+        # connection.rollback()
         # exc_type, exc_value, exc_traceback = sys.exc_info()
         # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
         # exceptionMsg = exc_value.msg
         # exceptionDetails = ''.join('!! ' + line for line in lines)
-        
-        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
     finally:
         cursor.close()
         connection.close()
 
+
 def update_route_status(routeStatus, prioritynumber):
     try:
         connection = mysql.connector.connect(
-            host= host, 
-            user= user, 
-            database= wcsDatabase, 
-            password= password 
+            host=host,
+            user=user,
+            database=wcsDatabase,
+            password=password
         )
 
         cursor = connection.cursor()
 
-        #getRouteStatusesSQL = "select distinct route from route_statuses" 
+        #getRouteStatusesSQL = "select distinct route from route_statuses"
         getRouteStatusesSQL = "UPDATE route_statuses SET priority = %s where id = %s"
-    
+
         updateValues = (prioritynumber, routeStatus.ID)
 
         cursor.execute(getRouteStatusesSQL, updateValues)
 
         connection.commit()
-        
+
         cursor.close()
         connection.close()
-        #return routeStatuses #result
+        # return routeStatuses #result
     except Exception as e:
         print(e)
-        #connection.rollback()
+        # connection.rollback()
         # exc_type, exc_value, exc_traceback = sys.exc_info()
         # lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
         # exceptionMsg = exc_value.msg
         # exceptionDetails = ''.join('!! ' + line for line in lines)
-        
-        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)          
+
+        #GlobalFunctions.logExceptionStackTrace(exceptionMsg, exceptionDetails)
     finally:
         cursor.close()
         connection.close()
 
-                     
-
 
 def do_everything():
     # put it all in a function
-    working_path = input_path;  # replace with dir that 
+    working_path = input_path  # replace with dir that
     # path of python documents fold
     os.chdir(working_path)
     # go to the directory
@@ -442,21 +451,21 @@ def do_everything():
 
     # init
     for fname in os.listdir('.'):
-        print(fname)        
+        print(fname)
         if fname.endswith('.DAT'):
             # do stuff on the file
             exists = True
             # if its a .dat file then it exists
             break
         else:
-            exists = False;
+            exists = False
             # or it dodsent
             #os.remove(working_path, fname);
             ### print("The file " + fname + " was not a .DAT file, or it is formatted incorrectly it has been deleted from" + working_path);
             # delete non dat files
     # do stuff if a file .true doesn't exist.
     if exists == True:
-        orig_file_name = fname;  # insert fancy functions to get name of file
+        orig_file_name = fname  # insert fancy functions to get name of file
         temp_name = orig_file_name[:-3]
         # get variable for file name and var for path
         orig_file_path = working_path + "\\" + orig_file_name
@@ -466,19 +475,19 @@ def do_everything():
         # create save path name
         if os.path.exists(save_path):
             print("This file has already run through the program, skipping and moving")
-            #if enabled == "1":
-                #hostLog.log(auth, domain, "DAT Converter", "Skipping File", "This file has already run through the program, skipping and moving")
+            # if enabled == "1":
+            #hostLog.log(auth, domain, "DAT Converter", "Skipping File", "This file has already run through the program, skipping and moving")
             #shutil.move(orig_file_path, input_processed_path + "\\" + orig_file_name)
-            #os.close(orig_file_path)
+            # os.close(orig_file_path)
             os.remove(orig_file_path)
             # move original file
         else:
             with open(orig_file_name, "r") as orig_dat_file:
-            # openfile
+                # openfile
                 all_lines = orig_dat_file.readlines()
                 # get read all lines variable
-                num_lines = len(all_lines) #sum(1 for line in open(orig_file_name))
-
+                # sum(1 for line in open(orig_file_name))
+                num_lines = len(all_lines)
 
                 # get number of lines in the file
                 print("Number of lines to be checked " + str(num_lines))
@@ -486,19 +495,20 @@ def do_everything():
                 #     hostLog.log(auth, domain, "DAT Converter", "No. of Lines", "Number of lines to be checked is " + str(num_lines))
                 # print number of lines
                 table_name = temp_name[:-1].replace("-", "_")
-                #dat_table_create(table_name)
+                # dat_table_create(table_name)
                 # create new table
                 s = 0
                 # variable for skipping lines
                 ins = 0
                 # variable for lines inserted
                 #priorityNumber = 0
-                print("processing " + str(num_lines) + " lines in " + orig_file_name)
+                print("processing " + str(num_lines) +
+                      " lines in " + orig_file_name)
                 for j in range(num_lines):
                     temp_dat = obj_dat()
                     # create dat object for sql insertion
-                    line_dump_data = all_lines[j] 
-                    # get data from specific line 
+                    line_dump_data = all_lines[j]
+                    # get data from specific line
                     temp_dat.line_dump = line_dump_data
                     # assign line to file
                     dat_assign(temp_dat)
@@ -512,54 +522,54 @@ def do_everything():
                         dat_insert(temp_dat, "dat_master")
                         ins += 1
                         # insert data into master table as well
-                        
-                        #need to modify the check- only insert new rows to the route_statuses table if the route number AND the date are different. 
-                        #We don't want to insert the route again on the same day
+
+                        # need to modify the check- only insert new rows to the route_statuses table if the route number AND the date are different.
+                        # We don't want to insert the route again on the same day
                         if temp_dat.route_num != '':
                             routeNumber = int(temp_dat.route_num.strip())
                             insert_route_status(routeNumber)
 
-                    if (temp_dat.juris == "                              ") and  (temp_dat.carton_num == "    "):
+                    if (temp_dat.juris == "                              ") and (temp_dat.carton_num == "    "):
                         s += 1
                         # increment for number of file skipped
-                    else:                       
+                    else:
                         #print(str(table_name) + " had " + str(ins) + " files created and data inserted")
                         #print(str(s) + " files were skipped due to having blank carton and juris fields")
 
-                        #Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
-                        existingRoutesStatuses = get_route_statuses(num_lines)
-                        priorityNumber = 0
-                        for route in existingRoutesStatuses:
-                            priorityNumber +=1
-                            update_route_status(route, priorityNumber)
-
+                        # Now, loop through the existingRouteStatuses and Update each record in the table with the new priority number
+                        ## existingRoutesStatuses = get_route_statuses(num_lines)
+                        ## priorityNumber = 0
+                        # for route in existingRoutesStatuses:
+                        ##     priorityNumber += 1
+                        ##     update_route_status(route, priorityNumber)
+                        pass
 
                 if enabled == "1":
-                    hostLog.log(auth, domain, "DAT Converter", "Data Inserted", str(table_name) + " had " + str(ins) + " files created and data inserted")
+                    hostLog.log(auth, domain, "DAT Converter", "Data Inserted", str(
+                        table_name) + " had " + str(ins) + " files created and data inserted")
                     #hostLog.log(auth, domain, "DAT Converter to WXS", "Files Skipped", str(s) + " files were skipped due to having blank carton and juris fields")
-                        #print that data was inserted for file
-                    print("moving the file " + orig_dat_file.name + " to " + input_processed_path)
+                    # print that data was inserted for file
+                    print("moving the file " + orig_dat_file.name +
+                          " to " + input_processed_path)
                     orig_dat_file.close()
                     #shutil.move(orig_file_path, inputProcessedPath)
                     shutil.move(orig_file_path, save_path)
                     orig_dat_file.close()
-                    os.remove(orig_file_path)                    
-                    #delete original file
+                    os.remove(orig_file_path)
+                    # delete original file
 
     else:
         print("No file present")
         # acknowledge no file is there
 
-    #processMessages()
-
-
+    # processMessages()
 
 
 # do it every x amount of  seconds
 schedule.every(check_interval).seconds.do(do_everything)
 #schedule.every(check_interval).seconds.do(run_threaded, do_everything)
 
-#schedule the processing of messages
+# schedule the processing of messages
 #schedule.every(process_message_interval).seconds.do(run_threaded, processMessages)
 
 schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
@@ -567,18 +577,17 @@ schedule.every(delete_interval).hours.do(dat_truncate, deploy_db)
 
 
 while 1:
-    
+
     try:
         print(do_everything())
-        #schedule.run_pending()
+        # schedule.run_pending()
     except Exception as e:
         print(e)
-        
+
     time.sleep(2)
     # don't run it 50 times over
 
-    
-    
+
 atexit.register(os.chdir(input_path))
 # return home at termination of script just in case
 atexit.register(mycursor.close)
