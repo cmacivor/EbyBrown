@@ -5,8 +5,10 @@ import atexit
 connection = Mysql_Connection.get()
 cursor = connection.cursor()
 
+
 def change_status(id, status):
-    sql = "UPDATE assignment.dat_master SET status = "+"'"+ status +"'"+" WHERE id="+str(id)
+    sql = "UPDATE assignment.dat_master SET status = " + \
+        "'" + status + "'"+" WHERE id="+str(id)
     cursor.execute(sql)
     connection.commit()
 
@@ -23,10 +25,11 @@ def update_assignment_status():
         elif item[0] == 1 and item[1] == 1:
             change_status(item[2], 'Shipped')
     return 'assignment status updated successfully.'
-        
+
+
 while True:
     print(update_assignment_status())
     time.sleep(1)
-    
-    
+
+
 atexit.register(connection.close())
