@@ -555,11 +555,16 @@ def do_everything():
                     # print that data was inserted for file
                     print("moving the file " + orig_dat_file.name +
                           " to " + input_processed_path)
+
                     orig_dat_file.close()
-                    #shutil.move(orig_file_path, inputProcessedPath)
-                    shutil.move(orig_file_path, save_path)
-                    orig_dat_file.close()
+                    shutil.copy(orig_file_path, inputProcessedPath)
                     os.remove(orig_file_path)
+                    
+                    #orig_dat_file.close()
+                    #shutil.move(orig_file_path, inputProcessedPath)
+                    #shutil.move(orig_file_path, save_path)
+                    #orig_dat_file.close()
+                    #os.remove(orig_file_path)
                     # delete original file
 
     else:
